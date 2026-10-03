@@ -49,10 +49,25 @@ LITELLM_BIN="${LITELLM_BIN:-litellm}"
 log() { printf '\033[36m[liteLLM]\033[0m %s\n' "$*"; }
 err() { printf '\033[31m[liteLLM]\033[0m %s\n' "$*" >&2; }
 
+# A pidfile is only a number, and pids get reused. Confirm the recorded pid is
+# actually a litellm serving THIS config before believing it — otherwise a stale
+# file makes do_start report a false "already running" and leaves the route
+# pointing at a port nothing is answering on.
+pid_is_our_proxy() {
+  local pid="$1" args=""
+  [[ -n "$pid" ]] || return 1
+  kill -0 "$pid" 2>/dev/null || return 1
+  if [[ -r "/proc/$pid/cmdline" ]]; then
+    args="$(tr '\0' ' ' < "/proc/$pid/cmdline" 2>/dev/null || true)"
+  else
+    args="$(ps -o args= -p "$pid" 2>/dev/null || true)"
+  fi
+  [[ "$args" == *litellm* && "$args" == *"$CONFIG"* ]]
+}
+
 is_running() {
   [[ -f "$PID_FILE" ]] || return 1
-  local pid; pid="$(cat "$PID_FILE" 2>/dev/null || true)"
-  [[ -n "$pid" ]] && kill -0 "$pid" 2>/dev/null
+  pid_is_our_proxy "$(cat "$PID_FILE" 2>/dev/null || true)"
 }
 
 port_answers() {

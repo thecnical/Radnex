@@ -6,7 +6,15 @@ build-backend = "setuptools.build_meta"
 name = "radnex"
 version = "1.0.0"
 description = "Radnex — autonomous security assessment and coding agent with a high-performance terminal UI."
+readme = "README.md"
 requires-python = ">=3.11"
+authors = [
+    {name = "Chandan Pandey", email = "thecnical@users.noreply.github.com"}
+]
+maintainers = [
+    {name = "Chandan Pandey", email = "thecnical@users.noreply.github.com"}
+]
+license = {text = "MIT"}
 dependencies = [
     "anthropic>=0.40",
     "textual>=0.80",
@@ -14,9 +22,13 @@ dependencies = [
     "pyyaml>=6.0",
 ]
 
+[project.urls]
+Homepage = "https://github.com/thecnical/Radnex"
+Repository = "https://github.com/thecnical/Radnex"
+Issues = "https://github.com/thecnical/Radnex/issues"
+
 [project.scripts]
 radnex = "radnex.__main__:main"
-zimzilla = "radnex.__main__:main"
 
 [tool.setuptools.packages.find]
 include = ["radnex*"]

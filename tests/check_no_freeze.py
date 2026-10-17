@@ -1,7 +1,7 @@
 """Prove the event loop keeps ticking while a slow bash tool runs."""
 import asyncio, sys, time
-from pathlib import Path
-sys.path.insert(0, "/home/zim/Projects/ZimZilla")
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
 from radnex.agent import Agent
 from radnex.config import Config
 

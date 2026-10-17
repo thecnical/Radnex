@@ -1,4 +1,4 @@
-"""The ZIMZILLA ASCII banner, in a few styles.
+"""The RADNEX ASCII banner, in a few styles.
 
 Each glyph is 6 rows tall. The boot screen reveals them with a per-column
 glitch/typewriter animation.
@@ -12,7 +12,7 @@ from rich.text import Text
 
 from ..theme import Palette
 
-# A compact 5x6 block font for the characters in "ZIMZILLA".
+# A compact 5x6 block font for the characters in "RADNEX".
 # '#' = lit pixel, ' ' = dark.
 FONT: dict[str, list[str]] = {
     "Z": [

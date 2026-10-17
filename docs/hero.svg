@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 420" width="1280" height="420" role="img" aria-label="ZIMZILLA">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 440" width="1280" height="440" role="img" aria-label="RADNEX">
   <defs>
     <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
       <feGaussianBlur stdDeviation="7" result="b"/>
@@ -18,15 +18,14 @@
       <stop offset="50%"  stop-color="#00ff41" stop-opacity="0.42"/>
       <stop offset="100%" stop-color="#00ff41" stop-opacity="0"/>
     </linearGradient>
-    <clipPath id="frame"><rect x="0" y="0" width="1280" height="420" rx="10"/></clipPath>
+    <clipPath id="frame"><rect x="0" y="0" width="1280" height="440" rx="12"/></clipPath>
   </defs>
 
   <style>
     .rain { font: 16px ui-monospace, Menlo, Consolas, monospace;
              fill: url(#rainfade); animation: fall linear infinite; }
-    @keyframes fall { from { transform: translateY(0); } to { transform: translateY(690px); } }
+    @keyframes fall { from { transform: translateY(0); } to { transform: translateY(710px); } }
 
-    /* Base state is fully visible; the loop only dips it briefly. */
     .gl rect { fill: #00ff41;
                 animation: flicker 7s steps(1,end) infinite; }
     @keyframes flicker {
@@ -45,17 +44,17 @@
                        55%,100% { transform: translateX(1280px); } }
 
     .sweep { animation: sweep 5.4s linear infinite; }
-    @keyframes sweep { 0% { transform: translateY(-90px); } 100% { transform: translateY(510px); } }
+    @keyframes sweep { 0% { transform: translateY(-90px); } 100% { transform: translateY(530px); } }
 
     .cur { animation: blink 1.05s steps(1,end) infinite; }
     @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
 
     .tag, .meta { paint-order: stroke; stroke: #040704; stroke-width: 5;
                    stroke-linejoin: round; }
-    .tag { font: 600 15px ui-monospace, Menlo, Consolas, monospace;
-            letter-spacing: 3.2px; fill: #7dffb0; }
+    .tag { font: 700 16px ui-monospace, Menlo, Consolas, monospace;
+            letter-spacing: 3.5px; fill: #7dffb0; }
     .meta { font: 13px ui-monospace, Menlo, Consolas, monospace;
-             letter-spacing: 1.6px; fill: #0c5a22; }
+             letter-spacing: 1.8px; fill: #0c5a22; }
 
     @media (prefers-reduced-motion: reduce) {
       .rain, .gl rect, .band, .sweep, .cur, .halo { animation: none; }
@@ -63,62 +62,60 @@
   </style>
 
   <g clip-path="url(#frame)">
-    <rect width="1280" height="420" fill="#040704"/>
-    <g opacity="0.5"><line x1="0" y1="0" x2="1280" y2="0" stroke="#0a1a0d"/><line x1="0" y1="26" x2="1280" y2="26" stroke="#0a1a0d"/><line x1="0" y1="52" x2="1280" y2="52" stroke="#0a1a0d"/><line x1="0" y1="78" x2="1280" y2="78" stroke="#0a1a0d"/><line x1="0" y1="104" x2="1280" y2="104" stroke="#0a1a0d"/><line x1="0" y1="130" x2="1280" y2="130" stroke="#0a1a0d"/><line x1="0" y1="156" x2="1280" y2="156" stroke="#0a1a0d"/><line x1="0" y1="182" x2="1280" y2="182" stroke="#0a1a0d"/><line x1="0" y1="208" x2="1280" y2="208" stroke="#0a1a0d"/><line x1="0" y1="234" x2="1280" y2="234" stroke="#0a1a0d"/><line x1="0" y1="260" x2="1280" y2="260" stroke="#0a1a0d"/><line x1="0" y1="286" x2="1280" y2="286" stroke="#0a1a0d"/><line x1="0" y1="312" x2="1280" y2="312" stroke="#0a1a0d"/><line x1="0" y1="338" x2="1280" y2="338" stroke="#0a1a0d"/><line x1="0" y1="364" x2="1280" y2="364" stroke="#0a1a0d"/><line x1="0" y1="390" x2="1280" y2="390" stroke="#0a1a0d"/><line x1="0" y1="416" x2="1280" y2="416" stroke="#0a1a0d"/></g>
-    <g opacity="0.32"><text class="rain" x="17" y="-150" style="animation-duration:7.95s;animation-delay:-2.37s">123B1612D</text>
-      <text class="rain" x="55" y="-150" style="animation-duration:3.74s;animation-delay:-0.54s">D1371C171</text>
-      <text class="rain" x="94" y="-150" style="animation-duration:7.52s;animation-delay:-1.74s">439536B32</text>
-      <text class="rain" x="132" y="-150" style="animation-duration:3.69s;animation-delay:-1.24s">DAEEB9757</text>
-      <text class="rain" x="161" y="-150" style="animation-duration:6.16s;animation-delay:-3.15s">AE923D5A4</text>
-      <text class="rain" x="204" y="-150" style="animation-duration:5.42s;animation-delay:-5.77s">2AABFE228</text>
-      <text class="rain" x="241" y="-150" style="animation-duration:6.75s;animation-delay:-0.39s">9E9CB0EB5</text>
-      <text class="rain" x="280" y="-150" style="animation-duration:3.96s;animation-delay:-0.35s">947CCF25E</text>
-      <text class="rain" x="314" y="-150" style="animation-duration:6.04s;animation-delay:-5.30s">D8DBC7425</text>
-      <text class="rain" x="347" y="-150" style="animation-duration:4.51s;animation-delay:-1.40s">F58904DBA</text>
-      <text class="rain" x="384" y="-150" style="animation-duration:6.71s;animation-delay:-3.09s">1ECCCC3FC</text>
-      <text class="rain" x="419" y="-150" style="animation-duration:4.31s;animation-delay:-5.91s">E53A13043</text>
-      <text class="rain" x="461" y="-150" style="animation-duration:6.35s;animation-delay:-0.42s">6C48BBF33</text>
-      <text class="rain" x="500" y="-150" style="animation-duration:8.17s;animation-delay:-2.80s">F9243A8F5</text>
-      <text class="rain" x="538" y="-150" style="animation-duration:3.51s;animation-delay:-5.71s">B40928B5B</text>
-      <text class="rain" x="579" y="-150" style="animation-duration:4.47s;animation-delay:-3.25s">A767C76FB</text>
-      <text class="rain" x="615" y="-150" style="animation-duration:3.54s;animation-delay:-0.17s">8F86BEBB2</text>
-      <text class="rain" x="644" y="-150" style="animation-duration:3.89s;animation-delay:-2.82s">A6F0FB23C</text>
-      <text class="rain" x="690" y="-150" style="animation-duration:6.82s;animation-delay:-1.20s">5DA2CEC25</text>
-      <text class="rain" x="717" y="-150" style="animation-duration:8.17s;animation-delay:-0.17s">E4FB44003</text>
-      <text class="rain" x="760" y="-150" style="animation-duration:7.00s;animation-delay:-0.84s">6608697A8</text>
-      <text class="rain" x="797" y="-150" style="animation-duration:5.41s;animation-delay:-0.79s">BED440E50</text>
-      <text class="rain" x="838" y="-150" style="animation-duration:7.24s;animation-delay:-1.03s">F31AF3176</text>
-      <text class="rain" x="867" y="-150" style="animation-duration:3.60s;animation-delay:-0.59s">E02EA68EF</text>
-      <text class="rain" x="908" y="-150" style="animation-duration:7.92s;animation-delay:-4.20s">86E4D3CEA</text>
-      <text class="rain" x="938" y="-150" style="animation-duration:6.62s;animation-delay:-2.57s">6934B484E</text>
-      <text class="rain" x="977" y="-150" style="animation-duration:6.98s;animation-delay:-0.56s">F575DCAD6</text>
-      <text class="rain" x="1016" y="-150" style="animation-duration:4.93s;animation-delay:-4.33s">0AEE0CA92</text>
-      <text class="rain" x="1049" y="-150" style="animation-duration:8.13s;animation-delay:-4.73s">32881584D</text>
-      <text class="rain" x="1095" y="-150" style="animation-duration:7.33s;animation-delay:-1.55s">4FA2815D2</text>
-      <text class="rain" x="1126" y="-150" style="animation-duration:7.90s;animation-delay:-3.81s">827283E0A</text>
-      <text class="rain" x="1167" y="-150" style="animation-duration:5.41s;animation-delay:-5.49s">417358156</text>
-      <text class="rain" x="1200" y="-150" style="animation-duration:6.42s;animation-delay:-3.19s">69E58B081</text>
-      <text class="rain" x="1233" y="-150" style="animation-duration:3.49s;animation-delay:-3.03s">6F7E3DFC9</text></g>
+    <rect width="1280" height="440" fill="#040704"/>
+    <g opacity="0.45"><line x1="0" y1="0" x2="1280" y2="0" stroke="#0a1a0d"/><line x1="0" y1="26" x2="1280" y2="26" stroke="#0a1a0d"/><line x1="0" y1="52" x2="1280" y2="52" stroke="#0a1a0d"/><line x1="0" y1="78" x2="1280" y2="78" stroke="#0a1a0d"/><line x1="0" y1="104" x2="1280" y2="104" stroke="#0a1a0d"/><line x1="0" y1="130" x2="1280" y2="130" stroke="#0a1a0d"/><line x1="0" y1="156" x2="1280" y2="156" stroke="#0a1a0d"/><line x1="0" y1="182" x2="1280" y2="182" stroke="#0a1a0d"/><line x1="0" y1="208" x2="1280" y2="208" stroke="#0a1a0d"/><line x1="0" y1="234" x2="1280" y2="234" stroke="#0a1a0d"/><line x1="0" y1="260" x2="1280" y2="260" stroke="#0a1a0d"/><line x1="0" y1="286" x2="1280" y2="286" stroke="#0a1a0d"/><line x1="0" y1="312" x2="1280" y2="312" stroke="#0a1a0d"/><line x1="0" y1="338" x2="1280" y2="338" stroke="#0a1a0d"/><line x1="0" y1="364" x2="1280" y2="364" stroke="#0a1a0d"/><line x1="0" y1="390" x2="1280" y2="390" stroke="#0a1a0d"/><line x1="0" y1="416" x2="1280" y2="416" stroke="#0a1a0d"/></g>
+    <g opacity="0.32"><text class="rain" x="22" y="-150" style="animation-duration:3.93s;animation-delay:-4.45s">77432D102</text>
+      <text class="rain" x="52" y="-150" style="animation-duration:4.52s;animation-delay:-3.61s">6D7E805DA</text>
+      <text class="rain" x="90" y="-150" style="animation-duration:4.15s;animation-delay:-5.74s">A32C3BB81</text>
+      <text class="rain" x="134" y="-150" style="animation-duration:5.61s;animation-delay:-0.75s">C29B62179</text>
+      <text class="rain" x="161" y="-150" style="animation-duration:7.51s;animation-delay:-5.20s">C8EB5BB68</text>
+      <text class="rain" x="208" y="-150" style="animation-duration:7.90s;animation-delay:-3.89s">575EC87A1</text>
+      <text class="rain" x="237" y="-150" style="animation-duration:7.34s;animation-delay:-4.83s">C826A6FCE</text>
+      <text class="rain" x="273" y="-150" style="animation-duration:4.67s;animation-delay:-1.48s">8DCB74F21</text>
+      <text class="rain" x="309" y="-150" style="animation-duration:4.13s;animation-delay:-0.96s">D2CCE8038</text>
+      <text class="rain" x="357" y="-150" style="animation-duration:6.48s;animation-delay:-0.67s">D5E085396</text>
+      <text class="rain" x="384" y="-150" style="animation-duration:5.19s;animation-delay:-0.97s">0AF03B971</text>
+      <text class="rain" x="422" y="-150" style="animation-duration:7.61s;animation-delay:-5.68s">2F244F58D</text>
+      <text class="rain" x="459" y="-150" style="animation-duration:7.86s;animation-delay:-4.53s">69CBEE377</text>
+      <text class="rain" x="494" y="-150" style="animation-duration:5.02s;animation-delay:-3.53s">77021721A</text>
+      <text class="rain" x="531" y="-150" style="animation-duration:5.87s;animation-delay:-1.67s">F64F7FD63</text>
+      <text class="rain" x="568" y="-150" style="animation-duration:6.56s;animation-delay:-2.13s">DE131CA37</text>
+      <text class="rain" x="607" y="-150" style="animation-duration:4.31s;animation-delay:-2.69s">D58E72E31</text>
+      <text class="rain" x="651" y="-150" style="animation-duration:8.20s;animation-delay:-5.02s">275DFF6C1</text>
+      <text class="rain" x="680" y="-150" style="animation-duration:5.22s;animation-delay:-5.91s">8E9DF4696</text>
+      <text class="rain" x="715" y="-150" style="animation-duration:6.18s;animation-delay:-3.25s">A11F51252</text>
+      <text class="rain" x="761" y="-150" style="animation-duration:3.73s;animation-delay:-5.17s">C3712DA86</text>
+      <text class="rain" x="799" y="-150" style="animation-duration:6.84s;animation-delay:-1.43s">C49EA20E3</text>
+      <text class="rain" x="827" y="-150" style="animation-duration:5.98s;animation-delay:-3.04s">4B27B95E9</text>
+      <text class="rain" x="872" y="-150" style="animation-duration:8.12s;animation-delay:-4.84s">093483348</text>
+      <text class="rain" x="904" y="-150" style="animation-duration:6.30s;animation-delay:-4.31s">68F812D81</text>
+      <text class="rain" x="937" y="-150" style="animation-duration:5.00s;animation-delay:-0.78s">85ED03241</text>
+      <text class="rain" x="979" y="-150" style="animation-duration:6.20s;animation-delay:-0.89s">419B1B673</text>
+      <text class="rain" x="1016" y="-150" style="animation-duration:7.14s;animation-delay:-5.30s">D4755D05A</text>
+      <text class="rain" x="1060" y="-150" style="animation-duration:7.87s;animation-delay:-4.81s">7853C1F76</text>
+      <text class="rain" x="1092" y="-150" style="animation-duration:5.08s;animation-delay:-4.92s">7706CA828</text>
+      <text class="rain" x="1127" y="-150" style="animation-duration:6.48s;animation-delay:-2.40s">A0385813D</text>
+      <text class="rain" x="1164" y="-150" style="animation-duration:6.90s;animation-delay:-1.88s">3C681D06B</text>
+      <text class="rain" x="1202" y="-150" style="animation-duration:3.74s;animation-delay:-3.99s">AA399DAC9</text>
+      <text class="rain" x="1241" y="-150" style="animation-duration:4.01s;animation-delay:-2.52s">C59C0996D</text></g>
 
-    <g filter="url(#glow)" class="halo"><g class="gl" style="animation-delay:0.00s"><rect x="118" y="126" width="114" height="19"/><rect x="194" y="145" width="38" height="19"/><rect x="174" y="164" width="38" height="19"/><rect x="156" y="183" width="38" height="19"/><rect x="136" y="202" width="38" height="19"/><rect x="118" y="221" width="114" height="19"/></g>
-      <g class="gl" style="animation-delay:0.11s"><rect x="250" y="126" width="114" height="19"/><rect x="288" y="145" width="38" height="19"/><rect x="288" y="164" width="38" height="19"/><rect x="288" y="183" width="38" height="19"/><rect x="288" y="202" width="38" height="19"/><rect x="250" y="221" width="114" height="19"/></g>
-      <g class="gl" style="animation-delay:0.22s"><rect x="384" y="126" width="38" height="19"/><rect x="460" y="126" width="38" height="19"/><rect x="384" y="145" width="114" height="19"/><rect x="384" y="164" width="114" height="19"/><rect x="384" y="183" width="38" height="19"/><rect x="460" y="183" width="38" height="19"/><rect x="384" y="202" width="38" height="19"/><rect x="460" y="202" width="38" height="19"/><rect x="384" y="221" width="38" height="19"/><rect x="460" y="221" width="38" height="19"/></g>
-      <g class="gl" style="animation-delay:0.33s"><rect x="516" y="126" width="114" height="19"/><rect x="592" y="145" width="38" height="19"/><rect x="574" y="164" width="38" height="19"/><rect x="554" y="183" width="38" height="19"/><rect x="536" y="202" width="38" height="19"/><rect x="516" y="221" width="114" height="19"/></g>
-      <g class="gl" style="animation-delay:0.44s"><rect x="650" y="126" width="114" height="19"/><rect x="688" y="145" width="38" height="19"/><rect x="688" y="164" width="38" height="19"/><rect x="688" y="183" width="38" height="19"/><rect x="688" y="202" width="38" height="19"/><rect x="650" y="221" width="114" height="19"/></g>
-      <g class="gl" style="animation-delay:0.55s"><rect x="782" y="126" width="38" height="19"/><rect x="782" y="145" width="38" height="19"/><rect x="782" y="164" width="38" height="19"/><rect x="782" y="183" width="38" height="19"/><rect x="782" y="202" width="38" height="19"/><rect x="782" y="221" width="114" height="19"/></g>
-      <g class="gl" style="animation-delay:0.66s"><rect x="916" y="126" width="38" height="19"/><rect x="916" y="145" width="38" height="19"/><rect x="916" y="164" width="38" height="19"/><rect x="916" y="183" width="38" height="19"/><rect x="916" y="202" width="38" height="19"/><rect x="916" y="221" width="114" height="19"/></g>
-      <g class="gl" style="animation-delay:0.77s"><rect x="1068" y="126" width="76" height="19"/><rect x="1048" y="145" width="38" height="19"/><rect x="1124" y="145" width="38" height="19"/><rect x="1048" y="164" width="114" height="19"/><rect x="1048" y="183" width="38" height="19"/><rect x="1124" y="183" width="38" height="19"/><rect x="1048" y="202" width="38" height="19"/><rect x="1124" y="202" width="38" height="19"/><rect x="1048" y="221" width="38" height="19"/><rect x="1124" y="221" width="38" height="19"/></g></g>
+    <g filter="url(#glow)" class="halo"><g class="gl" style="animation-delay:0.00s"><rect x="148" y="118" width="120" height="24"/><rect x="148" y="142" width="48" height="24"/><rect x="244" y="142" width="48" height="24"/><rect x="148" y="166" width="120" height="24"/><rect x="148" y="190" width="48" height="24"/><rect x="220" y="190" width="48" height="24"/><rect x="148" y="214" width="48" height="24"/><rect x="244" y="214" width="48" height="24"/><rect x="148" y="238" width="48" height="24"/><rect x="244" y="238" width="48" height="24"/></g>
+      <g class="gl" style="animation-delay:0.11s"><rect x="340" y="118" width="96" height="24"/><rect x="316" y="142" width="48" height="24"/><rect x="412" y="142" width="48" height="24"/><rect x="316" y="166" width="144" height="24"/><rect x="316" y="190" width="48" height="24"/><rect x="412" y="190" width="48" height="24"/><rect x="316" y="214" width="48" height="24"/><rect x="412" y="214" width="48" height="24"/><rect x="316" y="238" width="48" height="24"/><rect x="412" y="238" width="48" height="24"/></g>
+      <g class="gl" style="animation-delay:0.22s"><rect x="484" y="118" width="120" height="24"/><rect x="484" y="142" width="48" height="24"/><rect x="580" y="142" width="48" height="24"/><rect x="484" y="166" width="48" height="24"/><rect x="580" y="166" width="48" height="24"/><rect x="484" y="190" width="48" height="24"/><rect x="580" y="190" width="48" height="24"/><rect x="484" y="214" width="48" height="24"/><rect x="580" y="214" width="48" height="24"/><rect x="484" y="238" width="120" height="24"/></g>
+      <g class="gl" style="animation-delay:0.33s"><rect x="652" y="118" width="48" height="24"/><rect x="748" y="118" width="48" height="24"/><rect x="652" y="142" width="72" height="24"/><rect x="748" y="142" width="48" height="24"/><rect x="652" y="166" width="144" height="24"/><rect x="652" y="190" width="48" height="24"/><rect x="724" y="190" width="72" height="24"/><rect x="652" y="214" width="48" height="24"/><rect x="748" y="214" width="48" height="24"/><rect x="652" y="238" width="48" height="24"/><rect x="748" y="238" width="48" height="24"/></g>
+      <g class="gl" style="animation-delay:0.44s"><rect x="820" y="118" width="144" height="24"/><rect x="820" y="142" width="48" height="24"/><rect x="820" y="166" width="120" height="24"/><rect x="820" y="190" width="48" height="24"/><rect x="820" y="214" width="48" height="24"/><rect x="820" y="238" width="144" height="24"/></g>
+      <g class="gl" style="animation-delay:0.55s"><rect x="988" y="118" width="48" height="24"/><rect x="1084" y="118" width="48" height="24"/><rect x="1012" y="142" width="96" height="24"/><rect x="1036" y="166" width="48" height="24"/><rect x="1036" y="190" width="48" height="24"/><rect x="1012" y="214" width="96" height="24"/><rect x="988" y="238" width="48" height="24"/><rect x="1084" y="238" width="48" height="24"/></g></g>
 
-    <rect class="band" x="0" y="110" width="300" height="146"
+    <rect class="band" x="0" y="102" width="300" height="176"
           fill="url(#band)" style="mix-blend-mode:screen"/>
     <rect class="sweep" x="0" y="0" width="1280" height="90" fill="url(#scan)"/>
 
-    <text class="tag" x="640" y="288" text-anchor="middle">net.shell // autonomous coding agent</text>
-    <rect class="cur" x="872" y="273" width="10" height="18" fill="#7dffb0"/>
+    <text class="tag" x="640" y="300" text-anchor="middle">AUTONOMOUS CYBER WARFARE &amp; CODING ENGINE</text>
+    <rect class="cur" x="916" y="284" width="10" height="19" fill="#7dffb0"/>
 
-    <text class="meta" x="640" y="332" text-anchor="middle">terminal-native · streaming · tool-using · scope-aware</text>
-    <text class="meta" x="640" y="360" text-anchor="middle" opacity="0.8">by Mr-Destroyer / ZIM</text>
+    <text class="meta" x="640" y="348" text-anchor="middle">ZERO-DOWNTIME ROUTING · DUAL-TIER INTELLIGENCE · SHADOW CHECKPOINTS · MULTI-GATEWAY MESH</text>
+    <text class="meta" x="640" y="378" text-anchor="middle" opacity="0.9" style="fill: #00e5ff;">Architected by Chandan Pandey (@thecnical)</text>
 
-    <rect x="0.5" y="0.5" width="1279" height="419" rx="10" fill="none" stroke="#0c5a22" stroke-opacity="0.55"/>
+    <rect x="0.5" y="0.5" width="1279" height="439" rx="12" fill="none" stroke="#0c5a22" stroke-opacity="0.55"/>
   </g>
 </svg>

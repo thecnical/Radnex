@@ -140,7 +140,7 @@ _MODEL_COL = 34
 def _upstream_style(palette, tier: str) -> str:
     """The colour for a UnoRouter upstream-redundancy tier.
 
-    **This is ZimZilla's tier, not UnoRouter's status.** The gateway's catalog
+    **This is Radnex's tier, not UnoRouter's status.** The gateway's catalog
     publishes a channel *list* and no per-channel health, so there is no green
     dot to read and none is invented: what is coloured here is how many channels
     stand behind a model, which is a fact, mapped through thresholds that are
@@ -952,7 +952,7 @@ class RadnexApp(App):
         self.palette = get_palette(cfg.theme, term_bg, colors=term_colors)
         self.theme_name = cfg.theme
         self.rain_on = cfg.rain
-        # Inside a ZimZilla tmux pane the main session can message its peers.
+        # Inside a Radnex tmux pane the main session can message its peers.
         # Outside one, there is no mailbox and the peer tools stay off.
         from .. import panes as _panes
         self._in_pane = _panes.current_session() is not None
@@ -3084,7 +3084,7 @@ class RadnexApp(App):
 
         Unlike /zim-logfare and /zim-tokenjuice there is no local proxy to start
         and no shipped profile: the key comes from wherever the operator put it
-        — the environment (a sourced ~/claude-source profile), ZimZilla's own
+        — the environment (a sourced ~/claude-source profile), Radnex's own
         profile, or a ~/claude-source file — and the model defaults to a free
         one so a fresh switch costs nothing.
         """
@@ -3373,7 +3373,7 @@ class RadnexApp(App):
 
         No local proxy to start and no shipped profile: the key comes from
         wherever the operator put it — the environment (a sourced
-        ~/claude-source profile), ZimZilla's own profile, or a ~/claude-source
+        ~/claude-source profile), Radnex's own profile, or a ~/claude-source
         file — and the model defaults to a free one so a fresh switch costs
         nothing.
         """
@@ -3744,7 +3744,7 @@ class RadnexApp(App):
     def _cmd_panes(self, args=None) -> None:
         """Re-open this session under tmux so ctrl+b h/v work.
 
-        The prefix keys are tmux bindings, not ZimZilla bindings, so they only
+        The prefix keys are tmux bindings, not Radnex bindings, so they only
         exist in a session tmux started — which is why pressing ctrl+b h in an
         ordinary session just types an `h`. Nothing inside the running app can
         fix that: tmux needs the terminal, and the app is holding it. So this
@@ -3755,7 +3755,7 @@ class RadnexApp(App):
 
         if _panes.current_session() is not None:
             self._sys_line(
-                "already in a ZimZilla pane — ctrl+b h splits right, "
+                "already in a Radnex pane — ctrl+b h splits right, "
                 "ctrl+b v splits down",
                 ok=True,
             )
@@ -3885,9 +3885,9 @@ class RadnexApp(App):
         """Suspend the TUI, run opencode in the freed terminal, then resume.
 
         ``suspend`` is what makes this possible at all: opencode's TUI wants the
-        terminal, and ZimZilla is holding it. Suspending hands the real terminal
+        terminal, and Radnex is holding it. Suspending hands the real terminal
         back exactly as it was, so opencode draws to a clean screen and the
-        operator gets its full interface — then ZimZilla redraws over it when
+        operator gets its full interface — then Radnex redraws over it when
         the child exits.
         """
         # The exit IP is a courtesy, not a promise: these proxies are flaky
@@ -3923,7 +3923,7 @@ class RadnexApp(App):
         if rc != 0:
             self._sys_line(f"opencode exited with status {rc}", warn=True)
         else:
-            self._sys_line("back in zimzilla", ok=True)
+            self._sys_line("back in radnex", ok=True)
         self.refresh(layout=True)
 
     def _cmd_zim_opencode(self, args: list[str]) -> None:
@@ -4684,7 +4684,7 @@ class RadnexApp(App):
         another wave is the operator's call, which is the point: a campaign that
         planned wave 2 straight after wave 1 found a critical was spending
         tokens on work nobody asked for and could not decline. See
-        zimzilla/hunt.py.
+        radnex/hunt.py.
 
         ``--wave N`` runs wave N specifically; without it the next wave the
         scope has not run yet. ``--fresh`` forces the mapping phase even when
@@ -4978,7 +4978,7 @@ class RadnexApp(App):
         gate in front of it. The gate is the operator typing the domain back:
         not a security control, a speed bump that makes "I am about to run
         credential attacks against *this* domain" something they had to say.
-        Everything about why is in zimzilla/ad.py.
+        Everything about why is in radnex/ad.py.
 
         ``--wave N``, ``--fresh`` and the rest of the flag handling are
         `/bug-hunt`'s, parsed the same way, because they mean the same thing —
@@ -5518,7 +5518,7 @@ class RadnexApp(App):
 
         Shaped like _run_team — busy flag, an on_event sink, a spinner, and a
         finally that restores idle state — but the loop inside lives in
-        zimzilla/hunt.py so it can be tested without a terminal.
+        radnex/hunt.py so it can be tested without a terminal.
 
         ``fresh`` is forwarded to ``run_hunt``: it forces the mapping phase even
         when the scope already has recon on disk. ``wave_number`` names the wave
@@ -6150,14 +6150,14 @@ class RadnexApp(App):
         msgs = _panes.drain(root, me)
         if not msgs:
             return ""
-        return ("[messages from other ZimZilla panes]\n"
+        return ("[messages from other Radnex panes]\n"
                 + _panes.format_messages(msgs))
 
     def _team_agent_factory(self, cfg: Config, **kw) -> Agent:
         """Build a team Agent. The seam tests replace to stub the model.
 
         Every worker gets its own Agent and its own Config copy — see
-        zimzilla/team.py for why sharing one would clobber the scope guard.
+        radnex/team.py for why sharing one would clobber the scope guard.
         """
         return Agent(cfg, permission_handler=self.request_permission, **kw)
 

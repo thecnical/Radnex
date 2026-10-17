@@ -3,7 +3,7 @@
 AntSeed is not a hosted gateway like TokenHarbour or OpenRouter. It is a peer
 to peer network: independent sellers advertise models, and a **buyer** process
 you run locally routes to them. That buyer exposes a normal HTTP API on
-``localhost:8377`` and speaks both OpenAI and Anthropic, so ZimZilla talks to
+``localhost:8377`` and speaks both OpenAI and Anthropic, so Radnex talks to
 it exactly as it talks to the LiteLLM proxies — with one difference that shapes
 this whole module.
 
@@ -45,7 +45,7 @@ What was measured on the live network (antseed 0.1.169, 2026-10-14):
   at 256 produced prose. The same happened on the peer's native
   ``/v1/chat/completions``, so it is the model's behaviour and not a
   translation loss — but it means a tiny budget looks like an empty reply.
-  ZimZilla's default ``max_tokens`` is well clear of this.
+  Radnex's default ``max_tokens`` is well clear of this.
 
 The trap this module exists to solve
 ------------------------------------
@@ -87,7 +87,7 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
-RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 
 #: The buyer's own identity directory. It holds ``config.json`` (which names the
 #: proxy port) and the node's wallet — read for the port, never for a secret.
@@ -718,7 +718,7 @@ def save_pin(model: str, peer: str = "") -> Path:
     except OSError:
         pass
     body = (
-        "# ZimZilla — AntSeed source preference. Not a credential:\n"
+        "# Radnex — AntSeed source preference. Not a credential:\n"
         "# the local buyer proxy authenticates nothing.\n"
         f'export ANTSEED_MODEL="{model}"\n'
         f'export ANTSEED_PEER="{peer}"\n'
@@ -838,7 +838,7 @@ def looks_like_key(value: str) -> bool:
 def current_key() -> str | None:
     """The source key the operator last selected, if any.
 
-    Delegates to :mod:`zimzilla.sources`, which owns ``current-source``. Two
+    Delegates to :mod:`radnex.sources`, which owns ``current-source``. Two
     writers of one selection file is how a switch made here and a switch made
     with ``/zim-source`` end up disagreeing about what is live.
     """

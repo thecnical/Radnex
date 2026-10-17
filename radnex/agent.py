@@ -285,7 +285,7 @@ class Agent:
         # owns.
         self.can_hunt_read = can_hunt_read
         # Whether the pane-messaging tools are advertised. Only the main session
-        # of a ZimZilla pane turns this on; /team workers and hunt agents keep
+        # of a Radnex pane turns this on; /team workers and hunt agents keep
         # the star topology and never see one another.
         self.can_peer = can_peer
         # Returns the text of any unread pane messages, or "". Called at the

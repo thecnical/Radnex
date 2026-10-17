@@ -421,12 +421,12 @@ TOOL_SCHEMAS: list[dict] = [
 ]
 
 #: Pane messaging. Advertised only to a pane-session agent (``Agent.can_peer``),
-#: which is what lets the ZimZilla panes talk to each other. See ``panes.py``.
+#: which is what lets the Radnex panes talk to each other. See ``panes.py``.
 PEER_SCHEMAS: list[dict] = [
     {
         "name": "agent_peers",
         "description": (
-            "List the other ZimZilla agents running in your tmux panes. Use it "
+            "List the other Radnex agents running in your tmux panes. Use it "
             "to find out who you can message."
         ),
         "input_schema": {"type": "object", "properties": {}},
@@ -434,7 +434,7 @@ PEER_SCHEMAS: list[dict] = [
     {
         "name": "agent_send",
         "description": (
-            "Send a message to another ZimZilla agent in a pane. The recipient "
+            "Send a message to another Radnex agent in a pane. The recipient "
             "sees it at the start of its next turn. Use agent_peers for names. "
             "Messages are not replies: write what they need to act on."
         ),
@@ -1144,7 +1144,7 @@ def _tool_hunt_findings(args: dict, cfg) -> ToolResult:
     Read-only, and bounded: it prints the findings, the newest recon note and
     the wave plans, each truncated, rather than handing back an entire campaign.
     """
-    state_dir = Path(getattr(cfg, "state_dir", Path.home() / ".zimzilla"))
+    state_dir = Path(getattr(cfg, "state_dir", None) or os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
     scope = _text(args.get("scope", "")).strip()
     include = (_text(args.get("include", "")).strip().lower() or "findings")
     if include not in ("findings", "recon", "plans", "all"):
@@ -1510,8 +1510,8 @@ def _peer_root(cfg):
 
     session = panes.current_session()
     if not session:
-        raise ToolError("not running inside a ZimZilla tmux pane — "
-                        "start with `zimzilla --panes` and split with ctrl+b h / ctrl+b v")
+        raise ToolError("not running inside a Radnex tmux pane — "
+                        "start with `radnex --panes` and split with ctrl+b h / ctrl+b v")
     return panes, panes.mailbox_root(cfg.state_dir, session), panes.current_agent() or "unknown"
 
 

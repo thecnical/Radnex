@@ -183,11 +183,11 @@ class BootScreen(Screen):
         if self._phase != "banner":
             t.append("\n")
             t.append("  author     ", style=self.palette.dim)
-            t.append("Mr-Destroyer / ZIM\n", style=self.palette.primary)
-            t.append("  youtube    ", style=self.palette.dim)
-            t.append("@Study_Hard69\n", style=self.palette.primary)
-            t.append("  instagram  ", style=self.palette.dim)
-            t.append("zimthegoat\n", style=self.palette.primary)
+            t.append("Chandan Pandey (thecnical)\n", style=self.palette.primary)
+            t.append("  engine     ", style=self.palette.dim)
+            t.append("Radnex Autonomous Cyber Engine\n", style=self.palette.primary)
+            t.append("  github     ", style=self.palette.dim)
+            t.append("thecnical/Radnex\n", style=self.palette.primary)
         try:
             self.query_one("#boot-checks", Static).update(t)
         except Exception:

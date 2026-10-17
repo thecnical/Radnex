@@ -529,7 +529,7 @@ class StatusBar(Static):
         self.render_bar()
 
 
-class ZimPane(Static):
+class RadnexPane(Static):
     """Live campaign rail: two views, one pane.
 
     **phish** (default) — hits, credentials, local + public URLs. Hidden until
@@ -550,7 +550,7 @@ class ZimPane(Static):
     """
 
     DEFAULT_CSS = """
-    ZimPane {
+    RadnexPane, ZimPane {
         display: none;
         width: 36;
         min-width: 18;
@@ -559,14 +559,14 @@ class ZimPane(Static):
         padding: 0 1;
         border-left: heavy $secondary;
     }
-    ZimPane.visible { display: block; }
-    ZimPane.minimized {
+    RadnexPane.visible, ZimPane.visible { display: block; }
+    RadnexPane.minimized, ZimPane.minimized {
         width: 14;
         min-width: 14;
         max-width: 14;
         padding: 0;
     }
-    ZimPane.-resizing {
+    RadnexPane.-resizing, ZimPane.-resizing {
         border-left: heavy $accent;
     }
     """
@@ -824,7 +824,7 @@ class ZimPane(Static):
         p = self.palette
         t = Text()
         if self.minimized:
-            t.append(" ZIM\n", style=f"bold {p.accent}")
+            t.append(" RADNEX\n", style=f"bold {p.accent}")
             t.append(" [+][×]\n", style=p.dim)
             label = self.hunt_target if self.view == "hunt" else self.host
             if label:
@@ -846,7 +846,7 @@ class ZimPane(Static):
             self._render_hunt(t)
             return
 
-        t.append("ZIM-PANE", style=f"bold {p.accent}")
+        t.append("RADNEX-PANE", style=f"bold {p.accent}")
         t.append("  [–][×]\n", style=p.dim)
         if not self.host and not self.alive:
             t.append("idle\n", style=p.dim)
@@ -924,7 +924,7 @@ class ZimPane(Static):
     def _render_hunt(self, t: Text) -> None:
         """The `/bug-hunt` view: what each agent is doing, right now."""
         p = self.palette
-        t.append("ZIM-PANE", style=f"bold {p.accent}")
+        t.append("RADNEX-PANE", style=f"bold {p.accent}")
         t.append("  [–][×]\n", style=p.dim)
 
         t.append("hunt   ", style=p.dim)
@@ -1016,7 +1016,7 @@ class ZimPane(Static):
     def _chrome_line(self) -> str:
         if self.minimized:
             return " [+][×]"
-        return "ZIM-PANE  [–][×]"
+        return "RADNEX-PANE  [–][×]"
 
     def on_click(self, event: Click) -> None:
         hit = self._hit_chrome(event.offset)
@@ -1071,6 +1071,11 @@ class ZimPane(Static):
 
     def on_mount(self) -> None:
         self.render_pane()
+
+
+class ZimPane(RadnexPane):
+    """Compatibility alias for RadnexPane."""
+    pass
 
 
 def _k(n: int) -> str:

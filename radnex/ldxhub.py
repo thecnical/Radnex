@@ -45,7 +45,7 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 
 HOST = "gw.ldxhub.io"
 BASE_URL = f"https://{HOST}"
@@ -420,7 +420,7 @@ def upload_file(path: str | Path, token: str, *, timeout: float = 60.0) -> tuple
     p = Path(path)
     if not p.is_file():
         return "", f"no such file: {p}"
-    boundary = f"----zimzilla{uuid.uuid4().hex}"
+    boundary = f"----radnex{uuid.uuid4().hex}"
     ctype = "application/octet-stream"
     lower = p.suffix.lower()
     if lower == ".pdf":

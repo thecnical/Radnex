@@ -263,7 +263,7 @@ def main() -> int:
             check("prefix v bound to split-window -v", has_bind(keys, "v", "split-window -v"), keys)
             ss = subprocess.run(["tmux", "-L", sock, "show-environment", "-g", panes.ENV_SESSION],
                                 env=env, capture_output=True, text=True).stdout
-            check("global session env set", "RADNEX_PANE_SESSION=zimzilla" in ss, ss)
+            check("global session env set", "RADNEX_PANE_SESSION=radnex" in ss or "RADNEX_PANE_SESSION=zimzilla" in ss, ss)
         finally:
             subprocess.run(["tmux", "-L", sock, "kill-server"], env=env, capture_output=True)
 

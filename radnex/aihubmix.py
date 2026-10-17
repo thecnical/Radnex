@@ -1,4 +1,4 @@
-"""AIHubMix — a hosted Anthropic-protocol gateway, as a ZimZilla source.
+"""AIHubMix — a hosted Anthropic-protocol gateway, as a Radnex source.
 
 AIHubMix is a remote endpoint (``https://aihubmix.com``) that fronts 857
 models behind one key. Measured on this box, not assumed:
@@ -44,7 +44,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 #: Where the operator keeps their per-provider shell profiles — the same
 #: ``~/claude-source/<name>`` files a plain ``source`` loads for Claude Code.
 CLAUDE_SOURCE = Path(os.environ.get("RADNEX_CLAUDE_SOURCE")
@@ -146,7 +146,7 @@ class Model:
 def current_key() -> str | None:
     """The source key the operator last selected, if any.
 
-    Delegates to :mod:`zimzilla.sources`, which owns ``current-source``. Two
+    Delegates to :mod:`radnex.sources`, which owns ``current-source``. Two
     writers of one selection file is how a switch made here and a switch made
     with ``/zim-logfare`` end up disagreeing about what is live.
     """
@@ -198,7 +198,7 @@ def _key_from_claude_source() -> tuple[str, str, str] | None:
     """An AIHubMix key already sitting in ``~/claude-source/<name>``.
 
     This is the ``source ~/claude-source/<name>`` idiom: the operator has
-    already written a profile for Claude Code, so ZimZilla should use it rather
+    already written a profile for Claude Code, so Radnex should use it rather
     than asking for the key again. Returns ``(key, model, path)`` for the first
     profile that points at AIHubMix and carries a token.
     """
@@ -226,7 +226,7 @@ def load_credentials() -> tuple[str, str, str] | None:
       1. ``ANTHROPIC_AUTH_TOKEN``/``ANTHROPIC_API_KEY`` **in the environment**,
          when ``ANTHROPIC_BASE_URL`` points at AIHubMix — i.e. the operator
          sourced a profile before launching.
-      2. ZimZilla's own profile, written by ``/aihubmix-api-setup``.
+      2. Radnex's own profile, written by ``/aihubmix-api-setup``.
       3. Any AIHubMix profile under ``~/claude-source``.
 
     Returns ``(token, model, origin)`` or ``None``. The token is never logged or
@@ -250,7 +250,7 @@ def load_credentials() -> tuple[str, str, str] | None:
 
 
 def save_key(token: str, model: str = "") -> Path:
-    """Write the key to ZimZilla's own AIHubMix profile, mode 600.
+    """Write the key to Radnex's own AIHubMix profile, mode 600.
 
     The file is the same ``source`` format as every other profile — it can be
     sourced by a shell and read by ``load_credentials`` — so there is one

@@ -12,7 +12,7 @@ permission gate, Ctrl+C and the cost accounting for free.
 This module holds the parts that are not the UI: the kind registry, target
 validation, the case-directory layout, and the email playbook prompt. No
 Textual, no colours — so the whole thing is testable without a terminal, the
-same way zimzilla/team.py is.
+same way radnex/team.py is.
 
 Why the playbook lives here rather than in a prompt string at the call site:
 it is long, it is the actual product of this command, and it wants to be

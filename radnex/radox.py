@@ -18,12 +18,10 @@ from pathlib import Path
 
 RADNEX_HOME = Path(
     os.environ.get("RADNEX_HOME")
-    or os.environ.get("ZIMZILLA_HOME")
     or (Path.home() / ".radnex")
 )
 CLAUDE_SOURCE = Path(
     os.environ.get("RADNEX_CLAUDE_SOURCE")
-    or os.environ.get("ZIMZILLA_CLAUDE_SOURCE")
     or (Path.home() / "claude-source")
 )
 

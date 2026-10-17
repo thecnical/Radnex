@@ -14,9 +14,9 @@ at the end. So this module owns the whole life of a campaign:
   6. try to open a public tunnel (pagekite first, then cloudflared / ngrok / lt)
   7. append every hit and every captured credential to a JSONL log
 
-The UI (``ZimPane`` + ``_cmd_phish``) is the only thing that talks to this
-module. No Textual, no colours — the same split as ``zimzilla/osint.py`` and
-``zimzilla/team.py``, so the engine is testable without a terminal.
+The UI (``RadnexPane`` + ``_cmd_phish``) is the only thing that talks to this
+module. No Textual, no colours — the same split as ``radnex/osint.py`` and
+``radnex/team.py``, so the engine is testable without a terminal.
 
 Authorised use only. The command says so on every run; it does not and cannot
 check it. The operator is responsible for having permission to clone the
@@ -148,7 +148,7 @@ _PAGEKITE_WAIT = 25.0
 # Vendored pagekite.py lives next to the other shipped artifacts. setup.sh
 # copies it into ~/.radnex/pagekite/ so a relocated install still finds it.
 _PAGEKITE_CANDIDATES = (
-    Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+    Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
     / "pagekite" / "pagekite.py",
     Path(__file__).resolve().parent.parent / "packaging" / "pagekite" / "pagekite.py",
 )
@@ -701,7 +701,7 @@ def pagekite_name() -> str:
     if env:
         return env
     path = (
-        Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+        Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
         / "pagekite.name"
     )
     try:

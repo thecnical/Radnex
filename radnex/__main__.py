@@ -1,4 +1,4 @@
-"""Command-line entrypoint: ``python -m zimzilla`` / ``zimzilla``."""
+"""Command-line entrypoint: ``python -m radnex`` / ``radnex``."""
 
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ from .theme import THEME_NAMES, current_theme
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="radnex",
-        description="ZimZilla — an agentic coding CLI with a green-on-black hacker TUI.",
+        description="Radnex — autonomous security assessment and coding agent with a high-performance terminal UI.",
     )
     parser.add_argument("--model", "-m", default=None, help=f"model name (default: {DEFAULT_MODEL})")
     parser.add_argument("--workdir", "-C", default=None, help="working directory (default: cwd)")
@@ -61,19 +61,19 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--list-models", action="store_true", help="list known models and exit")
     parser.add_argument("--panes", action="store_true",
                         help="start in a tmux session where ctrl+b h / ctrl+b v open "
-                             "another ZimZilla pane, and the panes' agents can message each other")
+                             "another Radnex pane, and the panes' agents can message each other")
     parser.add_argument("--resume", default=None, metavar="SESSION",
                         help="restore a saved session at launch (used by /panes)")
-    parser.add_argument("--version", action="version", version=f"zimzilla {__version__}")
+    parser.add_argument("--version", action="version", version=f"radnex {__version__}")
     return parser
 
 
 def _launcher_path() -> str | None:
     """The launcher script this run came through, if there is one.
 
-    ``packaging/zimzilla`` exports ``RADNEX_ROOT`` before it execs the
+    ``packaging/radnex`` exports ``RADNEX_ROOT`` before it execs the
     interpreter, so the script is discoverable from there. A bare
-    ``python -m zimzilla`` — no launcher — leaves the variable unset and gets
+    ``python -m radnex`` — no launcher — leaves the variable unset and gets
     ``None``.
     """
     root = os.environ.get("RADNEX_ROOT")
@@ -133,7 +133,7 @@ def main(argv: list[str] | None = None) -> int:
         # though it were current.
         models, err = lf_mod.model_ids()
         if models is None:
-            print(f"zimzilla: {err} — showing the declared list", file=sys.stderr)
+            print(f"radnex: {err} — showing the declared list", file=sys.stderr)
             models = list(KNOWN_MODELS)
         for m in models:
             print(m)
@@ -143,25 +143,25 @@ def main(argv: list[str] | None = None) -> int:
 
     # --panes: hand the whole session to tmux. tmux owns ctrl+b and the splits;
     # every pane re-runs this same command without --panes, so each one is an
-    # ordinary ZimZilla that happens to share a mailbox with its peers.
+    # ordinary Radnex that happens to share a mailbox with its peers.
     if args.panes and not os.environ.get("RADNEX_PANE_SESSION"):
         from . import panes as panes_mod
 
         if not panes_mod.tmux_available():
-            print("zimzilla: --panes needs tmux — install it (e.g. `sudo apt install tmux`)",
+            print("radnex: --panes needs tmux — install it (e.g. `sudo apt install tmux`)",
                   file=sys.stderr)
             return 2
         launcher = _launcher_path()
         base = [launcher] if launcher else [sys.executable, "-m", "radnex"]
         # The pane command keeps everything the operator typed, minus the
-        # launcher's own flags — so `zimzilla --panes --theme amber` opens
+        # launcher's own flags — so `radnex --panes --theme amber` opens
         # amber panes. The first pane additionally resumes, when asked.
         zim_cmd = " ".join(shlex.quote(p) for p in [*base, *_pane_inner_argv(raw_argv)])
         first_cmd = zim_cmd
         if args.resume:
             first_cmd = " ".join(shlex.quote(p) for p in [
                 *base, "--resume", args.resume, *_pane_inner_argv(raw_argv)])
-        state = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+        state = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
         conf = panes_mod.write_tmux_conf(state, zim_cmd)
         return panes_mod.launch(conf, zim_cmd, workdir, first_cmd=first_cmd)
 
@@ -172,7 +172,7 @@ def main(argv: list[str] | None = None) -> int:
     def _find(explicit: str | None, names: tuple[str, ...]) -> Path | None:
         if explicit:
             return Path(explicit).expanduser()
-        for base in (workdir, Path.home() / ".zimzilla"):
+        for base in (workdir, Path.home() / ".radnex"):
             for name in names:
                 candidate = Path(base) / name
                 if candidate.exists():
@@ -231,7 +231,7 @@ def main(argv: list[str] | None = None) -> int:
     )
 
     # A remembered hosted-gateway choice has to be re-applied here, not in the
-    # launcher: the key can live in ZimZilla's own profile, in ~/claude-source,
+    # launcher: the key can live in Radnex's own profile, in ~/claude-source,
     # or only in the environment, and only the harness knows how to find all
     # three. The launcher deliberately does not source a profile it cannot find,
     # so without this a session would come back up on the default Logfare
@@ -254,7 +254,7 @@ def main(argv: list[str] | None = None) -> int:
     # read as a deny-list would block exactly the hosts that were declared.
     if legacy_scope is not None and legacy_scope.exists():
         print(
-            f"zimzilla: {legacy_scope} is no longer read — the scope guard was "
+            f"radnex: {legacy_scope} is no longer read — the scope guard was "
             "split into two files:\n"
             "  allow.yaml          declared targets; its presence runs tools "
             "unattended\n"
@@ -265,16 +265,16 @@ def main(argv: list[str] | None = None) -> int:
         )
 
     if not cfg.workdir.exists():
-        print(f"zimzilla: working directory does not exist: {cfg.workdir}", file=sys.stderr)
+        print(f"radnex: working directory does not exist: {cfg.workdir}", file=sys.stderr)
         return 2
 
     if not cfg.api_key_present:
         print(
-            "zimzilla: no credentials found.\n"
+            "radnex: no credentials found.\n"
             "  Set ANTHROPIC_AUTH_TOKEN (preferred) or ANTHROPIC_API_KEY.\n"
-            "  For the local Logfare route, source ZimZilla's own profile:\n"
+            "  For the local Logfare route, source Radnex's own profile:\n"
             "      set -a; . ~/.radnex/logfare/source; set +a\n"
-            "  Or just run `./setup.sh` once, then launch with `zimzilla`.",
+            "  Or just run `./setup.sh` once, then launch with `radnex`.",
             file=sys.stderr,
         )
         return 2
@@ -283,11 +283,11 @@ def main(argv: list[str] | None = None) -> int:
     # launch that cannot proceed anyway never pulls, and before the TUI takes
     # the terminal, so the notice is plain text on a normal screen.
     #
-    # An applied update must re-exec rather than continue: zimzilla.config,
-    # zimzilla.scope and the rest are already imported, and the fast-forward
+    # An applied update must re-exec rather than continue: radnex.config,
+    # radnex.scope and the rest are already imported, and the fast-forward
     # just replaced their files on disk. Running on would be a mix of old and
     # new modules. execv replaces the process image outright, which is exactly
-    # what packaging/zimzilla already does with its own `exec "$PY" -m`.
+    # what packaging/radnex already does with its own `exec "$PY" -m`.
     #
     # RADNEX_UPDATED guards the loop: once we have re-exec'd, the next launch
     # of main() skips the check entirely, so a flaky fetch cannot make the
@@ -303,7 +303,7 @@ def main(argv: list[str] | None = None) -> int:
             # dependency sync it performs runs against the requirements.txt the
             # update just pulled. Going straight to sys.executable would skip
             # that and boot the new code against the old venv — exactly the
-            # case the update flagged. A bare `python -m zimzilla` has no
+            # case the update flagged. A bare `python -m radnex` has no
             # launcher and re-execs the interpreter, as before.
             launcher = _launcher_path()
             if launcher is not None:
@@ -335,7 +335,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.resume:
         ok, msg = session_mod.load(cfg, app.agent, args.resume)
         if not ok:
-            print(f"zimzilla: {msg} — starting a fresh session", file=sys.stderr)
+            print(f"radnex: {msg} — starting a fresh session", file=sys.stderr)
     result = app.run()
     # `/panes` cannot start tmux itself — tmux has to own the terminal, and the
     # app is holding it — so the command exits with this request and the

@@ -42,7 +42,7 @@ not academic: the benchmark reports the kernel's best case, and a real run is
 1.5x slower on NTLM and **11x slower on NetNTLMv2**. Planning from benchmark
 numbers would call a stage affordable when it is not.
 
-No Textual, no colours, no model — the same split as `zimzilla/osint.py`, so the
+No Textual, no colours, no model — the same split as `radnex/osint.py`, so the
 whole thing is testable without a terminal, a model, or a network.
 """
 

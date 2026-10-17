@@ -149,7 +149,7 @@ DEFAULT_PRICE = (1.00, 3.00)
 # Models offered by /model when the user types a bare index or `list`.
 #
 # A *snapshot*, not the truth: the live list is fetched from the upstream's own
-# status API (see zimzilla/logfare.py and sources.models_for). This is the
+# status API (see radnex/logfare.py and sources.models_for). This is the
 # default (Logfare) set, used when the endpoint is not one of the known proxies
 # — and the fallback when a fetch has not happened yet. Anything the upstream
 # does not serve comes back "Model not found" (404) at request time.
@@ -203,7 +203,7 @@ class Config:
     unsafe: bool = False
     # Target scope. `allow_path` is the operator's declared, authorised targets
     # and its PRESENCE arms the session (tools run unattended); `deny_path` is
-    # the never-touch list. See zimzilla/scope.py.
+    # the never-touch list. See radnex/scope.py.
     allow_path: Path | None = None
     deny_path: Path | None = None
     #: A leftover scope.yaml, detected but deliberately NOT read — the old file

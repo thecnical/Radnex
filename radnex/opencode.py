@@ -104,7 +104,7 @@ from pathlib import Path
 BINARY = "opencode"
 
 #: The alias this module installs, so opencode can be launched behind a fresh
-#: proxy from a plain shell as well as from inside ZimZilla.
+#: proxy from a plain shell as well as from inside Radnex.
 ALIAS = "opencode-zim"
 
 #: Default model. One of opencode's own free models — no key, no account. Kept
@@ -164,7 +164,7 @@ RUN_TIMEOUT = 600
 
 
 def _home() -> Path:
-    return Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+    return Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 
 
 def state_dir() -> Path:
@@ -184,7 +184,7 @@ def find_binary() -> str | None:
     ``shutil.which`` covers a normal PATH install. The mise/npm layouts put the
     binary under the user's own data dir and only expose it through a shim, so
     a session that inherited a different PATH — which is exactly what happens
-    when ZimZilla is launched from a desktop entry — would otherwise report
+    when Radnex is launched from a desktop entry — would otherwise report
     "not found" for a binary that is plainly installed.
     """
     found = shutil.which(BINARY)
@@ -908,18 +908,18 @@ def find_working_proxy(binary: str, model: str | None = None,
 #: The shim's body. It does not reimplement rotation — it calls back into this
 #: module, so the shell path and the slash command cannot drift apart.
 _SHIM = """#!/usr/bin/env bash
-# {alias} — opencode behind a fresh rotating proxy (written by ZimZilla).
+# {alias} — opencode behind a fresh rotating proxy (written by Radnex).
 #
-# Installed by /zim-opencode. Each run leaves from a different address; only
+# Installed by /rx-opencode. Each run leaves from a different address; only
 # this process is proxied, never the rest of the system. Delete this file to
 # remove it.
 set -euo pipefail
-exec {python} -m zimzilla.opencode "$@"
+exec {python} -m radnex.opencode "$@"
 """
 
 
 def alias_path() -> Path:
-    """Where the alias goes: the same bin dir the repo installs `zimzilla` into."""
+    """Where the alias goes: the same bin dir the repo installs `radnex` into."""
     override = os.environ.get("RADNEX_BIN_DIR")
     if override:
         return Path(override).expanduser() / ALIAS
@@ -972,11 +972,11 @@ def main(argv: list[str] | None = None) -> int:
     # route the same way the slash command does, just more quietly.
     proxy, note = find_working_proxy(binary, attempts=6)
     if proxy is None:
-        print(f"zimzilla: no working proxy ({note}) — running from your own address",
+        print(f"radnex: no working proxy ({note}) — running from your own address",
               file=sys.stderr)
     else:
         ip = probe_exit_ip(proxy)
-        print(f"zimzilla: routing through {proxy.url}"
+        print(f"radnex: routing through {proxy.url}"
               + (f" (exit {ip})" if ip else ""), file=sys.stderr)
     return run(proxy, binary, args=argv)
 

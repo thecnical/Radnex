@@ -1,14 +1,14 @@
 """Self-update on launch — detect new commits on the upstream and apply them.
 
-ZimZilla is installed editable from its own checkout (``requirements.txt``
-ends in ``-e .``, and ``packaging/zimzilla`` points ``PYTHONPATH`` at the
-checkout root before ``exec``-ing ``python -m zimzilla``). So the code that
-runs *is* the git working tree, and "updating ZimZilla" means fast-forwarding
+Radnex is installed editable from its own checkout (``requirements.txt``
+ends in ``-e .``, and ``packaging/radnex`` points ``PYTHONPATH`` at the
+checkout root before ``exec``-ing ``python -m radnex``). So the code that
+runs *is* the git working tree, and "updating Radnex" means fast-forwarding
 that tree — not reinstalling a package.
 
 This module answers one question at launch: is ``origin`` ahead of me, and if
 so, can I move to it safely? It is pure logic with no Textual, the same shape
-as ``zimzilla/osint.py`` and ``zimzilla/team.py``, so the whole thing is
+as ``radnex/osint.py`` and ``radnex/team.py``, so the whole thing is
 testable against real throwaway repositories without a terminal.
 
 The design is built around not surprising the operator, because applying an
@@ -114,7 +114,7 @@ def _head(root: Path, timeout: float = GIT_TIMEOUT) -> str:
 def find_checkout() -> Path | None:
     """The git checkout this package is running from, or ``None``.
 
-    ``__file__`` is ``<root>/zimzilla/update.py`` for an editable install and
+    ``__file__`` is ``<root>/radnex/update.py`` for an editable install and
     for a run straight out of the checkout, so the parent of the package
     directory is the repository root. A wheel installed into site-packages has
     no repository above it, and ``rev-parse`` says so — the whole feature then

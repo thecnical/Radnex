@@ -9,7 +9,7 @@ with it:
    one-line note per asset. Nothing is written from prose; only what the model
    reports as a structured entry is used.
 2. **Writes** ``allow.yaml`` and ``out-of-scope.yaml`` in the format
-   ``zimzilla/scope.py`` already reads, then loads them back through
+   ``radnex/scope.py`` already reads, then loads them back through
    ``Scope.load`` so a file the guard cannot parse is reported, not trusted.
 3. **Ranks** the in-scope assets as a tree, after a light read-only recon of
    each host (DNS, HTTP status, title, server). The ranking is the model's, from
@@ -424,7 +424,7 @@ def recon_host(host: str, timeout: float = RECON_TIMEOUT) -> HostRecon:
                     host, timeout=timeout, context=ssl.create_default_context())
             else:
                 conn = http.client.HTTPConnection(host, timeout=timeout)
-            conn.request("GET", "/", headers={"User-Agent": "zimzilla-scope-validator"})
+            conn.request("GET", "/", headers={"User-Agent": "radnex-scope-validator"})
             resp = conn.getresponse()
             r.status = resp.status
             r.server = (resp.getheader("Server") or "")[:60]

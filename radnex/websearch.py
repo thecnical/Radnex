@@ -21,7 +21,7 @@ Both halves of that are fixed here, and both are needed:
   parses with the standard library alone, so no network-facing dependency enters
   the hot path of every session.
 
-The order is overridable with ``ZIMZILLA_SEARCH_BACKENDS`` (comma-separated
+The order is overridable with ``RADNEX_SEARCH_BACKENDS`` (comma-separated
 names) because each of these is somebody else's free service, and which one is
 down this month is not something this code can predict.
 
@@ -454,12 +454,16 @@ _DEFAULT_BACKEND_ORDER = ("duckduckgo", "4get", "mwmbl", "rightdao")
 def _backend_order() -> list[str]:
     """The backends to try, in order.
 
-    ``ZIMZILLA_SEARCH_BACKENDS=4get,mwmbl`` pins the order, because these are
+    ``RADNEX_SEARCH_BACKENDS=4get,mwmbl`` pins the order, because these are
     other people's free services and which one is refusing traffic this month
     is not something this code can know. Unknown names are ignored rather than
     fatal: a typo should not leave the operator with no search at all.
     """
-    raw = (os.environ.get("ZIMZILLA_SEARCH_BACKENDS") or "").strip()
+    raw = (
+        os.environ.get("RADNEX_SEARCH_BACKENDS")
+        or os.environ.get("ZIMZILLA_SEARCH_BACKENDS")
+        or ""
+    ).strip()
     if not raw:
         return list(_DEFAULT_BACKEND_ORDER)
     named = [p.strip().lower() for p in raw.split(",") if p.strip()]

@@ -15,7 +15,7 @@ that do not answer.
 ``system`` goes further and adopts the terminal's whole palette — background,
 foreground and the sixteen ANSI slots — so a scheme generator that re-themes
 the terminal (omarchy's ``aether``, which derives a scheme from each wallpaper)
-re-themes ZimZilla with it. See ``termcolors.py`` for how those are read. A slot
+re-themes Radnex with it. See ``termcolors.py`` for how those are read. A slot
 the terminal does not report falls back to the green palette's value, so a
 partial answer degrades to something readable rather than to a hole.
 """
@@ -34,7 +34,7 @@ if TYPE_CHECKING:  # pragma: no cover - typing only, keeps the import graph flat
 #: Where the last-picked theme is remembered. Mirrors the ``current-source``
 #: file the upstream selection uses (``sources.py``), for the same reason: the
 #: choice should survive a restart without a config file to edit.
-RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 
 
 @dataclass(frozen=True)

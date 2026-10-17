@@ -1107,7 +1107,7 @@ class WaveWeb:
         worst = self.worst()
         border = severity_style(p, worst) if worst else p.accent
         g.region(x, 0, w, height, "rail", "")
-        g.box(x, 0, w, height, "ZIM-TRACK", style=f"bold {border}", heavy=True)
+        g.box(x, 0, w, height, "RADNEX-TRACK", style=f"bold {border}", heavy=True)
 
         secs = self.elapsed()
         head = f"● LIVE  {secs // 60}:{secs % 60:02d}"
@@ -1557,7 +1557,7 @@ class WaveWeb:
         else:
             line(f" WAVE {self.wave} · {len(self.agents)} agents · {self.target}",
                  f"bold {p.accent}")
-        line(f" ZIM-TRACK  {secs // 60}:{secs % 60:02d}  "
+        line(f" RADNEX-TRACK  {secs // 60}:{secs % 60:02d}  "
              f"{sum(counts.values())} finding(s)", p.primary)
         line(" " + "─" * rule_w, p.dim)
 

@@ -112,7 +112,7 @@ def test_validation() -> None:
     # ---- github ----------------------------------------------------------
     gh = osint.OSINT_KINDS["github"]
 
-    for handle in ["torvalds", "Mr-Destroyer", "a", "x" * 39,
+    for handle in ["torvalds", "thecnical", "a", "x" * 39,
                    "user123", "user-name-123"]:
         ok, err = osint.validate(gh, handle)
         check(f"validate: accepts github {handle!r}", ok, err)

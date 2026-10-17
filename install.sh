@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # install.sh — one-line installer for Radnex.
 #
-#   curl -fsSL https://raw.githubusercontent.com/Mr-Destroyer/Radnex/main/install.sh | bash
+#   curl -fsSL https://raw.githubusercontent.com/thecnical/Radnex/main/install.sh | bash
 #
 # Clones Radnex into ~/.local/share/radnex, builds a virtualenv there and
 # installs the dependencies into it, then drops a `radnex` launcher into
@@ -20,7 +20,7 @@
 #
 # Environment overrides (all optional):
 #   RADNEX_REPO          git URL to install from
-#                          (default https://github.com/Mr-Destroyer/Radnex.git)
+#                          (default https://github.com/thecnical/Radnex.git)
 #   RADNEX_INSTALL_DIR   where the checkout and venv live
 #                          (default ${XDG_DATA_HOME:-~/.local/share}/radnex)
 #   RADNEX_BIN_DIR       where the `radnex` launcher is written
@@ -35,7 +35,7 @@
 
 set -euo pipefail
 
-REPO="${RADNEX_REPO:-https://github.com/Mr-Destroyer/Radnex.git}"
+REPO="${RADNEX_REPO:-https://github.com/thecnical/Radnex.git}"
 INSTALL_DIR="${RADNEX_INSTALL_DIR:-${XDG_DATA_HOME:-$HOME/.local/share}/radnex}"
 BIN_DIR="${RADNEX_BIN_DIR:-$HOME/.local/bin}"
 RADNEX_HOME="${RADNEX_HOME:-$HOME/.radnex}"

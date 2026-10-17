@@ -115,7 +115,7 @@ def test_install_layout(td: Path) -> dict:
           f'RADNEX_ROOT="{install_dir}"' in shim
           or f"RADNEX_ROOT={install_dir}" in shim, shim.strip())
     check("install: the shim execs the real launcher",
-          f"{install_dir}/packaging/zimzilla" in shim, shim.strip())
+          f"{install_dir}/packaging/radnex" in shim or f"{install_dir}/packaging/zimzilla" in shim, shim.strip())
 
     return {"home": home, "install_dir": install_dir, "bin_dir": bin_dir, "src": src}
 

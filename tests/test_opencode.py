@@ -580,8 +580,8 @@ def test_alias(tmp: Path):
 
         body = oc.alias_path().read_text(encoding="utf-8")
         check("alias is a bash shim", body.startswith("#!/usr/bin/env bash"), body[:40])
-        check("alias does not reimplement rotation", "exec " in body and "zimzilla.opencode" in body)
-        # The shim must name the interpreter that has zimzilla importable, not
+        check("alias does not reimplement rotation", "exec " in body and ("radnex.opencode" in body or "zimzilla.opencode" in body))
+        # The shim must name the interpreter that has radnex importable, not
         # a bare `python3` that may be a different one.
         check("alias pins the interpreter", sys.executable in body, body)
 

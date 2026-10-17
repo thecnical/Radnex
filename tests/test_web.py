@@ -105,7 +105,7 @@ def test_web_fits_at_minimum() -> None:
     w.add_finding({"agent": "agent-1", "severity": "high", "title": "X"})
     text = w.render(MIN_WIDTH, MIN_HEIGHT).plain
     check("minimum: the tracker rail is drawn at the minimum size",
-          "ZIM-TRACK" in text)
+          "RADNEX-TRACK" in text or "ZIM-TRACK" in text)
     check("minimum: panes are drawn, not the list",
           "┏" in text and "┌─" in text, text[:120].replace("\n", "|"))
     # Eight of ten fit at the minimum; the other two have to be accounted for
@@ -220,7 +220,7 @@ def test_rail_border_survives() -> None:
     w = _web(10)
     for width, height in ((118, 36), (120, 40)):
         lines = _lines(w.render(width, height))
-        top = next((i for i, l in enumerate(lines) if "┏━ ZIM-TRACK" in l), None)
+        top = next((i for i, l in enumerate(lines) if "┏━ RADNEX-TRACK" in l or "┏━ ZIM-TRACK" in l), None)
         check(f"rail: the tracker box is drawn at {width}x{height}", top is not None)
         if top is None:
             continue
@@ -229,8 +229,8 @@ def test_rail_border_survives() -> None:
         end = row.index("┓")
         border = row[start:end + 1]
         check(f"rail: the top border is unbroken at {width}x{height}",
-              set(border) <= {"┏", "┓", "━", " ", "Z", "I", "M", "-", "T", "R",
-                              "A", "C", "K"},
+              set(border) <= {"┏", "┓", "━", " ", "R", "A", "D", "N", "E", "X",
+                              "Z", "I", "M", "-", "T", "R", "C", "K"},
               border)
         check(f"rail: it starts on the first row at {width}x{height}", top == 0,
               str(top))
@@ -375,7 +375,7 @@ def test_compact_fallback() -> None:
         check(f"fallback: {width}x{height} does not draw panes",
               "┏" not in text and "┌─" not in text)
         check(f"fallback: {width}x{height} still names the tracker",
-              "ZIM-TRACK" in text)
+              "RADNEX-TRACK" in text or "ZIM-TRACK" in text)
         check(f"fallback: {width}x{height} still shows the tally",
               "CRIT 1" in text, text.replace("\n", "|")[:200])
         # The terminal is too short to list ten agents. What matters is that the
@@ -530,7 +530,7 @@ def test_planning_state() -> None:
     wide = w.render(118, 36).plain
     check("planning: the wide view says PLANNING", "PLANNING" in wide,
           wide[:200].replace("\n", "|"))
-    check("planning: the rail is still drawn", "ZIM-TRACK" in wide)
+    check("planning: the rail is still drawn", "RADNEX-TRACK" in wide or "ZIM-TRACK" in wide)
     check("planning: it does not claim zero agents", "0 agents" not in wide)
 
     # The narrow view takes the list, and says the same thing there.

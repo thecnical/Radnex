@@ -17,8 +17,8 @@ This module renders the markdown instead of showing it. The parse is
   and only a parser that knows about code spans can promise that.
 
 ``markdown-it-py`` is not a new *install*: rich and textual both require it, so
-it is already in every environment that can run ZimZilla. It is nonetheless
-listed in ``requirements.txt`` now, because ZimZilla imports it directly and a
+it is already in every environment that can run Radnex. It is nonetheless
+listed in ``requirements.txt`` now, because Radnex imports it directly and a
 transitive dependency it does not declare is one an upstream release can take
 away without anything here noticing until import time.
 

@@ -555,7 +555,8 @@ def find_legacy_scope(workdir: Path, home: Path | None = None) -> Path | None:
         if candidate.exists():
             return candidate
     if home is not None:
-        candidate = Path(home) / ".zimzilla" / "scope.yaml"
-        if candidate.exists():
-            return candidate
+        for dotdir in (".radnex", ".zimzilla"):
+            candidate = Path(home) / dotdir / "scope.yaml"
+            if candidate.exists():
+                return candidate
     return None

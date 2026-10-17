@@ -1,13 +1,13 @@
-"""Upstream "sources" — the two LiteLLM proxies ZimZilla can talk through.
+"""Upstream "sources" — the two LiteLLM proxies Radnex can talk through.
 
-ZimZilla speaks the Anthropic Messages protocol to whatever ``ANTHROPIC_BASE_URL``
+Radnex speaks the Anthropic Messages protocol to whatever ``ANTHROPIC_BASE_URL``
 points at. Two local LiteLLM proxies front two different upstreams:
 
     logfare      :4001  →  logfare.ai        (the default, shipped with the repo)
     tokenjuice   :4000  →  api.tokenjuice.ai (deepseek-claude's endpoint)
 
 They go down independently, so the point of this module is to make switching
-between them a one-liner — ``/zim-tokenjuice`` / ``/zim-logfare`` — and to have
+between them a one-liner — ``/rx-tokenjuice`` / ``/rx-logfare`` — and to have
 the choice survive a restart (``~/.radnex/current-source``).
 
 Nothing here echoes a key. Credentials live in each source's profile file, mode
@@ -24,7 +24,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 DEFAULT_HOME = Path.home()
 DEFAULT_ROOT = Path(__file__).resolve().parent.parent
 

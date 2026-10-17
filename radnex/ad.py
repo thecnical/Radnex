@@ -31,8 +31,8 @@ floor, not the whole control.
 What the operator must supply and this module cannot check: authorisation. The
 gate is typing the domain back (`ack_phrase`), and the notice is on every run.
 
-No Textual, no colours — the same split as `zimzilla/osint.py` and
-`zimzilla/phish.py`, so the whole interlock is testable without a campaign, a
+No Textual, no colours — the same split as `radnex/osint.py` and
+`radnex/phish.py`, so the whole interlock is testable without a campaign, a
 model, or a network.
 """
 

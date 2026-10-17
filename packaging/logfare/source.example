@@ -1,4 +1,4 @@
-# ZimZilla — Logfare profile
+# Radnex — Logfare profile
 #
 # This file is the credential profile for the local LiteLLM proxy. setup.sh
 # writes the real one next to this example as `source`, with mode 600, and
@@ -10,14 +10,14 @@ export ANTHROPIC_BASE_URL="http://localhost:4001"
 export ANTHROPIC_AUTH_TOKEN="lfu_REPLACE_ME"
 export ANTHROPIC_MODEL="deepseek-v4.1-flash"
 
-# Load-bearing: ZimZilla (like Claude Code) prefers ANTHROPIC_AUTH_TOKEN
+# Load-bearing: Radnex (like Claude Code) prefers ANTHROPIC_AUTH_TOKEN
 # (Bearer) and only falls back to ANTHROPIC_API_KEY (x-api-key) if the token is
 # falsy. An empty string keeps the token authoritative and clears any real API
 # key inherited from the shell.
 export ANTHROPIC_API_KEY=""
 
 # Model aliases — switch per-invocation, e.g.:
-#   ANTHROPIC_MODEL=$MODEL_QWEN zimzilla
+#   ANTHROPIC_MODEL=$MODEL_QWEN radnex
 # These are the models Logfare currently serves. Logfare retires models without
 # notice, so the live list is fetched, not declared: /logfare-models in the TUI
 # shows what is up right now.

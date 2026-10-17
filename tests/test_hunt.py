@@ -30,14 +30,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import hunt as hunt_mod  # noqa: E402
-from zimzilla import team as team_mod  # noqa: E402
-from zimzilla import tools as tools_mod  # noqa: E402
-from zimzilla.agent import Agent  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
-from zimzilla.theme import get_palette  # noqa: E402
-from zimzilla.ui.app import ReconOverlay, ZimZillaApp  # noqa: E402
-from zimzilla.ui.widgets import ChatPane, ZimPane  # noqa: E402
+from radnex import hunt as hunt_mod  # noqa: E402
+from radnex import team as team_mod  # noqa: E402
+from radnex import tools as tools_mod  # noqa: E402
+from radnex.agent import Agent  # noqa: E402
+from radnex.config import Config  # noqa: E402
+from radnex.theme import get_palette  # noqa: E402
+from radnex.ui.app import ReconOverlay, RadnexApp  # noqa: E402
+from radnex.ui.widgets import ChatPane, ZimPane  # noqa: E402
 from rich.text import Text  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
@@ -66,7 +66,7 @@ def _dispatch_names_from_source() -> set[str]:
     import ast
 
     src = (Path(__file__).resolve().parent.parent
-           / "zimzilla" / "ui" / "app.py").read_text(encoding="utf-8")
+           / "radnex" / "ui" / "app.py").read_text(encoding="utf-8")
     for node in ast.walk(ast.parse(src)):
         if not isinstance(node, ast.Assign):
             continue
@@ -2036,7 +2036,7 @@ def test_pane() -> None:
 
 async def test_recon_overlay(wd: Path) -> None:
     """The window opens on recon, narrates live, and closes on its own."""
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
 
     from textual.widgets import Input as _Input
 
@@ -2123,7 +2123,7 @@ async def test_boot_migrates_hunts(wd: Path) -> None:
     _legacy_campaign(cfg.state_dir / "hunts", "legacy.test-20261009-010101",
                      target="legacy.test", finding="a.md")
 
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
     async with app.run_test(size=(110, 40)) as pilot:
         # Dismiss the splash the way the operator does, so `_boot_done` — which
         # is what runs the migration — actually runs. Popping the screen
@@ -2166,7 +2166,7 @@ async def test_campaign_reaches_the_main_agent(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = _state(wd, "test_campaign_reaches_the_main_agent")
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()  # the boot splash
@@ -2211,7 +2211,7 @@ async def test_campaign_reaches_the_main_agent(wd: Path) -> None:
               seen and "save the findings" in seen[0], (seen[0][-80:] if seen else ""))
         notice = seen[0] if seen else ""
         check("notice: it names the campaign directory",
-              "hunts/lerevecraze.com" in notice, notice[:200])
+              ("hunts/lerevecraze.com" in notice or "hunts\\lerevecraze.com" in notice), notice[:200])
         check("notice: it names the target", "lerevecraze.com" in notice)
         check("notice: it carries the counts",
               "findings: 3" in notice and "waves: 2" in notice, notice[:300])
@@ -2335,7 +2335,7 @@ async def test_stop_hunt_reaches_the_loop(wd: Path) -> None:
     """
     roster = ('{"summary": "s", "workers": ['
               '{"name": "p", "brief": "b", "owns": ["p"]}]}')
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     # Held open: the point of this test is a campaign that is *still running*
     # when the command is typed, and one wave per invocation means an unheld
     # stub would be finished before the assertions ran — every one of them
@@ -2386,13 +2386,13 @@ async def test_recon_overlay_fast_target(wd: Path) -> None:
     message arrived and ``on_mount`` raised out of a message handler — which
     Textual treats as an app crash. This drives that exact sequence.
     """
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()  # the boot splash
         await pilot.pause()
 
-        from zimzilla.ui.app import ReconOverlay as _RO
+        from radnex.ui.app import ReconOverlay as _RO
 
         overlay = _RO("x.test", app.palette, app.cfg)
         app.push_screen(overlay)
@@ -2420,10 +2420,10 @@ async def test_overlays_do_not_stack(wd: Path) -> None:
 
     The order here is the real one: recon's done event, then the wave start.
     """
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
 
-    from zimzilla.ui.app import ReconOverlay as _RO
-    from zimzilla.ui.app import WaveOverlay as _WO
+    from radnex.ui.app import ReconOverlay as _RO
+    from radnex.ui.app import WaveOverlay as _WO
 
     async with app.run_test(size=(140, 40)) as pilot:
         app.pop_screen()  # the boot splash
@@ -2480,7 +2480,7 @@ def test_hunt_tool_panel_renders_bash() -> None:
 
     from rich.console import Console
 
-    from zimzilla.ui import renderers as R
+    from radnex.ui import renderers as R
 
     p = get_palette("zim")
     command = ("for p in /admin /login /api/v1/users /debug /backup; do "
@@ -2548,7 +2548,7 @@ async def test_transcript_shows_full_command(wd: Path) -> None:
     }
     factory = _hunt_factory(script)
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     app._team_agent_factory = factory
 
     async with app.run_test(size=(140, 40)) as pilot:
@@ -2623,7 +2623,7 @@ async def test_loop_rail_shows_hack_during_hunt(wd: Path) -> None:
     the test loop instead would race, because the stub agent finishes a whole
     wave per scheduler slice and the campaign can end between two pauses.
     """
-    from zimzilla.ui.rails import LoopRail
+    from radnex.ui.rails import LoopRail
 
     roster = ('{"summary": "s", "workers": ['
               '{"name": "paths", "brief": "test paths", "owns": ["paths"]}]}')
@@ -2636,7 +2636,7 @@ async def test_loop_rail_shows_hack_during_hunt(wd: Path) -> None:
     }
     factory = _hunt_factory(script)
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     app._team_agent_factory = factory
 
     #: (event, stage, hunt-counters) captured while the campaign runs.
@@ -2746,7 +2746,7 @@ async def test_loop_rail_hunt_render() -> None:
 
     from rich.console import Console
 
-    from zimzilla.ui.rails import STAGES, STAGE_LABEL, LoopRail
+    from radnex.ui.rails import STAGES, STAGE_LABEL, LoopRail
 
     def draw(rail: LoopRail) -> str:
         buf = io.StringIO()
@@ -2782,7 +2782,7 @@ async def test_loop_rail_hunt_render() -> None:
 
 async def test_busy_gate(wd: Path) -> None:
     """Some commands must answer mid-run; the launchers must not."""
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
 
     # BUSY_OK is the contract: it must contain the hunt controls and must not
     # contain any command that drives a turn on the shared agent.
@@ -2928,7 +2928,7 @@ def test_report_finding_tool() -> None:
     after a wave ends, which is exactly the behaviour the operator asked to
     change.
     """
-    from zimzilla import tools as tools_mod
+    from radnex import tools as tools_mod
 
     schema = next((t for t in tools_mod.TOOL_SCHEMAS
                    if t["name"] == "report_finding"), None)
@@ -3362,7 +3362,7 @@ def test_tracker_model() -> None:
 
 def test_findings_panel() -> None:
     """The panel renders worst-first, and never steals the prompt."""
-    from zimzilla.ui.app import FindingsPanel
+    from radnex.ui.app import FindingsPanel
 
     p = get_palette("green", None)
     panel = FindingsPanel(p, target="x.test", live=True)
@@ -3416,7 +3416,7 @@ async def test_findings_command(wd: Path) -> None:
     # here would mean /findings finds one of those and the "nothing to show"
     # branch could never run.
     cfg.state_dir = wd / "findings-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()  # the boot splash
@@ -3487,7 +3487,7 @@ async def test_summary_reads_this_sessions_campaign(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "summary-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()  # the boot splash
@@ -3555,7 +3555,7 @@ async def test_summary_never_archives_an_empty_body(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "summary-empty-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
@@ -3621,7 +3621,7 @@ async def test_bug_hunt_reuses_recon_from_the_ui(wd: Path) -> None:
     roster = ('{"summary": "s", "workers": ['
               '{"name": "p", "brief": "b", "owns": ["p"]}]}')
 
-    def build_app() -> ZimZillaApp:
+    def build_app() -> RadnexApp:
         """An app whose campaign stops itself after its first wave.
 
         A campaign is a loop that runs until stopped, so a test that just
@@ -3631,7 +3631,7 @@ async def test_bug_hunt_reuses_recon_from_the_ui(wd: Path) -> None:
         the same idiom the transcript tests use: `/stop-hunt` sets the flag and
         the loop notices at the next wave boundary.
         """
-        a = ZimZillaApp(_cfg(wd, boot_rain=False))
+        a = RadnexApp(_cfg(wd, boot_rain=False))
         a.cfg.state_dir = cfg.state_dir
         real = _hunt_factory(
             {"rosters": [roster], "planner_calls": 0, "prompts": [],
@@ -3732,7 +3732,7 @@ async def test_bug_hunt_wave_flag(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = _state(wd, "test_bug_hunt_wave_flag")
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(120, 40)) as pilot:
         app.pop_screen()  # the boot splash
@@ -3829,7 +3829,7 @@ async def test_refused_wave_reaches_the_transcript(wd: Path) -> None:
               '{"name": "w1", "brief": "first", "owns": ["a"]}]}')
     cfg = _cfg(wd, mode="zim", boot_rain=False)
     cfg.state_dir = _state(wd, "test_refused_wave_reaches_the_transcript")
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(120, 44)) as pilot:
         app.pop_screen()  # the boot splash
@@ -3872,7 +3872,7 @@ async def test_report_bug_hunt_command(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = _state(wd, "test_report_bug_hunt_command")
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(120, 40)) as pilot:
         app.pop_screen()  # the boot splash
@@ -4039,8 +4039,8 @@ async def test_planner_feed_reaches_the_wave_view() -> None:
     watches a blank screen for the length of a model call with no way to tell
     planning from a hang.
     """
-    from zimzilla.theme import get_palette
-    from zimzilla.ui.web import WaveWeb
+    from radnex.theme import get_palette
+    from radnex.ui.web import WaveWeb
 
     web = WaveWeb("t.test", get_palette("green", None), wave=1, size=10)
     check("plan feed: a fresh wave is planning", web.planning is True)
@@ -4110,9 +4110,9 @@ async def test_wave_overlay_live(wd: Path) -> None:
     what this drives.
     """
     from textual.events import Click, MouseMove
-    from zimzilla.ui.app import WaveOverlay
+    from radnex.ui.app import WaveOverlay
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     async with app.run_test(size=(118, 36)) as pilot:
         app.pop_screen()  # the boot splash
         await pilot.pause()
@@ -4292,9 +4292,9 @@ async def test_wave_overlay_can_still_be_escaped(wd: Path) -> None:
     because a runaway campaign must always have a way out and it has to be known
     which one it is.
     """
-    from zimzilla.ui.widgets import PromptInput
+    from radnex.ui.widgets import PromptInput
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     # The wave is held open on purpose. A campaign is one wave per invocation
     # now, so a stub that ran to completion would finish the whole hunt before
     # the first ``pause()`` returned and there would be no wave view to press
@@ -4372,9 +4372,9 @@ async def test_wave_overlay_stop_key_confirms_itself(wd: Path) -> None:
     footer changing, the key would look inert for as long as the wave takes to
     unwind.
     """
-    from zimzilla.ui.app import WaveOverlay
+    from radnex.ui.app import WaveOverlay
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
 
     async with app.run_test(size=(118, 36)) as pilot:
         app.pop_screen()
@@ -4417,7 +4417,7 @@ async def test_wave_overlay_ctrl_c_still_interrupts(wd: Path) -> None:
     leaves ``_hunt_stop`` unset, so the wave does not unwind. It is the right
     key when the graceful path is not responding, and the wrong one to rely on.
     """
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     # Held open for the same reason as the graceful-path test above: one wave
     # per invocation means an unheld stub finishes the hunt before the screen
     # can be inspected.

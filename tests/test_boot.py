@@ -44,8 +44,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla.theme import get_palette  # noqa: E402
-from zimzilla.ui.banner import (  # noqa: E402
+from radnex.theme import get_palette  # noqa: E402
+from radnex.ui.banner import (  # noqa: E402
     EMBLEM,
     EMBLEM_WIDTH,
     SPIN_FRAMES,
@@ -55,7 +55,7 @@ from zimzilla.ui.banner import (  # noqa: E402
     spin_frame,
     spin_frame_index,
 )
-from zimzilla.ui.boot import TICKS_PER_FRAME, BootScreen  # noqa: E402
+from radnex.ui.boot import TICKS_PER_FRAME, BootScreen  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -166,7 +166,7 @@ def test_shading_is_monotone() -> None:
     of the sequence: it is a mirror of itself, and the darker glyphs belong to
     the narrower frames.
     """
-    from zimzilla.ui.banner import SPIN_SHADES
+    from radnex.ui.banner import SPIN_SHADES
 
     order = "█▓▒░"  # lit -> dark
     folds = [order.index(c) for c in SPIN_SHADES]
@@ -308,7 +308,7 @@ def test_wiring_spins_then_settles() -> None:
           len(seen) >= SPIN_FRAMES * TICKS_PER_FRAME,
           f"{len(seen)} ticks of {SPIN_FRAMES * TICKS_PER_FRAME} needed")
     check("it is not already static partway through the reveal",
-          len(set(seen)) > 1 and seen[0] != seen[len(seen) // 2],
+          len(set(seen)) > 1 and any(s != seen[0] for s in seen[:len(seen) // 2]),
           f"{len(set(seen))} distinct pictures")
 
     # The frame count and the geometry must both hold across the whole spin.
@@ -433,7 +433,7 @@ def test_the_animation_reads_no_clock() -> None:
     # comments throughout this module, so a substring match would only be
     # measuring the docstrings.
     import ast
-    import zimzilla.ui.banner as B
+    import radnex.ui.banner as B
 
     tree = ast.parse(Path(B.__file__).read_text(encoding="utf-8"))
     imported = {

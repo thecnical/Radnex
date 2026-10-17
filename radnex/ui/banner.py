@@ -95,6 +95,22 @@ FONT: dict[str, list[str]] = {
         "██    ",
         "██████",
     ],
+    "D": [
+        "█████ ",
+        "██  ██",
+        "██  ██",
+        "██  ██",
+        "██  ██",
+        "█████ ",
+    ],
+    "X": [
+        "██  ██",
+        " ████ ",
+        "  ██  ",
+        "  ██  ",
+        " ████ ",
+        "██  ██",
+    ],
     "S": [
         "██████",
         "██    ",
@@ -127,13 +143,13 @@ def render_word(word: str, spacing: int = 1) -> list[str]:
 
 
 def banner_lines(spacing: int = 1) -> list[str]:
-    return render_word("ZIMZILLA", spacing=spacing)
+    return render_word("RADNEX", spacing=spacing)
 
 
 # A second, small style: layered outline for the header bar / splash.
 # Box width is derived from the content so the corners always line up.
 def outline_lines(width: int = 48) -> list[str]:
-    body = "Z I M Z I L L A   //   n e t . s h e l l"
+    body = "R A D N E X   //   n e t . s h e l l"
     pad = max(0, width - 2 - len(body))
     left = pad // 2
     right = pad - left
@@ -146,7 +162,7 @@ def outline_lines(width: int = 48) -> list[str]:
 
 def banner_subtitle() -> str:
     """One-line tagline shown under the splash banner."""
-    return "n e t . s h e l l   //   autonomous coding agent"
+    return "n e t . s h e l l   //   autonomous security & coding agent"
 
 
 def banner_width(spacing: int = 1) -> int:
@@ -286,7 +302,7 @@ def splash_mark(palette: Palette, model: str = "", base_url: str = "") -> Text:
     place that says what this session is actually pointed at.
     """
     right = [
-        ("ZIMZILLA", f"bold {palette.accent}"),
+        ("RADNEX", f"bold {palette.accent}"),
         (banner_subtitle(), palette.primary),
         (model, palette.dim),
         ("type /help for commands" + (f"   ·   {base_url}" if base_url else ""),

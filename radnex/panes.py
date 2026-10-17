@@ -32,7 +32,10 @@ Nothing here touches the network. The mailbox is local to the machine.
 
 from __future__ import annotations
 
-import fcntl
+try:
+    import fcntl
+except ImportError:
+    fcntl = None  # type: ignore[assignment]
 import json
 import os
 import re
@@ -45,7 +48,7 @@ from pathlib import Path
 
 #: Environment variable naming the mailbox session. Set in tmux's global
 #: session environment by the generated config, so every pane inherits it.
-ENV_SESSION = "ZIMZILLA_PANE_SESSION"
+ENV_SESSION = "RADNEX_PANE_SESSION"
 
 
 @dataclass(frozen=True)
@@ -65,8 +68,8 @@ class Relaunch:
 
 #: tmux server socket used by the pane launcher, so ZimZilla panes do not
 #: collide with the operator's own tmux.
-TMUX_SOCKET = "zimzilla"
-TMUX_SESSION = "zimzilla"
+TMUX_SOCKET = "radnex"
+TMUX_SESSION = "radnex"
 
 #: Cap on one message body. A mailbox is a conversation, not a file transfer.
 MAX_MESSAGE_CHARS = 8000
@@ -227,12 +230,14 @@ def send(root: Path, sender: str, to: str, body: str) -> dict:
     }
     path = _inbox_path(root, recipient)
     with open(path, "a", encoding="utf-8") as fh:
-        fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
         try:
             fh.write(json.dumps(record) + "\n")
             fh.flush()
         finally:
-            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
     return record
 
 
@@ -243,7 +248,8 @@ def drain(root: Path, agent: str) -> list[dict]:
         return []
     out: list[dict] = []
     with open(path, "r+", encoding="utf-8") as fh:
-        fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
+        if fcntl is not None:
+            fcntl.flock(fh.fileno(), fcntl.LOCK_EX)
         try:
             for line in fh:
                 line = line.strip()
@@ -256,7 +262,8 @@ def drain(root: Path, agent: str) -> list[dict]:
             fh.seek(0)
             fh.truncate()
         finally:
-            fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
+            if fcntl is not None:
+                fcntl.flock(fh.fileno(), fcntl.LOCK_UN)
     return out
 
 

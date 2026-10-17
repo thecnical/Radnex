@@ -44,7 +44,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import opencode as oc  # noqa: E402
+from radnex import opencode as oc  # noqa: E402
 
 FAILS: list[str] = []
 
@@ -566,7 +566,7 @@ def test_run_env_and_status():
 
 def test_alias(tmp: Path):
     bin_dir = tmp / "bin"
-    with mock.patch.dict(os.environ, {"ZIMZILLA_BIN_DIR": str(bin_dir)}):
+    with mock.patch.dict(os.environ, {"RADNEX_BIN_DIR": str(bin_dir)}):
         check("alias path honours the override",
               oc.alias_path() == bin_dir / oc.ALIAS, str(oc.alias_path()))
         check("alias reports not installed before install", not oc.alias_installed())
@@ -576,7 +576,7 @@ def test_alias(tmp: Path):
         check("alias exists and is executable",
               oc.alias_installed(), detail)
         mode = oc.alias_path().stat().st_mode
-        check("alias is mode 755", stat.S_IMODE(mode) == 0o755, oct(stat.S_IMODE(mode)))
+        check("alias is mode 755", stat.S_IMODE(mode) == 0o755 if os.name != "nt" else True, oct(stat.S_IMODE(mode)))
 
         body = oc.alias_path().read_text(encoding="utf-8")
         check("alias is a bash shim", body.startswith("#!/usr/bin/env bash"), body[:40])
@@ -593,7 +593,7 @@ def test_alias(tmp: Path):
               "/other/python" in oc.alias_path().read_text(encoding="utf-8"))
         check("reinstall reports success", ok2)
 
-    os.environ.pop("ZIMZILLA_BIN_DIR", None)
+    os.environ.pop("RADNEX_BIN_DIR", None)
     check("alias defaults to ~/.local/bin",
           oc.alias_path() == Path.home() / ".local" / "bin" / oc.ALIAS,
           str(oc.alias_path()))
@@ -638,8 +638,8 @@ def test_binary_lookup(tmp: Path):
 
 
 def test_state_paths(tmp: Path):
-    with mock.patch.dict(os.environ, {"ZIMZILLA_HOME": str(tmp / "state")}):
-        check("state dir honours ZIMZILLA_HOME",
+    with mock.patch.dict(os.environ, {"RADNEX_HOME": str(tmp / "state")}):
+        check("state dir honours RADNEX_HOME",
               oc.state_dir() == tmp / "state" / "opencode", str(oc.state_dir()))
         check("pool file lives in the state dir",
               oc.pool_file() == tmp / "state" / "opencode" / "pool.json",
@@ -652,8 +652,8 @@ def test_state_paths(tmp: Path):
 # ---------------------------------------------------------------------------
 
 def test_ui_wiring():
-    from zimzilla.ui import app as app_mod
-    from zimzilla.ui import complete as complete_mod
+    from radnex.ui import app as app_mod
+    from radnex.ui import complete as complete_mod
 
     src = Path(app_mod.__file__).read_text(encoding="utf-8")
     check("dispatch has the command", '"zim-opencode":' in src)
@@ -683,8 +683,8 @@ def test_ui_wiring():
 def test_hunt_spinner():
     """The waiting screen: the exact wording asked for, no counts, and an
     animation driven by the UI thread rather than by the worker."""
-    from zimzilla.ui import app as app_mod
-    from zimzilla.ui.widgets import ChatPane
+    from radnex.ui import app as app_mod
+    from radnex.ui.widgets import ChatPane
 
     check("the hunting message is the one asked for",
           app_mod._HUNTING == "ZIM IS MAKING IT UNLIMITED - FINDING THE BEST PROXIES ...",

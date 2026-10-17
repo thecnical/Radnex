@@ -87,7 +87,7 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ZIMZILLA_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 
 #: The buyer's own identity directory. It holds ``config.json`` (which names the
 #: proxy port) and the node's wallet — read for the port, never for a secret.
@@ -105,7 +105,7 @@ DEFAULT_BASE_URL = "http://localhost:8377"
 #: Where a remembered preference for this source is written. AntSeed needs no
 #: key, so unlike the other gateways this profile holds only the chosen peer
 #: pin and model — see :func:`save_pin`.
-PROFILE = ZIMZILLA_HOME / "antseed" / "source"
+PROFILE = RADNEX_HOME / "antseed" / "source"
 
 #: A fetched catalog older than this is refetched rather than trusted. The peer
 #: list churns as sellers come and go, so this is deliberately short.

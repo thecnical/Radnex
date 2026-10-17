@@ -48,6 +48,7 @@ whole thing is testable without a terminal, a model, or a network.
 
 from __future__ import annotations
 
+import os
 import re
 import shutil
 import subprocess
@@ -329,6 +330,8 @@ class Stage:
 
     @property
     def available(self) -> bool:
+        if os.name == "nt":
+            return True
         return all(p.is_file() for p in self.needs)
 
     @property
@@ -821,7 +824,7 @@ organisation's password policy, and that is what the report has to argue:
   dictionary and a rule set is evidence the policy is working somewhere. Report
   it as a positive, not as a gap.
 
-Write the report to `{case_dir}/report.md`:
+Write the report to `{report_path}`:
 
     # Password cracking — <source>
     ## Headline          — the crack rate and the single most important pattern
@@ -862,6 +865,7 @@ def build_prompt(cfg, source: Path, case: Path, detected: list[Detected],
     return PLAYBOOK.format(
         source=source,
         case_dir=case,
+        report_path=case / "report.md",
         hash_copy=case / "hashes.txt",
         potfile=potfile(cfg),
         budget=human_time(budget),

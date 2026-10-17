@@ -1,11 +1,11 @@
-# ZimZilla — Token Juice profile
+# Radnex — Token Juice profile
 #
 # This file is the credential profile for the Token Juice route. setup.sh
 # copies the real one next to this example as `source`, with mode 600, and
 # never commits it. This example exists so the format is visible without
 # exposing a key.
 #
-# Token Juice keys start with `tj_`. The same key is the bearer token ZimZilla
+# Token Juice keys start with `tj_`. The same key is the bearer token Radnex
 # sends and the upstream OpenAI key LiteLLM forwards.
 
 export ANTHROPIC_BASE_URL="http://localhost:4000"

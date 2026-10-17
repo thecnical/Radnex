@@ -18,10 +18,10 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import panes, tools  # noqa: E402
-from zimzilla import __main__ as main_mod  # noqa: E402
-from zimzilla.agent import Agent  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
+from radnex import panes, tools  # noqa: E402
+from radnex import __main__ as main_mod  # noqa: E402
+from radnex.agent import Agent  # noqa: E402
+from radnex.config import Config  # noqa: E402
 
 FAILS: list[str] = []
 
@@ -47,7 +47,7 @@ def has_bind(keys: str, key: str, command: str) -> bool:
 
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="zz-panes-"))
-    root = panes.mailbox_root(tmp, "zimzilla")
+    root = panes.mailbox_root(tmp, "radnex")
 
     # --- mailbox ----------------------------------------------------------
     panes.register(root, "1")
@@ -95,10 +95,10 @@ def main() -> int:
     check("peer tool outside pane reports error", r.is_error and "tmux pane" in r.output, r.output)
 
     # --- inside a simulated pane -----------------------------------------
-    os.environ[panes.ENV_SESSION] = "zimzilla"
+    os.environ[panes.ENV_SESSION] = "radnex"
     os.environ["TMUX_PANE"] = "%7"
     cfg2 = Config.from_env(workdir=tmp, state_dir=tmp / "state")
-    panes.register(panes.mailbox_root(cfg2.state_dir, "zimzilla"), "2")
+    panes.register(panes.mailbox_root(cfg2.state_dir, "radnex"), "2")
     r = tools.execute("agent_send", {"to": "2", "body": "ping"}, cfg2)
     check("agent_send succeeds in pane", not r.is_error, r.output)
     r = tools.execute("agent_peers", {}, cfg2)
@@ -107,7 +107,7 @@ def main() -> int:
     # the receiving pane gets it through the agent's peer_inbox hook
     os.environ["TMUX_PANE"] = "%2"
     cfg3 = Config.from_env(workdir=tmp, state_dir=tmp / "state")
-    text = panes.format_messages(panes.drain(panes.mailbox_root(cfg3.state_dir, "zimzilla"), "2"))
+    text = panes.format_messages(panes.drain(panes.mailbox_root(cfg3.state_dir, "radnex"), "2"))
     check("receiver sees message", "ping" in text and "from 7" in text, text)
 
     # --- /panes: the relaunch request -------------------------------------
@@ -163,18 +163,18 @@ def main() -> int:
     # exits with a Relaunch request and __main__ performs it. These drive the
     # command with the app unmounted, stubbing the two things that need a
     # mounted DOM.
-    from zimzilla.ui.app import ZimZillaApp  # noqa: E402
-    from zimzilla import session as session_mod  # noqa: E402
+    from radnex.ui.app import RadnexApp  # noqa: E402
+    from radnex import session as session_mod  # noqa: E402
 
     acfg = Config.from_env(workdir=tmp / "appwd", state_dir=tmp / "appstate")
-    app = ZimZillaApp(acfg)
+    app = RadnexApp(acfg)
     said: list[str] = []
     app._sys_line = lambda msg, **k: said.append(msg)
     exited: dict = {}
     app.exit = lambda result=None, **k: exited.update(result=result)
 
     # Inside a pane already: nothing to do, and it must not exit.
-    os.environ[panes.ENV_SESSION] = "zimzilla"
+    os.environ[panes.ENV_SESSION] = "radnex"
     os.environ["TMUX_PANE"] = "%1"
     app._cmd_panes()
     check("/panes inside a pane does not exit", "result" not in exited, str(exited))
@@ -185,7 +185,8 @@ def main() -> int:
 
     # Outside a pane with tmux present: save, then ask to relaunch.
     said.clear(); exited.clear()
-    app._cmd_panes()
+    with mock.patch.object(panes, "tmux_available", lambda: True):
+        app._cmd_panes()
     r = exited.get("result")
     check("/panes outside a pane returns a Relaunch", isinstance(r, panes.Relaunch), str(exited))
     check("/panes saves the conversation to resume from",
@@ -204,7 +205,8 @@ def main() -> int:
     # A failed save must not cost the operator the relaunch — panes still work
     # without history, so the command carries on with resume=None.
     said.clear(); exited.clear()
-    with mock.patch.object(session_mod, "save", side_effect=OSError("read-only")):
+    with mock.patch.object(panes, "tmux_available", lambda: True), \
+         mock.patch.object(session_mod, "save", side_effect=OSError("read-only")):
         app._cmd_panes()
     r = exited.get("result")
     check("/panes survives a failed save", isinstance(r, panes.Relaunch), str(exited))
@@ -261,7 +263,7 @@ def main() -> int:
             check("prefix v bound to split-window -v", has_bind(keys, "v", "split-window -v"), keys)
             ss = subprocess.run(["tmux", "-L", sock, "show-environment", "-g", panes.ENV_SESSION],
                                 env=env, capture_output=True, text=True).stdout
-            check("global session env set", "ZIMZILLA_PANE_SESSION=zimzilla" in ss, ss)
+            check("global session env set", "RADNEX_PANE_SESSION=zimzilla" in ss, ss)
         finally:
             subprocess.run(["tmux", "-L", sock, "kill-server"], env=env, capture_output=True)
 

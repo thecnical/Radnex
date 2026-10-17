@@ -30,11 +30,11 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import osint_tree as ot  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
-from zimzilla.theme import THEME_NAMES, get_palette  # noqa: E402
-from zimzilla.ui.app import ZimZillaApp  # noqa: E402
-from zimzilla.ui.complete import SLASH_COMMANDS  # noqa: E402
+from radnex import osint_tree as ot  # noqa: E402
+from radnex.config import Config  # noqa: E402
+from radnex.theme import THEME_NAMES, get_palette  # noqa: E402
+from radnex.ui.app import RadnexApp  # noqa: E402
+from radnex.ui.complete import SLASH_COMMANDS  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -642,7 +642,7 @@ def test_render() -> None:
 # ---------------------------------------------------------------------------
 
 def test_wiring() -> None:
-    app_src = (ROOT / "zimzilla" / "ui" / "app.py").read_text()
+    app_src = (ROOT / "radnex" / "ui" / "app.py").read_text()
 
     check("wiring: dispatch has an osint-tree entry",
           '"osint-tree": lambda a:' in app_src)
@@ -689,7 +689,7 @@ async def test_ui(wd: Path) -> None:
     """Drive /osint end to end and confirm the tree reaches the transcript."""
     from rich.tree import Tree
 
-    from zimzilla.ui.widgets import ChatPane
+    from radnex.ui.widgets import ChatPane
 
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "ui-state"
@@ -703,7 +703,7 @@ async def test_ui(wd: Path) -> None:
 
     ChatPane.write_block = spy
     try:
-        app = ZimZillaApp(cfg)
+        app = RadnexApp(cfg)
         async with app.run_test(size=(120, 44)) as pilot:
             app.pop_screen()
             await pilot.pause()

@@ -162,14 +162,14 @@ class _clean_env:
 
 
 def _cfg(tmp: Path, **kw):
-    from zimzilla.config import Config
+    from radnex.config import Config
 
     return Config.from_env(workdir=tmp, api_key="x",
                            base_url="http://localhost:4001", **kw)
 
 
 def _entry(entry_id: str = "sf-alpha", **kw):
-    from zimzilla.ldxhub import Entry
+    from radnex.ldxhub import Entry
 
     kw.setdefault("label", entry_id)
     return Entry(id=entry_id, **kw)
@@ -181,7 +181,7 @@ def _capture_job():
     ``_ldx_job`` is resolved as a module global inside every handler, so
     patching it here intercepts the payload without any network.
     """
-    from zimzilla import tools as t
+    from radnex import tools as t
 
     box: dict = {}
 
@@ -197,7 +197,7 @@ def _capture_job():
 
 
 def _run(name: str, args: dict, cfg):
-    from zimzilla import tools as t
+    from radnex import tools as t
 
     return t.execute(name, args, cfg)
 
@@ -206,7 +206,7 @@ def _run(name: str, args: dict, cfg):
 
 def test_looks_like_key() -> None:
     """``zpka_…`` passes — the underscore openrouter's regex would reject."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     check("key: a zpka_ key is accepted",
           ldx.looks_like_key("zpka_" + "a" * 32))
@@ -222,7 +222,7 @@ def test_looks_like_key() -> None:
 
 def test_profile_roundtrip(tmp: Path) -> None:
     """save_key writes mode 600; load_credentials reads it back as 'profile'."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     own = tmp / "profile" / "ldxhub" / "source"
     with _clean_env(), mock.patch.object(ldx, "PROFILE", own):
@@ -231,9 +231,9 @@ def test_profile_roundtrip(tmp: Path) -> None:
         check("profile: save_key returns the profile path", path == own)
 
         mode = stat.S_IMODE(own.stat().st_mode)
-        check("profile: the file is mode 600", mode == 0o600, oct(mode))
+        check("profile: the file is mode 600", mode == 0o600 if os.name != "nt" else True, oct(mode))
         parent_mode = stat.S_IMODE(own.parent.stat().st_mode)
-        check("profile: the directory is mode 700", parent_mode == 0o700,
+        check("profile: the directory is mode 700", parent_mode == 0o700 if os.name != "nt" else True,
               oct(parent_mode))
 
         creds = ldx.load_credentials()
@@ -265,7 +265,7 @@ def test_profile_roundtrip(tmp: Path) -> None:
 
 def test_read_exports_is_total(tmp: Path) -> None:
     """A missing profile is not an error — it is an empty mapping."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     missing = tmp / "nope" / "source"
     check("exports: a missing file is {}", ldx._read_exports(missing) == {})
@@ -286,7 +286,7 @@ def test_read_exports_is_total(tmp: Path) -> None:
 
 def test_credential_precedence(tmp: Path) -> None:
     """The environment wins over the profile, and reports origin 'env'."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     own = tmp / "prec" / "ldxhub" / "source"
     with _clean_env(), mock.patch.object(ldx, "PROFILE", own):
@@ -309,7 +309,7 @@ def test_credential_precedence(tmp: Path) -> None:
 
 def test_no_key_is_echoed(tmp: Path) -> None:
     """With no env and no profile there is no credential at all."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     with _clean_env(), mock.patch.object(ldx, "PROFILE", tmp / "absent" / "source"):
         check("creds: no key reads as None", ldx.load_credentials() is None)
@@ -318,7 +318,7 @@ def test_no_key_is_echoed(tmp: Path) -> None:
               ldx.save_default("structflow", "sf-alpha") is None)
 
         # A token that was never given back is never printed either.
-        src = (ROOT / "zimzilla" / "ldxhub.py").read_text(encoding="utf-8")
+        src = (ROOT / "radnex" / "ldxhub.py").read_text(encoding="utf-8")
         check("creds: the module prints no token",
               "print(" not in src and "logging" not in src)
 
@@ -331,7 +331,7 @@ def test_keyless_catalog_browsing(tmp: Path) -> None:
     ``Bearer `` with an empty token is a different request, and the gateway
     answers the two differently.
     """
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     ldx.clear_cache()
     with _clean_env(), mock.patch.object(ldx, "PROFILE", tmp / "absent" / "source"):
@@ -374,7 +374,7 @@ def test_keyless_catalog_browsing(tmp: Path) -> None:
 
 def test_json_is_total() -> None:
     """``_json`` never raises — every failure becomes an error string."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     with mock.patch("urllib.request.urlopen",
                     _stub(error=urllib.error.HTTPError("u", 401, "unauth", {}, None))):
@@ -404,7 +404,7 @@ def test_json_is_total() -> None:
 
 def test_json_sends_a_bearer_and_a_body() -> None:
     """The credential goes in the Authorization header; JSON bodies set the type."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     seen, opener = _capture()
     with mock.patch("urllib.request.urlopen", opener):
@@ -430,7 +430,7 @@ def test_json_sends_a_bearer_and_a_body() -> None:
 
 def test_parse_entries() -> None:
     """Rows parse into Entries; junk rows are skipped rather than crashing."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     entries = ldx._parse_entries(CATALOG)
     check("catalog: three good rows parse", len(entries) == 3, str(len(entries)))
@@ -460,7 +460,7 @@ def test_parse_entries() -> None:
 
 def test_entry_summary() -> None:
     """The one-line summary carries the id, the label and the shape hints."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     alpha = ldx._parse_entries(CATALOG)[0]
     s = alpha.summary
@@ -486,7 +486,7 @@ def test_entry_summary() -> None:
 
 def test_fetch_catalog() -> None:
     """A live fetch hits the right kind path and caches the result."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     ldx.clear_cache()
     seen, opener = _capture()
@@ -531,7 +531,7 @@ def test_fetch_catalog() -> None:
 
 def test_cache_is_keyed_and_expires() -> None:
     """The cache is per-token, and an expired entry reads as absent."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     ldx.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub()):
@@ -581,7 +581,7 @@ def test_cache_is_keyed_and_expires() -> None:
 
 def test_resolve_entry() -> None:
     """explicit → profile default → first live entry, with honest errors."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     ldx.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub()):
@@ -622,7 +622,7 @@ def test_resolve_entry() -> None:
 
 def test_run_job() -> None:
     """Polling walks to a terminal status; sleep is injected so nothing waits."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     statuses = iter(["queued", "processing", "completed"])
     polls = {"n": 0}
@@ -667,7 +667,7 @@ def test_run_job() -> None:
 
 def test_create_and_upload_errors(tmp: Path) -> None:
     """create_job and upload_file turn every failure into an error string."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     with mock.patch("urllib.request.urlopen", _stub({"detail": "nope"})):
         jid, err = ldx.create_job("structflow", {"model": "x"}, "tok")
@@ -713,7 +713,7 @@ def test_create_and_upload_errors(tmp: Path) -> None:
 
 def test_download_file(tmp: Path) -> None:
     """A result file is written to disk; every failure is an error string."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     dest = tmp / "out" / "result.docx"
     seen, opener = _capture()
@@ -742,15 +742,16 @@ def test_download_file(tmp: Path) -> None:
               "could not fetch result" in err, err)
 
     # An unwritable destination is a clean error, not a traceback.
+    unwritable = Path("/proc/nope/out.bin") if os.name != "nt" else Path("Z:/nonexistent/out.bin")
     with mock.patch("urllib.request.urlopen", _stub(raw=b"x")):
-        err = ldx.download_file("f1", "tok", Path("/proc/nope/out.bin"))
+        err = ldx.download_file("f1", "tok", unwritable)
     check("download: an unwritable dest is reported",
           "could not write" in err, err)
 
 
 def test_job_output() -> None:
     """Every terminal job shape renders to the right (inline, file, error)."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     inline, fid, err = ldx.job_output({"status": "failed", "error": "bad model"})
     check("output: a failed job reports its problem",
@@ -786,7 +787,7 @@ def test_job_output() -> None:
 
 def test_service_help() -> None:
     """The help text names every service the module will accept."""
-    from zimzilla import ldxhub as ldx
+    from radnex import ldxhub as ldx
 
     text = ldx.service_help()
     lines = [ln for ln in text.splitlines() if ln.strip()]
@@ -802,9 +803,9 @@ def test_service_help() -> None:
 
 def test_tool_gating(tmp: Path) -> None:
     """The six tools are registered, ungated by permission, and key-gated."""
-    from zimzilla import agent as agent_mod
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import agent as agent_mod
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     check("tools: LDXHUB_TOOLS is exactly the five job tools",
           t.LDXHUB_TOOLS == set(JOB_TOOLS), str(sorted(t.LDXHUB_TOOLS)))
@@ -850,7 +851,7 @@ def test_tool_gating(tmp: Path) -> None:
 
     # A mode that denies a normal tool must not accidentally deny these, and
     # the six must survive the mode policy untouched.
-    from zimzilla.config import MODES
+    from radnex.config import MODES
 
     for mode, policy in MODES.items():
         hit = set(policy.get("deny", set())) & set(TOOL_NAMES)
@@ -859,8 +860,8 @@ def test_tool_gating(tmp: Path) -> None:
 
 def test_structflow_inputs_xor_file(tmp: Path) -> None:
     """StructFlow takes a prompt or a file — never both, and never neither."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
     box, patch = _capture_job()
@@ -914,8 +915,8 @@ def test_structflow_inputs_xor_file(tmp: Path) -> None:
 
 def test_structflow_model_selection(tmp: Path) -> None:
     """The explicit model reaches resolve_entry; a failure surfaces cleanly."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
     seen: dict = {}
@@ -943,8 +944,8 @@ def test_structflow_model_selection(tmp: Path) -> None:
 
 def test_analyze_extract_refine(tmp: Path) -> None:
     """The three file-in handlers each build the payload the gateway requires."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
     box, patch = _capture_job()
@@ -999,8 +1000,8 @@ def test_analyze_extract_refine(tmp: Path) -> None:
 
 def test_convert_modes(tmp: Path) -> None:
     """Convert picks renderocr or castdoc, and normalises the OCR languages."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
     box, patch = _capture_job()
@@ -1060,8 +1061,8 @@ def test_convert_modes(tmp: Path) -> None:
 
 def test_list_handler(tmp: Path) -> None:
     """The list tool reads the live catalogs and marks the pinned default."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
     creds = ("tok", {"structflow": "sf-beta"}, "env")
@@ -1122,8 +1123,8 @@ def test_list_handler(tmp: Path) -> None:
 
 def test_deliver(tmp: Path) -> None:
     """``_ldx_deliver`` saves a file, reads one back, or explains the miss."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
 
@@ -1150,7 +1151,7 @@ def test_deliver(tmp: Path) -> None:
     check("deliver: a dest download succeeds", not out.is_error, out.output)
     check("deliver: the file landed", (tmp / "out" / "result.docx").read_bytes() == b"RESULT")
     check("deliver: the report names the relative path",
-          "wrote out/result.docx" in out.output, out.output)
+          "wrote out/result.docx" in out.output or "wrote out\\result.docx" in out.output, out.output)
 
     # A failing download is a clean tool error naming the reason.
     with mock.patch.object(ldx, "download_file", lambda *a, **k: "key rejected (403)"):
@@ -1179,7 +1180,7 @@ def test_deliver(tmp: Path) -> None:
     with mock.patch.object(ldx, "download_file", ok_download):
         out = t._ldx_deliver("summary", "f4", "tok", cfg, "out/two.docx")
     check("deliver: inline text and a saved file both appear",
-          "summary" in out.output and "wrote out/two.docx" in out.output, out.output)
+          "summary" in out.output and ("wrote out/two.docx" in out.output or "wrote out\\two.docx" in out.output), out.output)
 
     # _ldx_job drives the whole path from a canned terminal job.
     with mock.patch.object(ldx, "run_job",
@@ -1210,8 +1211,8 @@ def test_deliver(tmp: Path) -> None:
 
 def test_upload_is_jailed(tmp: Path) -> None:
     """An upload path goes through the sandbox, like every other file tool."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import tools as t
+    from radnex import ldxhub as ldx
+    from radnex import tools as t
 
     cfg = _cfg(tmp)
     loose = _cfg(tmp, unsafe=True)
@@ -1242,21 +1243,23 @@ def test_upload_is_jailed(tmp: Path) -> None:
 
         # With --unsafe the jail is lifted, so an outside path that exists is
         # permitted — asserted so the flag keeps working for uploads too.
-        out = _run("ldxhub_extract", {"file_path": "../../etc/hostname"}, loose)
+        outside = tmp.parent / "outside_marker.txt"
+        outside.write_text("outside")
+        out = _run("ldxhub_extract", {"file_path": f"../{outside.name}"}, loose)
         check("jail: --unsafe permits an outside path that exists",
               not out.is_error, out.output)
 
         # The jail is lifted but existence is still required — must_exist is
         # enforced by resolve_in_jail before the flag is consulted.
-        out = _run("ldxhub_extract", {"file_path": "../../etc/definitely-absent"}, loose)
+        out = _run("ldxhub_extract", {"file_path": "../definitely-absent.txt"}, loose)
         check("jail: --unsafe still requires the file to exist",
               out.is_error and "does not exist" in out.output, out.output)
 
 
 def test_not_a_source() -> None:
     """LDXHub is a tool surface, not an upstream — and the tests hold that."""
-    from zimzilla import ldxhub as ldx
-    from zimzilla import sources
+    from radnex import ldxhub as ldx
+    from radnex import sources
 
     check("source: there is no apply_to", not hasattr(ldx, "apply_to"))
     check("source: there is no active_endpoint", not hasattr(ldx, "active_endpoint"))
@@ -1264,7 +1267,7 @@ def test_not_a_source() -> None:
     check("source: there is no DEFAULT_BASE_URL to switch to",
           not hasattr(ldx, "DEFAULT_BASE_URL"))
 
-    src = (ROOT / "zimzilla" / "sources.py").read_text(encoding="utf-8")
+    src = (ROOT / "radnex" / "sources.py").read_text(encoding="utf-8")
     check("source: sources.py never mentions ldxhub", "ldxhub" not in src.lower())
     check("source: LDXHub is not a builtin key",
           "ldxhub" not in sources.BUILTIN_KEYS)
@@ -1272,7 +1275,7 @@ def test_not_a_source() -> None:
           sources.active_key("https://gw.ldxhub.io") is None)
 
     # The module carries no Claude fallback (openrouter has one; this must not).
-    body = (ROOT / "zimzilla" / "ldxhub.py").read_text(encoding="utf-8")
+    body = (ROOT / "radnex" / "ldxhub.py").read_text(encoding="utf-8")
     check("source: ldxhub.py has no claude fallback",
           "claude" not in body.lower())
     check("source: it documents that it is not a chat source",
@@ -1281,8 +1284,8 @@ def test_not_a_source() -> None:
 
 def test_tui_surfaces() -> None:
     """The two commands are wired into every surface the TUI has."""
-    app = (ROOT / "zimzilla" / "ui" / "app.py").read_text(encoding="utf-8")
-    comp = (ROOT / "zimzilla" / "ui" / "complete.py").read_text(encoding="utf-8")
+    app = (ROOT / "radnex" / "ui" / "app.py").read_text(encoding="utf-8")
+    comp = (ROOT / "radnex" / "ui" / "complete.py").read_text(encoding="utf-8")
 
     check("tui: app.py imports the module", "from .. import ldxhub as ldx_mod" in app)
     check("tui: the setup command is dispatched",
@@ -1317,10 +1320,10 @@ def test_tui_surfaces() -> None:
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="zim-ldx-test-"))
     # Pin the module's paths to the temp tree before anything imports it:
-    # ZIMZILLA_HOME is read at import time.
-    os.environ["ZIMZILLA_HOME"] = str(tmp / ".zimzilla")
-    os.environ["ZIMZILLA_CLAUDE_SOURCE"] = str(tmp / "claude-source")
-    for mod in [m for m in list(sys.modules) if m.startswith("zimzilla")]:
+    # RADNEX_HOME is read at import time.
+    os.environ["RADNEX_HOME"] = str(tmp / ".zimzilla")
+    os.environ["RADNEX_CLAUDE_SOURCE"] = str(tmp / "claude-source")
+    for mod in [m for m in list(sys.modules) if m.startswith("radnex")]:
         del sys.modules[mod]
 
     saved = {v: os.environ.pop(v, None) for v in LDXHUB_VARS}

@@ -34,9 +34,9 @@ from rich.syntax import Syntax  # noqa: E402
 from rich.table import Table  # noqa: E402
 from rich.text import Text  # noqa: E402
 
-from zimzilla.theme import PALETTES  # noqa: E402
-from zimzilla.ui import markdown as M  # noqa: E402
-from zimzilla.ui import renderers as R  # noqa: E402
+from radnex.theme import PALETTES  # noqa: E402
+from radnex.ui import markdown as M  # noqa: E402
+from radnex.ui import renderers as R  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 P = PALETTES["green"]

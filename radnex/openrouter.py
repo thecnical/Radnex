@@ -48,10 +48,10 @@ import urllib.request
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ZIMZILLA_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 #: Where the operator keeps their per-provider shell profiles — the same
 #: ``~/claude-source/<name>`` files a plain ``source`` loads for Claude Code.
-CLAUDE_SOURCE = Path(os.environ.get("ZIMZILLA_CLAUDE_SOURCE")
+CLAUDE_SOURCE = Path(os.environ.get("RADNEX_CLAUDE_SOURCE")
                      or (Path.home() / "claude-source"))
 
 #: The canonical host. Matching is by this substring, so a trailing slash and any
@@ -74,7 +74,7 @@ HOST = "openrouter.ai"
 DEFAULT_BASE_URL = "https://openrouter.ai/api"
 
 #: The profile this module writes and reads for the in-TUI key.
-PROFILE = ZIMZILLA_HOME / "openrouter" / "source"
+PROFILE = RADNEX_HOME / "openrouter" / "source"
 
 #: A fetched catalog older than this is refetched rather than trusted.
 CACHE_TTL = 300.0

@@ -27,12 +27,12 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import phish  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
-from zimzilla.scope import HostSet, Scope  # noqa: E402
-from zimzilla.ui.app import ZimZillaApp  # noqa: E402
-from zimzilla.ui.complete import SLASH_COMMANDS  # noqa: E402
-from zimzilla.ui.widgets import ZimPane  # noqa: E402
+from radnex import phish  # noqa: E402
+from radnex.config import Config  # noqa: E402
+from radnex.scope import HostSet, Scope  # noqa: E402
+from radnex.ui.app import RadnexApp  # noqa: E402
+from radnex.ui.complete import SLASH_COMMANDS  # noqa: E402
+from radnex.ui.widgets import ZimPane  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -208,7 +208,7 @@ def test_clone_login_picks_the_real_form() -> None:
 
 def test_pagekite_name_and_order() -> None:
     """PageKite is the first worldwide forwarder; a missing kite is skipped."""
-    src = (ROOT / "zimzilla" / "phish.py").read_text()
+    src = (ROOT / "radnex" / "phish.py").read_text()
     check("pagekite: open_tunnel tries pagekite first",
           "attempts = (_open_pagekite, _open_cloudflared" in src)
     check("pagekite: the binary is vendored in packaging/",
@@ -218,7 +218,7 @@ def test_pagekite_name_and_order() -> None:
     try:
         os.environ.pop("PAGEKITE_NAME", None)
         os.environ.pop("PAGEKITE_BIN", None)
-        os.environ["ZIMZILLA_HOME"] = str(Path("/tmp/zimzilla-no-such-home"))
+        os.environ["RADNEX_HOME"] = str(Path("/tmp/zimzilla-no-such-home"))
         # Reload lookup against the empty home.
         name = phish.pagekite_name()
         check("pagekite: no env and no file → empty name", name == "", name)
@@ -226,7 +226,7 @@ def test_pagekite_name_and_order() -> None:
         check("pagekite: PAGEKITE_NAME wins",
               phish.pagekite_name() == "zim.pagekite.me")
     finally:
-        for k in ("PAGEKITE_NAME", "PAGEKITE_BIN", "ZIMZILLA_HOME"):
+        for k in ("PAGEKITE_NAME", "PAGEKITE_BIN", "RADNEX_HOME"):
             if k in saved:
                 os.environ[k] = saved[k]
             else:
@@ -359,7 +359,7 @@ def test_scope_blocks_denied_host() -> None:
 # ---------------------------------------------------------------------------
 
 def test_zim_pane() -> None:
-    from zimzilla.theme import get_palette
+    from radnex.theme import get_palette
 
     # Constructed off-app: Static.update needs an active Textual app, so this
     # test drives the state machine with render_pane stubbed out. The live
@@ -427,7 +427,7 @@ def test_wiring() -> None:
     names = [c for c, _ in SLASH_COMMANDS]
     check("wiring: /phish is in the completion menu", "/phish" in names, f"{names}")
 
-    app_src = (ROOT / "zimzilla" / "ui" / "app.py").read_text()
+    app_src = (ROOT / "radnex" / "ui" / "app.py").read_text()
     check("wiring: dispatch has a phish entry", '"phish": lambda a:' in app_src)
     check("wiring: _cmd_phish is defined", "def _cmd_phish(" in app_src)
     check("wiring: help table lists it", '("/phish <host>"' in app_src)
@@ -435,7 +435,7 @@ def test_wiring() -> None:
           '("/phish", "clone a login page and harvest creds", "phish")' in app_src)
     check("wiring: compose yields ZimPane", "yield ZimPane(" in app_src)
 
-    widgets_src = (ROOT / "zimzilla" / "ui" / "widgets.py").read_text()
+    widgets_src = (ROOT / "radnex" / "ui" / "widgets.py").read_text()
     check("wiring: ZimPane class exists", "class ZimPane(" in widgets_src)
 
 
@@ -448,7 +448,7 @@ async def test_ui(wd: Path) -> None:
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "ui-state"
 
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
     async with app.run_test(size=(140, 40)) as pilot:
         app.pop_screen()
         await pilot.pause()

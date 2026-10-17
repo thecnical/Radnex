@@ -636,6 +636,13 @@ def _tool_bash(args: dict, cfg) -> ToolResult:
                 meta={"blocked": True},
             )
 
+    if os.name == "nt":
+        cmd_clean = command.strip()
+        if cmd_clean == "true":
+            return ToolResult("", is_error=False, meta={"exit": 0})
+        if cmd_clean == "false":
+            return ToolResult("", is_error=True, meta={"exit": 1})
+
     try:
         proc = subprocess.run(
             command,

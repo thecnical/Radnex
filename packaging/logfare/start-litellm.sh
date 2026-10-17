@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# start-litellm.sh — run the LiteLLM translation proxy for ZimZilla.
+# start-litellm.sh — run the LiteLLM translation proxy for Radnex.
 #
-#   ZimZilla (Anthropic /v1/messages) --▶ LiteLLM :4001 --▶ Logfare (OpenAI)
+#   Radnex (Anthropic /v1/messages) --▶ LiteLLM :4001 --▶ Logfare (OpenAI)
 #
 # Usage:  ./start-litellm.sh [start|stop|restart|status|logs|help]
 #
@@ -45,8 +45,8 @@ if [[ -z "${LITELLM_BIN:-}" ]]; then
 fi
 if [[ -z "$LITELLM_BIN" ]]; then
   for _c in "$HOME/.local/bin/litellm" \
-            "${ZIMZILLA_HOME:-$HOME/.zimzilla}/venv/bin/litellm" \
-            "$HOME/.zimzilla/venv/bin/litellm" "$HOME/venv/bin/litellm"; do
+            "${RADNEX_HOME:-$HOME/.radnex}/venv/bin/litellm" \
+            "$HOME/.radnex/venv/bin/litellm" "$HOME/venv/bin/litellm"; do
     [[ -x "$_c" ]] && LITELLM_BIN="$_c" && break
   done
 fi

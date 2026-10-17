@@ -27,8 +27,9 @@ from textual.widgets import Input, Static
 
 from .. import ad as ad_mod
 from .. import aihubmix as ah_mod
-from .. import crack as crack_mod
 from .. import antseed as as_mod
+from .. import apinex as api_mod
+from .. import crack as crack_mod
 from .. import hunt as hunt_mod
 from .. import ldxhub as ldx_mod
 from .. import logfare as lf_mod
@@ -37,6 +38,7 @@ from .. import osint as osint_mod
 from .. import openrouter as or_mod
 from .. import osint_tree as osint_tree_mod
 from .. import phish as phish_mod
+from .. import radox as rx_mod
 from .. import session as session_mod
 from .. import sources as sources_mod
 from .. import team as team_mod
@@ -759,7 +761,7 @@ class FindingsPanel(ModalScreen[None]):
         return t
 
 
-class ZimZillaApp(App):
+class RadnexApp(App):
     """Top-level application: boot screen, then the shell."""
 
     # Textual already highlights on drag. We copy the highlight as soon as
@@ -1044,11 +1046,11 @@ class ZimZillaApp(App):
             popup.base_url = self.cfg.base_url
             yield popup
             yield StatusBar(self.palette)
-            yield PromptInput(placeholder="❯ message ZimZilla…   ( / commands · @ files · ^K palette )",
+            yield PromptInput(placeholder="❯ message Radnex…   ( / commands · @ files · ^K palette )",
                               id="input")
 
     def on_mount(self) -> None:
-        self.title = "ZIMZILLA"
+        self.title = "RADNEX"
         try:
             theme = self.palette.rich_theme()
             self.register_theme(theme)
@@ -1544,7 +1546,7 @@ class ZimZillaApp(App):
                 self._sys_line("turn interrupted", warn=True)
             # An osint run leaves its whole case directory behind — clones,
             # raw API dumps, avatars. Once the report is written, archive it
-            # and delete the rest, so ~/.zimzilla does not grow without bound.
+            # and delete the rest, so ~/.radnex does not grow without bound.
             # Runs in the finally block, so an interrupted run is tidied too.
             # finalise_case deletes NOTHING unless it found a report, so a run
             # that failed or was cut short keeps its evidence for inspection.
@@ -1976,6 +1978,11 @@ class ZimZillaApp(App):
         "openrouter-api-setup", "zim-openrouter", "models",
         "unorouter-api-setup", "unorouter-models", "zim-unorouter",
         "aihubmix-api-setup", "aihubmix-models", "zim-aihubmix",
+        "apinex-api-setup", "apinex-models", "zim-apinex", "rx-apinex",
+        "radox-api-setup", "radox-models", "zim-radox", "rx-radox",
+        "rx-logfare", "rx-tokenjuice", "rx-tokenharbour", "rx-openrouter",
+        "rx-unorouter", "rx-aihubmix", "rx-antseed", "rx-source", "rx-opencode",
+        "undo", "webhook",
         "zim-antseed", "antseed-models",
         "logfare-models",
         # Same again for LDXHub: the key and the catalogs are local reads and
@@ -2035,22 +2042,41 @@ class ZimZillaApp(App):
             "findings": lambda a: self._cmd_findings(a),
             "report-bug-hunt": lambda a: self._cmd_report_bug_hunt(a),
             "panes": lambda a: self._cmd_panes(a),
+            "undo": lambda a: self._cmd_undo(a),
+            "webhook": lambda a: self._cmd_webhook(a),
             "zim-opencode": lambda a: self._cmd_zim_opencode(a),
+            "rx-opencode": lambda a: self._cmd_zim_opencode(a),
             "zim-logfare": lambda a: self._cmd_zim_source("logfare"),
+            "rx-logfare": lambda a: self._cmd_zim_source("logfare"),
             "zim-tokenjuice": lambda a: self._cmd_zim_source("tokenjuice"),
+            "rx-tokenjuice": lambda a: self._cmd_zim_source("tokenjuice"),
             "zim-tokenharbour": lambda a: self._cmd_zim_tokenharbour(a),
+            "rx-tokenharbour": lambda a: self._cmd_zim_tokenharbour(a),
             "zim-openrouter": lambda a: self._cmd_zim_gateway("openrouter"),
+            "rx-openrouter": lambda a: self._cmd_zim_gateway("openrouter"),
             "zim-antseed": lambda a: self._cmd_zim_gateway("antseed"),
+            "rx-antseed": lambda a: self._cmd_zim_gateway("antseed"),
             "zim-source": lambda a: self._cmd_zim_source(None),
+            "rx-source": lambda a: self._cmd_zim_source(None),
             "tokenharbour-api-setup": lambda a: self._cmd_tokenharbour_key(a),
             "tokenharbour-models": lambda a: self._cmd_tokenharbour_models(a),
             "openrouter-api-setup": lambda a: self._cmd_gateway_key("openrouter", a),
             "zim-unorouter": lambda a: self._cmd_zim_gateway("unorouter"),
+            "rx-unorouter": lambda a: self._cmd_zim_gateway("unorouter"),
             "unorouter-api-setup": lambda a: self._cmd_gateway_key("unorouter", a),
             "unorouter-models": lambda a: self._cmd_models(["unorouter"]),
             "zim-aihubmix": lambda a: self._cmd_zim_gateway("aihubmix"),
+            "rx-aihubmix": lambda a: self._cmd_zim_gateway("aihubmix"),
             "aihubmix-api-setup": lambda a: self._cmd_gateway_key("aihubmix", a),
             "aihubmix-models": lambda a: self._cmd_models(["aihubmix"]),
+            "zim-apinex": lambda a: self._cmd_zim_gateway("apinex"),
+            "rx-apinex": lambda a: self._cmd_zim_gateway("apinex"),
+            "apinex-api-setup": lambda a: self._cmd_gateway_key("apinex", a),
+            "apinex-models": lambda a: self._cmd_models(["apinex"]),
+            "zim-radox": lambda a: self._cmd_zim_gateway("radox"),
+            "rx-radox": lambda a: self._cmd_zim_gateway("radox"),
+            "radox-api-setup": lambda a: self._cmd_gateway_key("radox", a),
+            "radox-models": lambda a: self._cmd_models(["radox"]),
             "antseed-models": lambda a: self._cmd_models(["antseed"]),
             "models": lambda a: self._cmd_models(a),
             "logfare-models": lambda a: self._cmd_logfare_models(a),
@@ -2412,7 +2438,7 @@ class ZimZillaApp(App):
                 elif active == "logfare":
                     lf_catalog = fetched
                 models = tuple(m.id for m in fetched)
-        # Only police this on a known source. A custom endpoint (ZIMZILLA_NO_PROXY,
+        # Only police this on a known source. A custom endpoint (RADNEX_NO_PROXY,
         # a direct ANTHROPIC_BASE_URL) has no catalog to check against, and the
         # old behaviour — accept anything — is right there.
         if active and check_name not in models:
@@ -2587,6 +2613,28 @@ class ZimZillaApp(App):
             t.append("\n")
         self.query_one(ChatPane).write_block(t)
 
+    def _cmd_undo(self, args=None) -> None:
+        """/undo — roll back workspace changes from the last shadow checkpoint."""
+        from ..shadow import shadow
+        ok, msg = shadow.undo(self.cfg.workdir)
+        if ok:
+            self._sys_line(f"undo: {msg}", ok=True)
+        else:
+            self._sys_line(f"undo: {msg}", warn=True)
+
+    def _cmd_webhook(self, args=None) -> None:
+        """/webhook [url] — view or configure background webhook reporting."""
+        if args:
+            url = args[0].strip()
+            self.cfg.webhook_url = url
+            self._sys_line(f"webhook URL set: {url}", ok=True)
+        else:
+            cur = getattr(self.cfg, "webhook_url", None)
+            if cur:
+                self._sys_line(f"current webhook URL: {cur}", ok=True)
+            else:
+                self._sys_line("no webhook configured — usage: /webhook <url>", warn=True)
+
     def _cmd_scope(self, args=None) -> None:
         p = self.palette
         s = self.agent.scope
@@ -2743,6 +2791,8 @@ class ZimZillaApp(App):
                 ("openrouter", or_mod, "OpenRouter", "/openrouter-api-setup"),
                 ("unorouter", uno_mod, "UnoRouter", "/unorouter-api-setup"),
                 ("aihubmix", ah_mod, "AIHubMix", "/aihubmix-api-setup"),
+                ("apinex", api_mod, "APInex", "/apinex-api-setup"),
+                ("radox", rx_mod, "Radox AI", "/radox-api-setup"),
             ):
                 creds = _mod.load_credentials()
                 mark = "◉" if active == _kind else "○"
@@ -2780,10 +2830,9 @@ class ZimZillaApp(App):
             else:
                 t.append(f"key from {creds[2]} (document tools, not a source)\n",
                          style=p.accent)
-            t.append("\n  switch with  /zim-logfare,  /zim-tokenjuice,  "
-                     "/zim-tokenharbour\n                 or  /zim-openrouter,  "
-                     "/zim-unorouter,  /zim-aihubmix,\n                 "
-                     "or  /zim-antseed\n", style=p.dim)
+            t.append("\n  switch with  /rx-logfare,  /rx-tokenjuice,  /rx-tokenharbour\n"
+                     "                 /rx-openrouter,  /rx-unorouter,  /rx-aihubmix\n"
+                     "                 /rx-apinex,  /rx-radox,  or  /rx-antseed\n", style=p.dim)
             self.query_one(ChatPane).write_block(t)
             return
 
@@ -2887,7 +2936,7 @@ class ZimZillaApp(App):
     def _cmd_tokenharbour_key(self, args) -> None:
         """/tokenharbour-api-setup {key} — store the TokenHarbour API key.
 
-        Written to ~/.zimzilla/tokenharbour/source, mode 600, in the same
+        Written to ~/.radnex/tokenharbour/source, mode 600, in the same
         profile format every other source uses. The key is never echoed back —
         the confirmation names the file and the last four characters, which is
         enough to tell two keys apart and not enough to leak one.
@@ -3097,6 +3146,10 @@ class ZimZillaApp(App):
             return ah_mod, "AIHubMix"
         if kind == "antseed":
             return as_mod, "AntSeed"
+        if kind == "apinex":
+            return api_mod, "APInex"
+        if kind == "radox":
+            return rx_mod, "Radox AI"
         return None
 
     def _cmd_gateway_key(self, kind: str, args) -> None:
@@ -3105,7 +3158,7 @@ class ZimZillaApp(App):
         Parameterised by *kind* so both hosted gateways share one
         implementation rather than growing a near-copy each.
 
-        Written to ~/.zimzilla/<kind>/source, mode 600, in the same
+        Written to ~/.radnex/<kind>/source, mode 600, in the same
         ``export VAR="value"`` format every other profile uses — so it can be
         sourced by a shell as well as read by the harness, and there is one
         credential format in the project rather than three.
@@ -3185,7 +3238,7 @@ class ZimZillaApp(App):
         their job endpoints; the model/engine catalogs are public and already
         listable via /ldxhub-models.
 
-        Written to ~/.zimzilla/ldxhub/source, mode 600, same
+        Written to ~/.radnex/ldxhub/source, mode 600, same
         ``export VAR="value"`` format as every other profile. The key is
         never echoed — the confirmation names the file and the last four
         characters, enough to tell one key from another, not enough to be one.
@@ -3460,6 +3513,12 @@ class ZimZillaApp(App):
             # be pinned, because the router's trust floor refuses free peers on
             # its own — see the module header.
             return as_mod.usable_free_models()
+        if kind == "apinex":
+            creds = api_mod.load_credentials()
+            return api_mod.usable_free_models(creds[0] if creds else "")
+        if kind == "radox":
+            creds = rx_mod.load_credentials()
+            return rx_mod.usable_free_models(creds[0] if creds else "")
         if kind == "logfare":
             # Logfare's catalog is a health feed — it carries no pricing at all,
             # so there is no free tier to filter to. Reported as an empty list
@@ -4291,7 +4350,7 @@ class ZimZillaApp(App):
             t.append(kind.blurb + "\n", style=p.primary if built else p.dim)
         t.append("\n  usage: ", style=p.dim)
         t.append("/osint <kind> <target>\n", style=p.primary)
-        # Read from cfg rather than hard-coding ~/.zimzilla: state_dir is
+        # Read from cfg rather than hard-coding ~/.radnex: state_dir is
         # configurable, and a menu that names the wrong directory is worse
         # than one that names none.
         t.append("  evidence lands in ", style=p.dim)
@@ -6126,12 +6185,22 @@ class ZimZillaApp(App):
             ("/rain", "toggle the matrix rain", "rain"),
             ("/think", "show the model's reasoning", "think"),
             ("/theme", "switch palette", "theme"),
-            ("/zim-source", "upstream sources and status", "zim-source"),
-            ("/zim-tokenharbour", "switch upstream to TokenHarbour", "zim-tokenharbour"),
-            ("/zim-openrouter", "switch upstream to OpenRouter", "zim-openrouter"),
-            ("/zim-unorouter", "switch upstream to UnoRouter", "zim-unorouter"),
-            ("/zim-aihubmix", "switch upstream to AIHubMix", "zim-aihubmix"),
-            ("/zim-antseed", "switch upstream to AntSeed", "zim-antseed"),
+            ("/rx-source", "upstream sources and status", "rx-source"),
+            ("/rx-tokenharbour", "switch upstream to TokenHarbour", "rx-tokenharbour"),
+            ("/rx-openrouter", "switch upstream to OpenRouter", "rx-openrouter"),
+            ("/rx-unorouter", "switch upstream to UnoRouter", "rx-unorouter"),
+            ("/rx-aihubmix", "switch upstream to AIHubMix", "rx-aihubmix"),
+            ("/rx-apinex", "switch upstream to APInex", "rx-apinex"),
+            ("/rx-radox", "switch upstream to Radox AI", "rx-radox"),
+            ("/rx-antseed", "switch upstream to AntSeed", "rx-antseed"),
+            ("/zim-source", "upstream sources and status [alias]", "zim-source"),
+            ("/zim-tokenharbour", "switch upstream to TokenHarbour [alias]", "zim-tokenharbour"),
+            ("/zim-openrouter", "switch upstream to OpenRouter [alias]", "zim-openrouter"),
+            ("/zim-unorouter", "switch upstream to UnoRouter [alias]", "zim-unorouter"),
+            ("/zim-aihubmix", "switch upstream to AIHubMix [alias]", "zim-aihubmix"),
+            ("/zim-apinex", "switch upstream to APInex [alias]", "zim-apinex"),
+            ("/zim-radox", "switch upstream to Radox AI [alias]", "zim-radox"),
+            ("/zim-antseed", "switch upstream to AntSeed [alias]", "zim-antseed"),
             ("/antseed-models", "AntSeed's free models, and the peer to pin",
              "antseed-models"),
             ("/tokenharbour-api-setup", "store your TokenHarbour API key",
@@ -6148,6 +6217,18 @@ class ZimZillaApp(App):
              "aihubmix-api-setup"),
             ("/aihubmix-models", "the live free catalog — what is free and usable",
              "aihubmix-models"),
+            ("/apinex-api-setup", "store your APInex API key",
+             "apinex-api-setup"),
+            ("/apinex-models", "APInex live free catalog",
+             "apinex-models"),
+            ("/radox-api-setup", "store your Radox AI API key",
+             "radox-api-setup"),
+            ("/radox-models", "Radox AI live free catalog",
+             "radox-models"),
+            ("/undo", "roll back workspace changes from shadow checkpoint",
+             "undo"),
+            ("/webhook", "configure background webhook reporting",
+             "webhook"),
             ("/models", "free models of an upstream — /models [source]", "models"),
             ("/logfare-models", "fetch the live catalog; show what is up",
              "logfare-models"),

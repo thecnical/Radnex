@@ -55,8 +55,8 @@ import anthropic  # noqa: E402
 # in ``APIStatusError.response`` — not a stand-in that merely resembles it.
 import httpx2  # noqa: E402
 
-from zimzilla.agent import Agent  # noqa: E402
-from zimzilla.config import (  # noqa: E402
+from radnex.agent import Agent  # noqa: E402
+from radnex.config import (  # noqa: E402
     DEFAULT_PRICE, PRICING, Config, price_for,
 )
 

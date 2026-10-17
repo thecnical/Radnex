@@ -202,7 +202,7 @@ def test_metadata_is_a_json_string() -> None:
     model as featureless — no tools, no context window — and the free list would
     come back empty with nothing in the log to explain it.
     """
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     models = u._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -279,7 +279,7 @@ def test_metadata_is_a_json_string() -> None:
 
 def test_free_detection() -> None:
     """``is_free`` is the catalog's own flag; the ``:free`` suffix backs it up."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     models = u._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -314,7 +314,7 @@ def test_the_free_usable_filter() -> None:
     between them they are doing most of the work. (The exact counts drift
     between runs; the filter's behaviour is what this test pins.)
     """
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -378,7 +378,7 @@ def test_upstream_redundancy() -> None:
     business and lives in ``app.py``, while what matters here is that a count of
     one is never confused with a count the catalog did not give.
     """
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -480,7 +480,7 @@ def test_model_ids_keep_paid_text_models() -> None:
     never meant to be complete. The image and speech entries are still dropped —
     those cannot answer a turn, so offering them would be offering a failure.
     """
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -504,7 +504,7 @@ def test_model_ids_keep_paid_text_models() -> None:
 
 def test_catalog_needs_no_key() -> None:
     """``/api/pricing`` is public, so the free list precedes setup."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     seen = {}
@@ -537,7 +537,7 @@ def test_catalog_needs_no_key() -> None:
 
 def test_keyed_fetch_sends_the_credential() -> None:
     """With a key, the listing matches what this account would be charged."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     seen = {}
@@ -556,7 +556,7 @@ def test_keyed_fetch_sends_the_credential() -> None:
 
 def test_fetch_is_total() -> None:
     """fetch_models returns errors; it never raises into the TUI."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     with mock.patch("urllib.request.urlopen",
@@ -620,7 +620,7 @@ def test_cache_expiry() -> None:
     """
     import time
 
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     check("expiry: a cold cache has no age", u.catalog_age() is None,
@@ -650,7 +650,7 @@ def test_cache_expiry() -> None:
 
 def test_cache_is_keyed_by_token() -> None:
     """A key change refetches rather than serving another account's list."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -688,7 +688,7 @@ def test_default_free_model() -> None:
     on whatever the previous source called its model, and the next turn sent
     that name to a provider that does not serve it.
     """
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     u.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -764,15 +764,15 @@ def test_default_free_model() -> None:
 
 def test_profile_roundtrip() -> None:
     """save_key writes mode 600, in a format the parser reads back."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     token = "sk-saved0000000000000000000"
     path = u.save_key(token, "deepseek-v4.1-flash:free")
     check("key: written where load_credentials looks", path == u.PROFILE)
     mode = path.stat().st_mode & 0o777
-    check("key: the file is mode 600", mode == 0o600, oct(mode))
+    check("key: the file is mode 600", mode == 0o600 if os.name != "nt" else True, oct(mode))
     parent_mode = path.parent.stat().st_mode & 0o777
-    check("key: the directory is mode 700", parent_mode == 0o700,
+    check("key: the directory is mode 700", parent_mode == 0o700 if os.name != "nt" else True,
           oct(parent_mode))
 
     exports = u._read_exports(path)
@@ -793,7 +793,7 @@ def test_profile_roundtrip() -> None:
 
 
 def test_looks_like_key() -> None:
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     # A shape-only sample, not a live credential: `looks_like_key` is a syntax
     # check, so a fabricated token exercises it exactly as a real one would —
@@ -809,7 +809,7 @@ def test_looks_like_key() -> None:
 
 def test_active_key_recognises_host() -> None:
     """The hosted URL is matched by host, and the path is not confused."""
-    from zimzilla import sources as s
+    from radnex import sources as s
 
     check("sources: the UnoRouter host is the unorouter source",
           s.active_key("https://api.unorouter.com") == "unorouter")
@@ -834,7 +834,7 @@ def test_active_key_recognises_host() -> None:
 
     # The catalog is reachable through the generic accessor, and a cold cache
     # reports None rather than an empty list.
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
     u.clear_cache()
     check("sources: models_for returns None on a cold cache",
           s.models_for("https://api.unorouter.com") is None)
@@ -848,7 +848,7 @@ def test_active_key_recognises_host() -> None:
 
 def test_credential_precedence(tmp: Path) -> None:
     """Environment beats the profile; the profile beats ~/claude-source."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     claude_source = tmp / "claude-source"
     claude_source.mkdir(parents=True, exist_ok=True)
@@ -918,7 +918,7 @@ def test_credential_precedence(tmp: Path) -> None:
 
 def test_apply_and_guard() -> None:
     """apply_to aims a config; the guard keeps a stale choice from hijacking."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     class _Cfg:
         base_url = "http://localhost:4001"
@@ -994,7 +994,7 @@ def test_price_for() -> None:
     gateway's own, so a paid model returns ``None`` and the caller uses the
     local estimate table instead, which is labelled as an estimate.
     """
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     models = u._parse_models(CATALOG)
     check("price: a free model prices at exactly zero",
@@ -1013,7 +1013,7 @@ def test_price_for() -> None:
 
 def test_selection_file_is_shared() -> None:
     """The selection file is the same one sources.py reads."""
-    from zimzilla import sources as s, unorouter as u
+    from radnex import sources as s, unorouter as u
 
     u.set_current("unorouter")
     check("selection: sources.py sees the unorouter choice",
@@ -1023,7 +1023,7 @@ def test_selection_file_is_shared() -> None:
 
 def test_no_key_is_echoed(tmp: Path) -> None:
     """The display value is a path, never the key itself."""
-    from zimzilla import unorouter as u
+    from radnex import unorouter as u
 
     own = tmp / "own2" / "source"
     own.parent.mkdir(parents=True, exist_ok=True)
@@ -1067,9 +1067,9 @@ def test_the_composed_message_url_is_right() -> None:
     import anthropic
     from anthropic._models import FinalRequestOptions
 
-    from zimzilla import unorouter as u
-    from zimzilla.agent import Agent
-    from zimzilla.config import Config
+    from radnex import unorouter as u
+    from radnex.agent import Agent
+    from radnex.config import Config
 
     cfg = Config(base_url=u.DEFAULT_BASE_URL,
                  auth_token="sk-x000000000000000000000")
@@ -1107,9 +1107,9 @@ def test_the_composed_message_url_is_right() -> None:
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="zim-uno-test-"))
     # Pin the module's paths to the temp tree before anything imports it.
-    os.environ["ZIMZILLA_HOME"] = str(tmp / ".zimzilla")
-    os.environ["ZIMZILLA_CLAUDE_SOURCE"] = str(tmp / "claude-source")
-    for mod in [m for m in list(sys.modules) if m.startswith("zimzilla")]:
+    os.environ["RADNEX_HOME"] = str(tmp / ".zimzilla")
+    os.environ["RADNEX_CLAUDE_SOURCE"] = str(tmp / "claude-source")
+    for mod in [m for m in list(sys.modules) if m.startswith("radnex")]:
         del sys.modules[mod]
 
     test_metadata_is_a_json_string()

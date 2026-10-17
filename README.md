@@ -1,13 +1,13 @@
 <div align="center">
 
-<img src="docs/hero.svg" alt="ZIMZILLA" width="820">
+<img src="docs/hero.svg" alt="RADNEX" width="820">
 
-**An autonomous coding agent that lives in your terminal.**
+**An autonomous security assessment and coding agent that lives in your terminal.**
 
 It reads your repo, runs commands, writes files, chases down bugs and
 keeps going until the job is done — while you watch it work.
 
-<sub>by **Mr-Destroyer / ZIM**</sub>
+<sub>**Radnex Engine**</sub>
 
 ![python](https://img.shields.io/badge/python-3.11%2B-00ff41?style=flat-square&labelColor=040704)
 ![platform](https://img.shields.io/badge/platform-linux-00ff41?style=flat-square&labelColor=040704)
@@ -16,7 +16,7 @@ keeps going until the job is done — while you watch it work.
 
 </div>
 
-<img src="docs/terminal.svg" alt="a ZIMZILLA session" width="900">
+<img src="docs/terminal.svg" alt="a RADNEX session" width="900">
 
 ---
 
@@ -66,33 +66,37 @@ throughput, how full the context is, what it has cost, which files it touched.*
 
 ## What it does
 
-ZIMZILLA is a coding agent you drive from a terminal. You describe what you
-want; it works out the steps, does them, and shows you everything it did.
+**RADNEX** is an autonomous security assessment and coding agent you drive directly
+from your Linux terminal. You describe what you want; it works out the steps, does them,
+and shows you everything it did in real time.
 
-- **Talks, then acts.** Ask a question and it answers. Ask for a change and it
-  makes the change — reading files, running commands, editing code.
-- **Sees your project.** Point it at any directory and it works there: it can
-  read, search, and reason across the whole tree.
-- **Runs real commands.** A full shell, wired straight into the loop, with
-  output captured and shown inline.
+- **Zero-Downtime Smart Routing across Free Models.** Intelligent automatic failover
+  across 8 gateways (UnoRouter, TokenHarbour, OpenRouter, AIHubMix, APInex, Radox AI,
+  AntSeed, Logfare) strictly constrained to verified 100% free models (`is_strictly_free()`).
+  You are never billed or left stranded by rate limits.
+- **Anthropic Ephemeral Prompt Caching.** Ephemeral cache control headers injected on
+  the Anthropic Messages API reduce latency and token usage by up to 90%.
+- **Git Shadow Checkpoints & Instant Rollback (`/undo`).** Automatic checkpoint commits
+  captured before actions allow immediate rollback whenever an edit goes off track.
+- **Headless Daemon & Background Webhook Reporting (`/webhook`).** Asynchronous turn
+  dispatching to Discord, Slack, or generic HTTP webhook endpoints.
+- **Talks, then acts.** Ask a question and it answers. Ask for a change and it makes
+  the change — reading files, running commands, editing code.
+- **Sees your project.** Point it at any directory and it works there: it can read,
+  search, and reason across the whole tree.
+- **Runs real commands.** A full shell, wired straight into the loop, with output
+  captured and shown inline.
 - **Edits like a human.** Changes arrive as diffs you can read before they land.
-- **Shows its work.** Every command, every file touched, every result — visible
-  in the transcript as it happens, not buried in a log.
-- **Reads its own markdown.** A model answers in headings, bold, lists, tables
-  and fenced code whether or not anything asked it to. The transcript renders
-  that rather than showing you the source: `**Asset:**` arrives as a bold
-  **Asset**, a dash-and-space becomes a bullet, a pipe grid becomes a real
-  table that wraps, and a fenced block arrives syntax-highlighted in the same
-  theme tool output uses. It streams that way too, so a half-arrived answer
-  reads as prose rather than as markup.
-- **Keeps score.** Live token counts and a running cost estimate, per turn and
-  per session.
-- **Answers to a dial.** A mode switch decides whether it merely investigates,
-  edits freely, or runs everything unattended.
-- **Stays in bounds.** An optional scope file declares what it may touch, and a
-  second declares what it must never go near.
-- **Remembers the session.** Save it, load it, compact it when the context
-  gets heavy.
+- **Shows its work.** Every command, every file touched, every result — visible in
+  the transcript as it happens, not buried in a log.
+- **Reads its own markdown.** Renders headings, bold, lists, tables, and syntax-highlighted
+  code blocks seamlessly in the live streaming transcript.
+- **Keeps score.** Live token counts and a running cost estimate, per turn and per session.
+- **Answers to a dial.** Mode switch decides whether it merely investigates, edits freely,
+  or runs everything unattended (`auto`, `edits`, `plan`, `zim`, `danger`, `uncensored`).
+- **Stays in bounds.** An optional scope file declares what it may touch, and a second
+  declares what it must never go near.
+- **Remembers the session.** Save it, load it, compact it when the context gets heavy.
 - **Looks the part.** A green-on-black terminal, animated from boot to prompt.
 
 ---
@@ -102,20 +106,21 @@ want; it works out the steps, does them, and shows you everything it did.
 One line:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Mr-Destroyer/ZimZilla/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/radnex/radnex/main/install.sh | bash
 ```
 
-That clones ZimZilla into `~/.local/share/zimzilla`, builds its own virtualenv
-there and installs the dependencies into it, then drops a `zimzilla` launcher on
-your `PATH` (`~/.local/bin`). Nothing to activate and nothing to `pip install`
-afterwards — the launcher finds that venv itself and runs from any directory:
+That clones Radnex into `~/.local/share/radnex`, builds its own virtualenv
+there and installs the dependencies into it, then drops a `radnex` launcher (and
+backwards-compatible `zimzilla` alias) on your `PATH` (`~/.local/bin`). Nothing
+to activate and nothing to `pip install` afterwards — the launcher finds that venv
+itself and runs from any directory:
 
 ```bash
-zimzilla                           # launch
-zimzilla -C ~/some/project         # run against another directory
-zimzilla --mode zim                # full auto, follows AGENTS.md
-zimzilla --allow allow.yaml        # declare your targets
-zimzilla --deny out-of-scope.yaml  # hosts that are never touched
+radnex                           # launch
+radnex -C ~/some/project         # run against another directory
+radnex --mode zim                # full auto, follows AGENTS.md
+radnex --allow allow.yaml        # declare your targets
+radnex --deny out-of-scope.yaml  # hosts that are never touched
 ```
 
 If `~/.local/bin` is not on your `PATH`, the installer prints the line to add.
@@ -585,23 +590,27 @@ or a colour diff of the change, and three keys:
 
 ## Upstreams
 
-ZimZilla speaks the Anthropic Messages protocol to whatever `ANTHROPIC_BASE_URL`
-points at, so it can run against a local LiteLLM proxy, a hosted gateway or a
-peer-to-peer marketplace without any code caring which. Six sources are wired
+Radnex speaks the Anthropic Messages protocol to whatever `ANTHROPIC_BASE_URL`
+points at, so it can run against a local LiteLLM proxy, a hosted gateway, or a
+peer-to-peer marketplace without any code caring which. Eight sources are wired
 up:
 
 | Source | Endpoint | Key | How it starts |
 |---|---|---|---|
-| **Logfare** | `:4001` | discovered | the bundled proxy — the default |
+| **Logfare** | `:4001` | discovered | the bundled proxy — local |
 | **Token Juice** | `:4000` | discovered | its own local proxy |
 | **TokenHarbour** | `tokenharbor.ai` | yours | hosted — nothing to start |
 | **OpenRouter** | `openrouter.ai` | yours | hosted — nothing to start |
 | **UnoRouter** | `api.unorouter.com` | yours | hosted — nothing to start |
+| **AIHubMix** | `aihubmix.com` | yours | hosted — nothing to start |
+| **APInex** | `apinex.bond` | yours | hosted — native Anthropic `/v1/messages` |
+| **Radox AI** | `radoxai.com` | yours | hosted — Anthropic compatible |
 | **AntSeed** | `:8377` | **none** | `antseed buyer start` — a local buyer on a P2P network |
 
-Switch with `/zim-logfare`, `/zim-tokenjuice`, `/zim-tokenharbour`,
-`/zim-openrouter`, `/zim-unorouter` or `/zim-antseed`; the choice is remembered,
-so the next launch comes back to the one that was working.
+Switch with modern `/rx-*` commands (`/rx-apinex`, `/rx-radox`, `/rx-tokenharbour`,
+`/rx-openrouter`, `/rx-unorouter`, `/rx-aihubmix`, `/rx-logfare`, `/rx-tokenjuice`,
+`/rx-antseed`) or legacy `/zim-*` aliases. The choice is remembered, so the next
+launch comes back to the one that was working.
 
 ### TokenHarbour
 
@@ -839,7 +848,55 @@ Two smaller things worth knowing:
   particular seller is a property of that seller rather than a bug here.
 - The reasoning models spend the token budget before emitting any text. A
   200 with `content: []` and `stop_reason: max_tokens` at `--max-tokens 32`
-  becomes real prose at 256. ZimZilla's default is well clear of this.
+  becomes real prose at 256. Radnex's default is well clear of this.
+
+### APInex (https://apinex.bond)
+
+APInex is a high-speed AI gateway speaking the Anthropic Messages API natively at `https://api.apinex.bond/v1/messages`.
+
+```bash
+/apinex-api-setup your_api_key_here   # configure key
+/rx-apinex                            # switch upstream
+/apinex-models                        # view active models
+```
+
+### Radox AI (https://radoxai.com)
+
+Radox AI provides resilient AI access with Anthropic compatibility at `https://radoxai.com`.
+
+```bash
+/radox-api-setup your_api_key_here    # configure key
+/rx-radox                             # switch upstream
+/radox-models                         # view active models
+```
+
+---
+
+## High-Power Capabilities
+
+### 1. Zero-Downtime Smart Routing across Free Models
+
+Radnex features an autonomous router designed specifically to guarantee uninterrupted execution without surprise charges:
+- **Verified 100% Free Guarantee (`is_strictly_free()`)**: Validates that models carry zero input and zero output cost (`price_in == 0.0 and price_out == 0.0`). Paid models are strictly forbidden from automatic fallback.
+- **Dynamic Failover**: If an upstream gateway returns HTTP 429 (Rate Limit) or 5xx server errors, Radnex immediately fails over to the next healthy gateway and continues the turn seamlessly.
+
+### 2. Anthropic Ephemeral Prompt Caching
+
+Radnex injects native `cache_control: {"type": "ephemeral"}` blocks into large system instructions and tool definitions when communicating with Anthropic Messages endpoints:
+- Cuts input token costs and time-to-first-token by up to 90%.
+- Falls back transparently to plain strings for proxies without prompt caching support.
+
+### 3. Git Shadow Checkpoints & Instant Rollback (`/undo`)
+
+Before any file modifications or state changes occur, Radnex creates a shadow git checkpoint behind the scenes:
+- Run `/undo` at any point to instantly roll back the workspace to the exact state before the last agent turn.
+- Preserves working tree integrity and protects against accidental or unwanted edits.
+
+### 4. Headless Daemon & Background Webhooks (`/webhook`)
+
+Radnex can broadcast real-time events to external monitoring systems:
+- Configure webhooks: `/webhook https://discord.com/api/webhooks/...` or `/webhook https://hooks.slack.com/...`
+- Sends structured JSON payloads upon turn completion, errors, and security findings.
 
 ---
 
@@ -913,8 +970,10 @@ startup and then ignored. Rename it to `allow.yaml` or `out-of-scope.yaml`.
 | `/theme green\|amber\|cyan\|system` | switch palette — `system` adopts the terminal's own colours |
 | `/rain` | toggle the matrix rain |
 | `/think` | show the model's own reasoning — where the endpoint forwards it |
+| `/undo` | **instant rollback** via Git Shadow Checkpoints |
+| `/webhook [url]` | configure background webhook reporting (Discord/Slack/HTTP) |
 | `/panes` | re-open this session under tmux — `ctrl+b h`/`v` split |
-| `/zim-opencode [--model id] [--refresh] [-- args]` | open **opencode** in this terminal behind a fresh rotating IP — free models, no account, nothing global |
+| `/rx-opencode [--model id] [--refresh] [-- args]` | open **opencode** in this terminal behind a fresh rotating IP |
 | `/save [name]` | write the session to disk |
 | `/load [name]` | restore a session |
 | `/compact` | summarise history to free context |
@@ -922,21 +981,30 @@ startup and then ignored. Rename it to `allow.yaml` or `out-of-scope.yaml`.
 | `/team <task>` | fan the task out across parallel agents |
 | `/osint <kind> <target>` | open-source recon on a target |
 | `/osint-tree [kind\|path]` | re-show a finished recon as a result tree |
-| `/phish <host>` | clone a login page, serve it, harvest creds into zim-pane |
-| `/zim-logfare` | switch upstream to Logfare (`:4001`) |
-| `/zim-tokenjuice` | switch upstream to Token Juice (`:4000`) |
-| `/zim-tokenharbour` | switch upstream to TokenHarbour (hosted) |
+| `/phish <host>` | clone a login page, serve it, harvest creds into radnex-pane |
+| `/rx-apinex` (or `/apinex`) | switch upstream to APInex (`https://apinex.bond`) |
+| `/apinex-api-setup <key>` | store your APInex API key |
+| `/apinex-models` | fetch the live APInex free catalog |
+| `/rx-radox` (or `/radox`) | switch upstream to Radox AI (`https://radoxai.com`) |
+| `/radox-api-setup <key>` | store your Radox AI API key |
+| `/radox-models` | fetch the live Radox AI free catalog |
+| `/rx-aihubmix` | switch upstream to AIHubMix (`https://aihubmix.com`) |
+| `/aihubmix-api-setup <key>` | store your AIHubMix API key |
+| `/aihubmix-models` | fetch the live AIHubMix free catalog |
+| `/rx-unorouter` (or `/zim-unorouter`) | switch upstream to UnoRouter — hosted, free models, native Messages |
+| `/unorouter-api-setup <key>` | store your UnoRouter API key |
+| `/unorouter-models` | the live free catalog — free, text-output and tools-capable |
+| `/rx-tokenharbour` (or `/zim-tokenharbour`) | switch upstream to TokenHarbour (hosted) |
 | `/tokenharbour-api-setup <key>` | store your TokenHarbour API key |
 | `/tokenharbour-models` | fetch the live catalog; show what is free |
-| `/zim-openrouter` | switch upstream to OpenRouter (hosted) |
+| `/rx-openrouter` (or `/zim-openrouter`) | switch upstream to OpenRouter (hosted) |
 | `/openrouter-api-setup <key>` | store your OpenRouter API key |
-| `/zim-unorouter` | switch upstream to UnoRouter — hosted, free models, native Messages |
-| `/unorouter-api-setup <key>` | store your UnoRouter API key |
-| `/unorouter-models` | the live free catalog — free, text-output and tools-capable, most upstream channels first |
-| `/zim-antseed` | switch upstream to AntSeed — the local buyer, free peers, no key |
+| `/rx-logfare` (or `/zim-logfare`) | switch upstream to Logfare (`:4001`) |
+| `/rx-tokenjuice` (or `/zim-tokenjuice`) | switch upstream to Token Juice (`:4000`) |
+| `/rx-antseed` (or `/zim-antseed`) | switch upstream to AntSeed — the local buyer, free peers, no key |
 | `/antseed-models` | list AntSeed's free models, each with the peer to pin |
-| `/models [source]` | free models of an upstream — `logfare`, `tokenjuice`, `tokenharbour`, `openrouter`, `unorouter`, `antseed` |
-| `/zim-source` | show every upstream and its status |
+| `/models [source]` | free models of an upstream — `apinex`, `radox`, `unorouter`, `tokenharbour`, `openrouter`, `aihubmix`, `antseed`, `logfare`, `tokenjuice` |
+| `/rx-source` (or `/zim-source`) | show every upstream and its status |
 | `/scope-validator` | paste a programme overview → scope files + ranked targets |
 | `/bug-hunt [--fresh] [--wave N] <target>` | recon (reused if already done), then **one** wave of 10 agents |
 | `/ad [--fresh] [--wave N] [--lockout N] [--arm] <domain> --ack <domain>` | Active Directory campaign — gated and interlocked |

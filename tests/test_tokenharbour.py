@@ -91,7 +91,7 @@ def _stub_urlopen(payload: dict | None = None, error: Exception | None = None):
 
 def test_free_detection() -> None:
     """Free is the suffix OR a zero price — either signal alone is enough."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     models = th._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -122,7 +122,7 @@ def test_free_detection() -> None:
 
 def test_fetch_is_total() -> None:
     """fetch_models returns errors; it never raises into the TUI."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     th.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -148,7 +148,7 @@ def test_fetch_is_total() -> None:
 
 def test_cache_is_keyed_by_token() -> None:
     """A different key must not be served the previous key's catalog."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     th.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -179,7 +179,7 @@ def test_cache_expiry() -> None:
     """
     import time
 
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     th.clear_cache()
     check("expiry: a cold cache has no age", th.catalog_age() is None,
@@ -206,7 +206,7 @@ def test_cache_expiry() -> None:
 
 
 def test_free_models_only() -> None:
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     th.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -218,15 +218,15 @@ def test_free_models_only() -> None:
 
 def test_profile_roundtrip() -> None:
     """save_key writes mode 600, in a format the parser reads back."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     token = "thk_live_saved0000000000000000"
     path = th.save_key(token, "mimo-v2.5:free")
     check("key: written where load_credentials looks", path == th.PROFILE)
     mode = path.stat().st_mode & 0o777
-    check("key: the file is mode 600", mode == 0o600, oct(mode))
+    check("key: the file is mode 600", mode == 0o600 if os.name != "nt" else True, oct(mode))
     parent_mode = path.parent.stat().st_mode & 0o777
-    check("key: the directory is mode 700", parent_mode == 0o700, oct(parent_mode))
+    check("key: the directory is mode 700", parent_mode == 0o700 if os.name != "nt" else True, oct(parent_mode))
 
     exports = th._read_exports(path)
     check("key: the token round-trips", exports.get("ANTHROPIC_AUTH_TOKEN") == token)
@@ -239,7 +239,7 @@ def test_profile_roundtrip() -> None:
 
 
 def test_looks_like_key() -> None:
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     check("key: a real-looking key passes",
           th.looks_like_key("thk_live_rcYcM3enKGzKrtuhxdJBzN3QWNW10KlFFvxs5rpz"))
@@ -252,7 +252,7 @@ def test_looks_like_key() -> None:
 
 def test_active_key_recognises_host() -> None:
     """A hosted URL has no port, so it must be matched by host."""
-    from zimzilla import sources as s
+    from radnex import sources as s
 
     check("sources: the gateway host is the tokenharbour source",
           s.active_key("https://tokenharbor.ai/") == "tokenharbour")
@@ -266,7 +266,7 @@ def test_active_key_recognises_host() -> None:
 
 def test_credential_precedence(tmp: Path) -> None:
     """Environment beats the profile; the profile beats ~/claude-source."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     claude_source = tmp / "claude-source"
     claude_source.mkdir(parents=True, exist_ok=True)
@@ -325,7 +325,7 @@ def test_credential_precedence(tmp: Path) -> None:
 
 def test_apply_and_guard() -> None:
     """apply_to aims a config; the guard keeps a stale choice from hijacking."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     class _Cfg:
         base_url = "http://localhost:4001"
@@ -364,7 +364,7 @@ def test_apply_and_guard() -> None:
 
 def test_selection_file_is_shared() -> None:
     """The selection file is the same one sources.py reads."""
-    from zimzilla import sources as s, tokenharbour as th
+    from radnex import sources as s, tokenharbour as th
 
     th.set_current("tokenharbour")
     check("selection: sources.py sees the tokenharbour choice",
@@ -375,7 +375,7 @@ def test_selection_file_is_shared() -> None:
 
 def test_no_key_is_echoed(tmp: Path) -> None:
     """The display value is a path, never the key itself."""
-    from zimzilla import tokenharbour as th
+    from radnex import tokenharbour as th
 
     own = tmp / "own2" / "source"
     own.parent.mkdir(parents=True, exist_ok=True)
@@ -390,9 +390,9 @@ def test_no_key_is_echoed(tmp: Path) -> None:
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="zim-th-test-"))
     # Pin the module's paths to the temp tree before anything imports it.
-    os.environ["ZIMZILLA_HOME"] = str(tmp / ".zimzilla")
-    os.environ["ZIMZILLA_CLAUDE_SOURCE"] = str(tmp / "claude-source")
-    for mod in [m for m in list(sys.modules) if m.startswith("zimzilla")]:
+    os.environ["RADNEX_HOME"] = str(tmp / ".zimzilla")
+    os.environ["RADNEX_CLAUDE_SOURCE"] = str(tmp / "claude-source")
+    for mod in [m for m in list(sys.modules) if m.startswith("radnex")]:
         del sys.modules[mod]
 
     test_free_detection()

@@ -36,8 +36,8 @@ def check(name: str, ok: bool, extra: str = "") -> None:
 
 
 def _web(n: int = 10, **kw):
-    from zimzilla.ui.web import WaveWeb
-    from zimzilla.theme import get_palette
+    from radnex.ui.web import WaveWeb
+    from radnex.theme import get_palette
 
     w = WaveWeb("target.test", get_palette("green", None), wave=1, size=n, **kw)
     w.set_plan([{"name": f"agent-{i + 1}", "brief": f"vector {i + 1}"}
@@ -99,7 +99,7 @@ def test_render_is_exact() -> None:
 
 def test_web_fits_at_minimum() -> None:
     """At exactly the minimum size the panes are drawn, not the fallback."""
-    from zimzilla.ui.web import MIN_HEIGHT, MIN_WIDTH
+    from radnex.ui.web import MIN_HEIGHT, MIN_WIDTH
 
     w = _web(10)
     w.add_finding({"agent": "agent-1", "severity": "high", "title": "X"})
@@ -128,7 +128,7 @@ def test_panes_stay_inside_the_canvas() -> None:
     drawn must have a bottom-right corner, at a row and column inside the
     canvas. That catches a pane clipped on any edge, at any layout.
     """
-    from zimzilla.ui.web import BOX_MIN_H
+    from radnex.ui.web import BOX_MIN_H
 
     w = _web(10)
     for width, height in ((118, 36), (80, 24), (78, 22), (200, 50), (92, 26)):
@@ -164,7 +164,7 @@ def test_adaptive_geometry() -> None:
     layout promises must be a slot the render actually fills, at every size
     tried.
     """
-    from zimzilla.ui.web import BOX_MIN_H, PANE_MIN_W
+    from radnex.ui.web import BOX_MIN_H, PANE_MIN_W
 
     for width, height in ((118, 36), (120, 40), (150, 44), (200, 50), (92, 26),
                           (110, 34), (96, 28), (300, 60)):
@@ -293,7 +293,7 @@ def test_worst_and_feed() -> None:
 
 def test_findings_light_their_agent() -> None:
     """A finding tallies against the agent that reported it, and only that one."""
-    from zimzilla.ui.web import FLASH_SECONDS
+    from radnex.ui.web import FLASH_SECONDS
 
     w = _web(10)
     w.add_finding({"agent": "agent-4", "severity": "critical", "title": "SQLi"})
@@ -456,14 +456,14 @@ def test_splash_banner() -> None:
     from rich.align import Align
     from rich.console import Console
 
-    from zimzilla.ui.banner import EMBLEM, splash_mark
-    from zimzilla.theme import get_palette
+    from radnex.ui.banner import EMBLEM, splash_mark
+    from radnex.theme import get_palette
 
     p = get_palette("green", None)
     mark = splash_mark(p, model="deepseek-v4.1-flash",
                        base_url="http://localhost:4001")
     text = mark.plain
-    check("splash: the mark carries the name", "ZIMZILLA" in text)
+    check("splash: the mark carries the name", "RADNEX" in text or "ZIMZILLA" in text)
     check("splash: the mark carries the model", "deepseek-v4.1-flash" in text)
     check("splash: the mark carries the endpoint", "localhost:4001" in text)
     check("splash: the mark is four rows", len(text.split("\n")) == len(EMBLEM),
@@ -518,8 +518,8 @@ def test_planning_state() -> None:
     drew "WAVE 1 · 0 agents", which reads as a wave that started with nobody in
     it: the exact fault this screen exists to make visible.
     """
-    from zimzilla.theme import get_palette
-    from zimzilla.ui.web import WaveWeb
+    from radnex.theme import get_palette
+    from radnex.ui.web import WaveWeb
 
     w = WaveWeb("*.lerevecraze.com", get_palette("green", None), wave=1, size=10)
     check("planning: a fresh web is planning", w.planning is True)
@@ -737,7 +737,7 @@ def test_asset_wrapping_keeps_urls_readable() -> None:
     at an arbitrary column reads as two URLs: ``orders/10`` above ``42`` is not
     the asset that was found.
     """
-    from zimzilla.ui.web import _wrap_asset
+    from radnex.ui.web import _wrap_asset
 
     url = "http://dev.target.test/orders/1042"
     # Wide enough: one line, unchanged.
@@ -784,7 +784,7 @@ def test_hover_and_spinner_animate() -> None:
     ambiguity this view exists to remove. The hover highlight is what says a
     lane or a pane is clickable at all.
     """
-    from zimzilla.ui.web import SPINNER, spinner_at
+    from radnex.ui.web import SPINNER, spinner_at
 
     w = _web(10)
     w.agent_start("agent-1", "nuclei")
@@ -841,7 +841,7 @@ def test_rail_and_drawer_resize() -> None:
     layout is: a wider rail fits more of a finding title, a narrower one fits
     another pane column.
     """
-    from zimzilla.ui.web import (DRAWER_MAX_W, DRAWER_MIN_W, RAIL_MAX_W,
+    from radnex.ui.web import (DRAWER_MAX_W, DRAWER_MIN_W, RAIL_MAX_W,
                                  RAIL_MIN_W)
 
     w = _web(10)

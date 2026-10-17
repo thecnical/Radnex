@@ -2,7 +2,7 @@
 
 Run:  python tests/test_sources.py   (from an activated venv)
 
-Protects the /zim-tokenjuice switch: the installed ~/.zimzilla/tokenjuice
+Protects the /zim-tokenjuice switch: the installed ~/.radnex/tokenjuice
 route must win over a leftover $HOME/start-litellm.sh from an older
 deepseek-claude layout, and start_proxy must not wrap the service in flock.
 A leaked flock on /tmp/zimzilla-proxy.lock is what made the in-TUI switch
@@ -21,7 +21,7 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import sources  # noqa: E402
+from radnex import sources  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -41,7 +41,7 @@ def _touch(path: Path, mode: int = 0o644) -> Path:
 def test_tokenjuice_prefers_installed_route() -> None:
     with tempfile.TemporaryDirectory() as td:
         home = Path(td) / "home"
-        zhome = Path(td) / "zimzilla"
+        zhome = Path(td) / "radnex"
         # Both layouts exist — the leftover $HOME copy must lose.
         _touch(home / "start-litellm.sh", 0o755)
         _touch(home / "litellm-config.yaml")
@@ -51,7 +51,7 @@ def test_tokenjuice_prefers_installed_route() -> None:
         installed_src = _touch(zhome / "tokenjuice" / "source")
 
         with mock.patch.object(sources, "DEFAULT_HOME", home), \
-             mock.patch.object(sources, "ZIMZILLA_HOME", zhome):
+             mock.patch.object(sources, "RADNEX_HOME", zhome):
             found = sources.discover()
 
         tj = found.get("tokenjuice")
@@ -69,14 +69,14 @@ def test_tokenjuice_prefers_installed_route() -> None:
 def test_tokenjuice_falls_back_to_home_layout() -> None:
     with tempfile.TemporaryDirectory() as td:
         home = Path(td) / "home"
-        zhome = Path(td) / "zimzilla"
+        zhome = Path(td) / "radnex"
         zhome.mkdir()
         home_svc = _touch(home / "start-litellm.sh", 0o755)
         home_cfg = _touch(home / "litellm-config.yaml")
         home_src = _touch(home / "claude-source" / "deepseek-claude")
 
         with mock.patch.object(sources, "DEFAULT_HOME", home), \
-             mock.patch.object(sources, "ZIMZILLA_HOME", zhome):
+             mock.patch.object(sources, "RADNEX_HOME", zhome):
             found = sources.discover()
 
         tj = found.get("tokenjuice")
@@ -170,16 +170,16 @@ def test_builtin_keys_survive_a_restart() -> None:
           str(sorted(sources.BUILTIN_KEYS)))
 
     with tempfile.TemporaryDirectory() as td:
-        zhome = Path(td) / "zimzilla"
+        zhome = Path(td) / "radnex"
         zhome.mkdir()
         # BOTH homes are pinned to the empty temp tree. Patching only
-        # ZIMZILLA_HOME would leave the real $HOME in play, and a box with the
+        # RADNEX_HOME would leave the real $HOME in play, and a box with the
         # legacy $HOME/start-litellm.sh layout would legitimately discover
         # tokenjuice — making the "absent source is discarded" check below fail
         # for a reason that has nothing to do with the code under test.
         empty_home = Path(td) / "home"
         empty_home.mkdir()
-        with mock.patch.object(sources, "ZIMZILLA_HOME", zhome), \
+        with mock.patch.object(sources, "RADNEX_HOME", zhome), \
              mock.patch.object(sources, "DEFAULT_HOME", empty_home):
             for key in ("tokenharbour", "openrouter"):
                 sources.set_current(key)
@@ -200,8 +200,8 @@ def test_models_for_reads_the_remote_catalogs() -> None:
     "this source serves nothing", and the two must not be confused or /model
     would show an empty list on a cold start instead of the declared one.
     """
-    from zimzilla import openrouter as or_mod
-    from zimzilla import tokenharbour as th_mod
+    from radnex import openrouter as or_mod
+    from radnex import tokenharbour as th_mod
 
     for key, mod, url in (
         ("tokenharbour", th_mod, "https://tokenharbor.ai"),

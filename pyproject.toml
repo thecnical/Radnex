@@ -3,9 +3,9 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "zimzilla"
+name = "radnex"
 version = "1.0.0"
-description = "An agentic coding CLI over the Anthropic Messages API with a green-on-black hacker TUI."
+description = "Radnex — autonomous security assessment and coding agent with a high-performance terminal UI."
 requires-python = ">=3.11"
 dependencies = [
     "anthropic>=0.40",
@@ -15,7 +15,8 @@ dependencies = [
 ]
 
 [project.scripts]
-zimzilla = "zimzilla.__main__:main"
+radnex = "radnex.__main__:main"
+zimzilla = "radnex.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["zimzilla*"]
+include = ["radnex*"]

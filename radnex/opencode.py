@@ -164,7 +164,7 @@ RUN_TIMEOUT = 600
 
 
 def _home() -> Path:
-    return Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+    return Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 
 
 def state_dir() -> Path:
@@ -453,7 +453,7 @@ def fetch_candidates(timeout: float = 30.0) -> list[Proxy]:
     seen: set[tuple[str, int]] = set()
     for url in PROXY_SOURCES:
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "zimzilla"})
+            req = urllib.request.Request(url, headers={"User-Agent": "radnex"})
             with urllib.request.urlopen(req, timeout=timeout) as resp:
                 body = resp.read().decode("utf-8", errors="replace")
         except (urllib.error.URLError, OSError, ValueError):
@@ -920,7 +920,7 @@ exec {python} -m zimzilla.opencode "$@"
 
 def alias_path() -> Path:
     """Where the alias goes: the same bin dir the repo installs `zimzilla` into."""
-    override = os.environ.get("ZIMZILLA_BIN_DIR")
+    override = os.environ.get("RADNEX_BIN_DIR")
     if override:
         return Path(override).expanduser() / ALIAS
     return Path.home() / ".local" / "bin" / ALIAS

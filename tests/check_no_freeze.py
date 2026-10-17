@@ -2,8 +2,8 @@
 import asyncio, sys, time
 from pathlib import Path
 sys.path.insert(0, "/home/zim/Projects/ZimZilla")
-from zimzilla.agent import Agent
-from zimzilla.config import Config
+from radnex.agent import Agent
+from radnex.config import Config
 
 class Blk:
     def __init__(self, **k): self.__dict__.update(k)

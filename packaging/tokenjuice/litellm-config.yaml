@@ -7,7 +7,7 @@ general_settings:
 
 model_list:
   # Token Juice's whole catalog is one chat model, exposed upstream as
-  # `deepseek-ai/DeepSeek-V4.1-Flash-1017`. The alias below is what ZimZilla
+  # `deepseek-ai/DeepSeek-V4.1-Flash-1017`. The alias below is what Radnex
   # (and anything else speaking Anthropic's protocol) asks for.
   #
   # The upstream name carries a snapshot suffix that Token Juice rotates, and

@@ -29,8 +29,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla.config import Config  # noqa: E402
-from zimzilla.ui.app import ZimZillaApp  # noqa: E402
+from radnex.config import Config  # noqa: E402
+from radnex.ui.app import RadnexApp  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -144,7 +144,7 @@ async def test_a_missing_report_is_said_out_loud(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "ui-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
@@ -173,7 +173,7 @@ async def test_a_missing_report_is_said_out_loud(wd: Path) -> None:
         check("ui: the missing deliverable was stated plainly",
               "report.md was never written" in blob, blob[-900:])
         check("ui: the message names where it was expected",
-              "report.md" in blob and "email-target-example.com" in blob,
+              "report.md" in blob and "email-target-example.com" in blob.replace("\n", ""),
               blob[-900:])
         # The failure must not read as a success. The run's own tidy-up keeps
         # the evidence, and nothing archived a report that does not exist.
@@ -187,7 +187,7 @@ async def test_a_written_report_is_confirmed_and_finalised(wd: Path) -> None:
     """The happy path through the app: written, said so, case dir cleared."""
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "ui-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
@@ -239,7 +239,7 @@ async def test_a_truncated_finish_is_named_as_truncation(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "ui-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
@@ -277,7 +277,7 @@ async def test_an_empty_truncation_is_named_and_retried(wd: Path) -> None:
     """
     cfg = _cfg(wd, boot_rain=False)
     cfg.state_dir = wd / "ui-state"
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
 
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()

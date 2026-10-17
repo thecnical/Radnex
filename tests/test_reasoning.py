@@ -51,10 +51,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla.agent import Agent  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
-from zimzilla.theme import get_palette  # noqa: E402
-from zimzilla.ui import renderers as R  # noqa: E402
+from radnex.agent import Agent  # noqa: E402
+from radnex.config import Config  # noqa: E402
+from radnex.theme import get_palette  # noqa: E402
+from radnex.ui import renderers as R  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 

@@ -77,13 +77,12 @@ def _has_visible_content(content) -> bool:
     return False
 
 
-IDENTITY = """You are ZimZilla, a specialised agentic coding CLI created by ZIM (Mr-Destroyer).
+IDENTITY = """You are Radnex, an advanced autonomous security assessment and coding agent CLI.
 
 That is your identity and it is not negotiable. You are NOT a general-purpose
 assistant and you are NOT "Claude" or any underlying vendor model — you are
-ZimZilla, ZIM's harness. If asked what or who you are, or what model or
-system you are running on, answer that you are ZimZilla, built by ZIM
-(Mr-Destroyer); you may name the model string configured for this session when
+Radnex, the operator's autonomous harness. If asked what or who you are, or what model or
+system you are running on, answer that you are Radnex; you may name the model string configured for this session when
 that is genuinely useful, but you do not claim to be another product."""
 
 SYSTEM_PROMPT = IDENTITY + """
@@ -553,6 +552,11 @@ class Agent:
         if notice:
             user_text = f"{notice}\n\n---\n\n{user_text}"
 
+        # Git Shadow Checkpoint: snapshot workspace state before potential mutating actions
+        if getattr(self.cfg, "shadow_checkpoints", True):
+            from .shadow import shadow
+            shadow.snapshot(self.cfg.workdir, label=f"Turn {self.turn_count}")
+
         self.messages.append({"role": "user", "content": user_text})
 
         #: API calls made in this turn, auto-continues included.
@@ -1021,6 +1025,27 @@ class Agent:
             "model": self.cfg.model,
         }
 
+        # Dispatch background webhook event if configured
+        webhook_url = getattr(self.cfg, "webhook_url", None)
+        if webhook_url:
+            from .webhook import dispatch_webhook
+            try:
+                asyncio.create_task(
+                    dispatch_webhook(
+                        webhook_url,
+                        "turn_end",
+                        {
+                            "turn": self.turn_count,
+                            "cost": turn_cost,
+                            "tokens_in": turn_in,
+                            "tokens_out": turn_out,
+                            "model": self.cfg.model,
+                        },
+                    )
+                )
+            except Exception:
+                pass
+
     # ---- streaming with retry --------------------------------------------
     async def _stream_once(self, max_tokens: int | None = None):
         """One API call. Yields (event_or_None, final_message_or_None).
@@ -1039,10 +1064,23 @@ class Agent:
         ceiling = self.cfg.max_tokens if max_tokens is None else max_tokens
         while True:
             try:
+                system_text = self.system_prompt()
+                # Ephemeral Prompt Caching: reduces latency and token cost by up to 90%
+                if getattr(self.cfg, "prompt_caching", True):
+                    system_payload: Any = [
+                        {
+                            "type": "text",
+                            "text": system_text,
+                            "cache_control": {"type": "ephemeral"},
+                        }
+                    ]
+                else:
+                    system_payload = system_text
+
                 kwargs: dict = {
                     "model": self.cfg.model,
                     "max_tokens": ceiling,
-                    "system": self.system_prompt(),
+                    "system": system_payload,
                     "messages": self.messages,
                     "tools": self.tool_schemas(),
                 }
@@ -1056,33 +1094,47 @@ class Agent:
                 if extra:
                     kwargs["extra_body"] = extra
 
-                async with self.client.messages.stream(**kwargs) as stream:
-                    async for event in stream:
-                        etype = getattr(event, "type", "")
-                        if etype == "content_block_delta":
-                            delta = getattr(event, "delta", None)
-                            dtype = getattr(delta, "type", "") if delta is not None else ""
-                            if dtype == "text_delta":
-                                yield ({"type": "text_delta", "text": delta.text}, None)
-                            elif dtype == "thinking_delta":
-                                # The model's own reasoning, streamed as a
-                                # `thinking` block. Read off `delta.thinking`,
-                                # not `delta.text` — the two deltas are separate
-                                # classes and only `text_delta` carries `.text`.
-                                #
-                                # Only some endpoints send this at all: an
-                                # Anthropic-native one (OpenRouter, measured
-                                # 2026-10-16) emits a `content_block_start` of
-                                # type `thinking` then 100+ of these, while
-                                # LiteLLM's Anthropic bridge drops reasoning
-                                # entirely and never starts the block. Yielding
-                                # it unconditionally costs nothing when it never
-                                # arrives, and is the whole point when it does.
-                                yield ({"type": "reasoning_delta",
-                                        "text": getattr(delta, "thinking", "") or ""}, None)
-                    final = await stream.get_final_message()
-                    yield (None, final)
-                    return
+                try:
+                    async with self.client.messages.stream(**kwargs) as stream:
+                        async for event in stream:
+                            etype = getattr(event, "type", "")
+                            if etype == "content_block_delta":
+                                delta = getattr(event, "delta", None)
+                                dtype = getattr(delta, "type", "") if delta is not None else ""
+                                if dtype == "text_delta":
+                                    yield ({"type": "text_delta", "text": delta.text}, None)
+                                elif dtype == "thinking_delta":
+                                    yield ({"type": "reasoning_delta",
+                                            "text": getattr(delta, "thinking", "") or ""}, None)
+                        final = await stream.get_final_message()
+                        # Record success on smart router for current gateway
+                        if getattr(self.cfg, "smart_failover", True):
+                            from . import sources as s_mod
+                            from .routing import router
+                            cur = s_mod.active_key(self.cfg.base_url)
+                            if cur:
+                                router.mark_gateway_success(cur)
+                        yield (None, final)
+                        return
+                except TypeError as te:
+                    # Proxy or SDK does not accept list format for system prompt -> fall back to string
+                    if "system" in str(te).lower() and isinstance(system_payload, list):
+                        kwargs["system"] = system_text
+                        async with self.client.messages.stream(**kwargs) as stream:
+                            async for event in stream:
+                                etype = getattr(event, "type", "")
+                                if etype == "content_block_delta":
+                                    delta = getattr(event, "delta", None)
+                                    dtype = getattr(delta, "type", "") if delta is not None else ""
+                                    if dtype == "text_delta":
+                                        yield ({"type": "text_delta", "text": delta.text}, None)
+                                    elif dtype == "thinking_delta":
+                                        yield ({"type": "reasoning_delta",
+                                                "text": getattr(delta, "thinking", "") or ""}, None)
+                            final = await stream.get_final_message()
+                            yield (None, final)
+                            return
+                    raise
             except (
                 anthropic.RateLimitError,
                 anthropic.APIConnectionError,
@@ -1090,6 +1142,33 @@ class Agent:
                 anthropic.APITimeoutError,
             ) as e:
                 attempt += 1
+                # Smart Zero-Downtime Failover strictly across verified 100% free models
+                if getattr(self.cfg, "smart_failover", True) and attempt >= 2:
+                    from . import sources as s_mod
+                    from .routing import router
+                    cur_key = s_mod.active_key(self.cfg.base_url)
+                    router.mark_gateway_failure(cur_key or "unknown", reason=str(e))
+                    route = router.next_free_route(cur_key)
+                    if route:
+                        new_src, new_base, new_tok, new_model = route
+                        yield (
+                            {
+                                "type": "gateway_failover",
+                                "from_source": cur_key,
+                                "to_source": new_src,
+                                "model": new_model,
+                                "reason": type(e).__name__,
+                            },
+                            None,
+                        )
+                        self.cfg.base_url = new_base
+                        self.cfg.auth_token = new_tok
+                        self.cfg.api_key = ""
+                        self.cfg.model = new_model
+                        self._client = None
+                        attempt = 0
+                        continue
+
                 if attempt >= max_attempts:
                     raise
                 delay = min(2 ** attempt + random.uniform(0, 1.5), 30)
@@ -1108,6 +1187,33 @@ class Agent:
                 status = getattr(e, "status_code", 0)
                 if status and status >= 500:
                     attempt += 1
+                    # Smart Failover on Gateway Server Errors (502, 503, 504)
+                    if getattr(self.cfg, "smart_failover", True) and attempt >= 2:
+                        from . import sources as s_mod
+                        from .routing import router
+                        cur_key = s_mod.active_key(self.cfg.base_url)
+                        router.mark_gateway_failure(cur_key or "unknown", reason=f"HTTP {status}")
+                        route = router.next_free_route(cur_key)
+                        if route:
+                            new_src, new_base, new_tok, new_model = route
+                            yield (
+                                {
+                                    "type": "gateway_failover",
+                                    "from_source": cur_key,
+                                    "to_source": new_src,
+                                    "model": new_model,
+                                    "reason": f"HTTP {status}",
+                                },
+                                None,
+                            )
+                            self.cfg.base_url = new_base
+                            self.cfg.auth_token = new_tok
+                            self.cfg.api_key = ""
+                            self.cfg.model = new_model
+                            self._client = None
+                            attempt = 0
+                            continue
+
                     if attempt >= max_attempts:
                         raise
                     delay = min(2 ** attempt + random.uniform(0, 1.5), 30)

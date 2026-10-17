@@ -146,9 +146,9 @@ _TUNNEL_WAIT = 12.0
 _PAGEKITE_WAIT = 25.0
 
 # Vendored pagekite.py lives next to the other shipped artifacts. setup.sh
-# copies it into ~/.zimzilla/pagekite/ so a relocated install still finds it.
+# copies it into ~/.radnex/pagekite/ so a relocated install still finds it.
 _PAGEKITE_CANDIDATES = (
-    Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+    Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
     / "pagekite" / "pagekite.py",
     Path(__file__).resolve().parent.parent / "packaging" / "pagekite" / "pagekite.py",
 )
@@ -694,14 +694,14 @@ def pagekite_name() -> str:
     """Public kite name, e.g. ``zim.pagekite.me``.
 
     Looked up in order: ``PAGEKITE_NAME``, then
-    ``~/.zimzilla/pagekite.name``. Empty means PageKite cannot fly
+    ``~/.radnex/pagekite.name``. Empty means PageKite cannot fly
     unattended — ``open_tunnel`` will skip it rather than hang on signup.
     """
     env = (os.environ.get("PAGEKITE_NAME") or "").strip()
     if env:
         return env
     path = (
-        Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+        Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
         / "pagekite.name"
     )
     try:
@@ -715,7 +715,7 @@ def _open_pagekite(port: int) -> Tunnel:
 
     This is the worldwide forwarder: every phishing link is meant to ship
     from here. Needs a kite name (``PAGEKITE_NAME`` or
-    ``~/.zimzilla/pagekite.name``) and a prior ``pagekite.py --signup`` so
+    ``~/.radnex/pagekite.name``) and a prior ``pagekite.py --signup`` so
     the secret is already in ``~/.pagekite.rc``. ``--nullui`` keeps it
     from blocking the TUI on a prompt.
     """
@@ -725,7 +725,7 @@ def _open_pagekite(port: int) -> Tunnel:
     name = pagekite_name()
     if not name:
         return Tunnel(
-            error="pagekite: set PAGEKITE_NAME or ~/.zimzilla/pagekite.name "
+            error="pagekite: set PAGEKITE_NAME or ~/.radnex/pagekite.name "
                   "(then: pagekite.py --signup)"
         )
     if "." not in name:

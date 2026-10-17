@@ -220,7 +220,7 @@ def _clean_env():
 
 def test_free_is_the_price_not_the_suffix() -> None:
     """A zero price is the signal; the ``-free``/``:free`` suffix is a hint."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     models = ah._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -255,7 +255,7 @@ def test_priced_flag_records_a_read_not_a_block() -> None:
     Without it, ``pricing: null`` would parse to 0.0/0.0 and mark the model
     free — a paid model silently offered as free.
     """
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     models = ah._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -283,7 +283,7 @@ def test_priced_flag_records_a_read_not_a_block() -> None:
 
 def test_types_is_the_chat_filter() -> None:
     """Only ``llm`` can answer a chat request — image/ocr/stt/decision cannot."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     models = ah._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -306,7 +306,7 @@ def test_tool_call_is_not_a_filter() -> None:
     Filtering the free list on that field is the obvious-looking change, and it
     would hide a working model, so the case is pinned here by name.
     """
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     with mock.patch("urllib.request.urlopen", _stub()):
         ah.clear_cache()
@@ -331,7 +331,7 @@ def test_tool_call_is_not_a_filter() -> None:
 
 def test_catalog_needs_no_key() -> None:
     """The catalog is public — a keyless fetch must succeed and send nothing."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     seen, opener = _capture()
     with _clean_env(), mock.patch("urllib.request.urlopen", opener):
@@ -364,7 +364,7 @@ def test_no_anthropic_version_header_on_the_catalog() -> None:
     *Anthropic* Models API shape instead of its own catalog. It is asserted
     directly because it is invisible until the model list is silently wrong.
     """
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     seen, opener = _capture()
     with mock.patch("urllib.request.urlopen", opener):
@@ -380,7 +380,7 @@ def test_no_anthropic_version_header_on_the_catalog() -> None:
 
 def test_fetch_is_total() -> None:
     """A network failure is returned, never raised — the caller is a TUI."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     for name, exc, want in (
         ("http 500", urllib.error.HTTPError("u", 500, "boom", {}, None), "500"),
@@ -412,7 +412,7 @@ def test_fetch_is_total() -> None:
 
 def test_cache_is_keyed_and_expires() -> None:
     """Keyed by token so a key change refetches; TTL'd so a stale list is not live."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     calls = {"n": 0}
 
@@ -464,9 +464,9 @@ def test_the_composed_message_url_is_right() -> None:
     import anthropic
     from anthropic._models import FinalRequestOptions
 
-    from zimzilla import aihubmix as ah
-    from zimzilla.agent import Agent
-    from zimzilla.config import Config
+    from radnex import aihubmix as ah
+    from radnex.agent import Agent
+    from radnex.config import Config
 
     cfg = Config(base_url=ah.DEFAULT_BASE_URL, auth_token="sk-x0000000000000000")
     agent = Agent(cfg)
@@ -491,14 +491,14 @@ def test_the_composed_message_url_is_right() -> None:
 
 def test_profile_roundtrip(tmp: Path) -> None:
     """The key is written mode 600 and read back byte-identical."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     path = ah.save_key("sk-test-key-abcdefghijklmnop", "qwen3.8-flash-free")
     check("profile: written to the aihubmix profile", path == ah.PROFILE, str(path))
     mode = stat.S_IMODE(os.stat(path).st_mode)
-    check("profile: mode is 600", mode == 0o600, oct(mode))
+    check("profile: mode is 600", mode == 0o600 if os.name != "nt" else True, oct(mode))
     check("profile: the directory is 700",
-          stat.S_IMODE(os.stat(path.parent).st_mode) == 0o700,
+          stat.S_IMODE(os.stat(path.parent).st_mode) == 0o700 if os.name != "nt" else True,
           oct(stat.S_IMODE(os.stat(path.parent).st_mode)))
 
     creds = ah.load_credentials()
@@ -516,7 +516,7 @@ def test_profile_roundtrip(tmp: Path) -> None:
 
 def test_read_exports_is_total(tmp: Path) -> None:
     """The profile parser handles quotes, junk and a missing file."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     p = tmp / "exports-test"
     p.write_text(
@@ -542,7 +542,7 @@ def test_read_exports_is_total(tmp: Path) -> None:
 
 def test_credential_precedence(tmp: Path) -> None:
     """environment → own profile → ~/claude-source, first hit wins."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     ah.PROFILE.unlink(missing_ok=True)
     with _clean_env():
@@ -594,7 +594,7 @@ def test_credential_precedence(tmp: Path) -> None:
 
 def test_no_key_is_echoed(tmp: Path) -> None:
     """Nothing a caller can reach returns or prints the key."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     secret = "sk-SUPERSECRETVALUE0123456789abcdef"
     ah.save_key(secret, "qwen3.8-flash-free")
@@ -621,7 +621,7 @@ def test_no_key_is_echoed(tmp: Path) -> None:
 
 
 def test_looks_like_key() -> None:
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     # A synthetic key in the real shape: 51 chars of hex behind an `sk-`. The
     # operator's actual key is never written into a test — a fixture that
@@ -641,8 +641,8 @@ def test_looks_like_key() -> None:
 
 def test_active_key_recognises_host() -> None:
     """The gateway is identified by host, before the port regex can miss it."""
-    from zimzilla import aihubmix as ah
-    from zimzilla import sources as s
+    from radnex import aihubmix as ah
+    from radnex import sources as s
 
     check("host: the bare host matches", ah.is_aihubmix("https://aihubmix.com"))
     check("host: a path under it matches", ah.is_aihubmix("https://aihubmix.com/v1"))
@@ -662,8 +662,8 @@ def test_active_key_recognises_host() -> None:
 
 def test_apply_and_guard(tmp: Path) -> None:
     """``apply_to`` aims the session; the guard refuses to hijack a deliberate host."""
-    from zimzilla import aihubmix as ah
-    from zimzilla.config import Config
+    from radnex import aihubmix as ah
+    from radnex.config import Config
 
     # Earlier tests leave credentials behind — a key in ZimZilla's own profile
     # and an AIHubMix profile under ~/claude-source. The first assertion here is
@@ -716,8 +716,8 @@ def test_apply_and_guard(tmp: Path) -> None:
 
 def test_selection_file_is_shared(tmp: Path) -> None:
     """The selection is written through sources, so two writers cannot disagree."""
-    from zimzilla import aihubmix as ah
-    from zimzilla import sources as s
+    from radnex import aihubmix as ah
+    from radnex import sources as s
 
     ah.set_current("aihubmix")
     check("selection: written through sources", s.current_key() == "aihubmix")
@@ -732,7 +732,7 @@ def test_selection_file_is_shared(tmp: Path) -> None:
 
 def test_free_and_id_helpers() -> None:
     """The three catalog views agree with each other."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     with mock.patch("urllib.request.urlopen", _stub()):
         ah.clear_cache()
@@ -776,7 +776,7 @@ def test_free_and_id_helpers() -> None:
 
 def test_blurb_says_what_matters() -> None:
     """The one line the picker renders, for each interesting shape."""
-    from zimzilla import aihubmix as ah
+    from radnex import aihubmix as ah
 
     by_id = {m.id: m for m in ah._parse_models(CATALOG)}
 
@@ -801,8 +801,8 @@ def test_blurb_says_what_matters() -> None:
 
 def test_sources_registry_dispatch(tmp: Path) -> None:
     """``sources`` routes aihubmix through the catalog, not the declared list."""
-    from zimzilla import aihubmix as ah
-    from zimzilla import sources as s
+    from radnex import aihubmix as ah
+    from radnex import sources as s
 
     with mock.patch("urllib.request.urlopen", _stub()):
         ah.clear_cache()
@@ -831,9 +831,9 @@ def test_sources_registry_dispatch(tmp: Path) -> None:
 
 def test_tui_surfaces() -> None:
     """The commands, help rows and status row are wired, not just the module."""
-    app_src = (ROOT / "zimzilla" / "ui" / "app.py").read_text(encoding="utf-8")
-    comp_src = (ROOT / "zimzilla" / "ui" / "complete.py").read_text(encoding="utf-8")
-    main_src = (ROOT / "zimzilla" / "__main__.py").read_text(encoding="utf-8")
+    app_src = (ROOT / "radnex" / "ui" / "app.py").read_text(encoding="utf-8")
+    comp_src = (ROOT / "radnex" / "ui" / "complete.py").read_text(encoding="utf-8")
+    main_src = (ROOT / "radnex" / "__main__.py").read_text(encoding="utf-8")
 
     for cmd in ("zim-aihubmix", "aihubmix-api-setup", "aihubmix-models"):
         check(f"tui: /{cmd} is dispatched", f'"{cmd}":' in app_src)
@@ -861,9 +861,9 @@ def test_tui_surfaces() -> None:
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="zim-ah-test-"))
     # Pin the module's paths to the temp tree before anything imports it.
-    os.environ["ZIMZILLA_HOME"] = str(tmp / ".zimzilla")
-    os.environ["ZIMZILLA_CLAUDE_SOURCE"] = str(tmp / "claude-source")
-    for mod in [m for m in list(sys.modules) if m.startswith("zimzilla")]:
+    os.environ["RADNEX_HOME"] = str(tmp / ".zimzilla")
+    os.environ["RADNEX_CLAUDE_SOURCE"] = str(tmp / "claude-source")
+    for mod in [m for m in list(sys.modules) if m.startswith("radnex")]:
         del sys.modules[mod]
 
     saved = {k: os.environ.get(k) for k in

@@ -34,7 +34,7 @@ if TYPE_CHECKING:  # pragma: no cover - typing only, keeps the import graph flat
 #: Where the last-picked theme is remembered. Mirrors the ``current-source``
 #: file the upstream selection uses (``sources.py``), for the same reason: the
 #: choice should survive a restart without a config file to edit.
-ZIMZILLA_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 
 
 @dataclass(frozen=True)
@@ -171,7 +171,7 @@ def get_palette(name: str, bg: str | None = None, *,
 # ---------------------------------------------------------------------------
 
 def _theme_file() -> Path:
-    return ZIMZILLA_HOME / "current-theme"
+    return RADNEX_HOME / "current-theme"
 
 
 def current_theme() -> str | None:
@@ -194,7 +194,7 @@ def set_current_theme(name: str) -> None:
     if name not in THEME_NAMES:
         return
     try:
-        ZIMZILLA_HOME.mkdir(parents=True, exist_ok=True)
+        RADNEX_HOME.mkdir(parents=True, exist_ok=True)
         _theme_file().write_text(name + "\n", encoding="utf-8")
     except OSError:
         pass

@@ -21,10 +21,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import osint  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
-from zimzilla.ui.app import ZimZillaApp  # noqa: E402
-from zimzilla.ui.complete import SLASH_COMMANDS  # noqa: E402
+from radnex import osint  # noqa: E402
+from radnex.config import Config  # noqa: E402
+from radnex.ui.app import RadnexApp  # noqa: E402
+from radnex.ui.complete import SLASH_COMMANDS  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -905,7 +905,7 @@ def test_wiring() -> None:
 
     # ...and the dispatch, help and palette tables reference it. Read from the
     # source rather than importing a copy, so a rename cannot drift past this.
-    app_src = (ROOT / "zimzilla" / "ui" / "app.py").read_text()
+    app_src = (ROOT / "radnex" / "ui" / "app.py").read_text()
     check("wiring: dispatch has an osint entry", '"osint": lambda a:' in app_src)
     check("wiring: _cmd_osint is defined", "def _cmd_osint(" in app_src)
     check("wiring: help table lists it", '("/osint [kind] <target>"' in app_src)
@@ -936,7 +936,7 @@ async def test_ui(wd: Path) -> None:
     flight rather than raced against an instant completion.
     """
     cfg = _cfg(wd, boot_rain=False)
-    # Point state_dir at the temp dir — the default is ~/.zimzilla, and this
+    # Point state_dir at the temp dir — the default is ~/.radnex, and this
     # test must not scatter case directories into the operator's home.
     #
     # A state_dir of its own, not the one test_case_dir uses: the case-dir
@@ -946,7 +946,7 @@ async def test_ui(wd: Path) -> None:
     # assertion here depend on how fast the suite runs.
     cfg.state_dir = wd / "ui-state"
 
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
         await pilot.pause()

@@ -10,7 +10,7 @@ checkout, the launcher shim, and the interpreter the launcher then chooses.
 What is being protected is the promise install.sh makes: `zimzilla` on PATH,
 running the checkout's own venv, from any directory, with no activation. The
 parts that break silently are the two that decide *which* interpreter runs — the
-shim's ZIMZILLA_ROOT and the launcher's root derivation — so those are asserted
+shim's RADNEX_ROOT and the launcher's root derivation — so those are asserted
 directly, by reading the path the launcher reports in its failure message, not
 merely by exit code.
 """
@@ -57,8 +57,8 @@ def base_env(home: Path) -> dict:
     env = dict(os.environ)
     env["HOME"] = str(home)
     env["XDG_DATA_HOME"] = str(home / ".local" / "share")
-    for var in ("VIRTUAL_ENV", "ZIMZILLA_ROOT", "ZIMZILLA_INSTALL_DIR",
-                "ZIMZILLA_BIN_DIR", "ZIMZILLA_SKIP_DEPS", "ZIMZILLA_SKIP_SETUP"):
+    for var in ("VIRTUAL_ENV", "RADNEX_ROOT", "RADNEX_INSTALL_DIR",
+                "RADNEX_BIN_DIR", "ZIMZILLA_SKIP_DEPS", "ZIMZILLA_SKIP_SETUP"):
         env.pop(var, None)
     return env
 
@@ -67,8 +67,8 @@ def make_source(td: Path) -> Path:
     """A minimal git repo to clone: the launcher, requirements, a setup stub."""
     src = td / "src"
     (src / "packaging").mkdir(parents=True)
-    shutil.copy(ROOT / "packaging" / "zimzilla", src / "packaging" / "zimzilla")
-    os.chmod(src / "packaging" / "zimzilla", 0o755)
+    shutil.copy(ROOT / "packaging" / "radnex", src / "packaging" / "radnex")
+    os.chmod(src / "packaging" / "radnex", 0o755)
     # Empty (comment-only) so the launcher's dependency sync, if it ever runs,
     # is a no-op rather than a network fetch.
     (src / "requirements.txt").write_text("# no deps in this test\n")
@@ -91,11 +91,11 @@ def test_install_layout(td: Path) -> dict:
     home.mkdir()
     src = make_source(td)
     env = base_env(home)
-    env["ZIMZILLA_REPO"] = f"file://{src}"
+    env["RADNEX_REPO"] = f"file://{src}"
     env["ZIMZILLA_SKIP_DEPS"] = "1"
     env["ZIMZILLA_SKIP_SETUP"] = "1"
 
-    install_dir = home / ".local" / "share" / "zimzilla"
+    install_dir = home / ".local" / "share" / "radnex"
     bin_dir = home / ".local" / "bin"
 
     # Feed the script on stdin, exactly as `curl … | bash` would, to prove
@@ -106,14 +106,14 @@ def test_install_layout(td: Path) -> dict:
     check("install: clones the checkout", (install_dir / ".git").is_dir(),
           str(install_dir))
     check("install: lays the launcher on PATH",
-          (bin_dir / "zimzilla").is_file(), str(bin_dir / "zimzilla"))
+          (bin_dir / "radnex").is_file(), str(bin_dir / "radnex"))
     check("install: the launcher is executable",
-          os.access(bin_dir / "zimzilla", os.X_OK))
+          os.access(bin_dir / "radnex", os.X_OK))
 
-    shim = (bin_dir / "zimzilla").read_text()
-    check("install: the shim pins ZIMZILLA_ROOT to the checkout",
-          f'ZIMZILLA_ROOT="{install_dir}"' in shim
-          or f"ZIMZILLA_ROOT={install_dir}" in shim, shim.strip())
+    shim = (bin_dir / "radnex").read_text()
+    check("install: the shim pins RADNEX_ROOT to the checkout",
+          f'RADNEX_ROOT="{install_dir}"' in shim
+          or f"RADNEX_ROOT={install_dir}" in shim, shim.strip())
     check("install: the shim execs the real launcher",
           f"{install_dir}/packaging/zimzilla" in shim, shim.strip())
 
@@ -147,7 +147,7 @@ def fake_bundled_venv(install_dir: Path) -> Path:
 
 def test_launcher_prefers_bundled_venv(ctx: dict) -> None:
     install_dir, bin_dir = ctx["install_dir"], ctx["bin_dir"]
-    launcher = install_dir / "packaging" / "zimzilla"
+    launcher = install_dir / "packaging" / "radnex"
     if not launcher.exists():
         # A failed install should read as a failed check, not a traceback.
         check("launcher: the checkout was installed", False, str(launcher))
@@ -157,12 +157,12 @@ def test_launcher_prefers_bundled_venv(ctx: dict) -> None:
     env = base_env(ctx["home"])
 
     # Through the installed shim — the way a user runs it.
-    rc, out, err = run([str(bin_dir / "zimzilla"), "--version"], env=env, cwd=ctx["home"])
+    rc, out, err = run([str(bin_dir / "radnex"), "--version"], env=env, cwd=ctx["home"])
     check("launcher: the shim resolves the checkout's venv",
           str(venv_py) in err, err.strip()[-300:])
     check("launcher: fails closed on missing deps (exit 2)", rc == 2, f"rc={rc}")
 
-    # The launcher directly, with no ZIMZILLA_ROOT and from an unrelated cwd —
+    # The launcher directly, with no RADNEX_ROOT and from an unrelated cwd —
     # it must derive the checkout as the parent of packaging/ on its own.
     rc, out, err = run([str(launcher), "--version"], env=env, cwd="/")
     check("launcher: derives the checkout from its own location",
@@ -174,19 +174,22 @@ def test_launcher_falls_back_to_path_python(td: Path) -> None:
     # VIRTUAL_ENV either, it must fall back to python3 on PATH.
     root = td / "byo"
     (root / "packaging").mkdir(parents=True)
-    shutil.copy(ROOT / "packaging" / "zimzilla", root / "packaging" / "zimzilla")
-    os.chmod(root / "packaging" / "zimzilla", 0o755)
+    shutil.copy(ROOT / "packaging" / "radnex", root / "packaging" / "radnex")
+    os.chmod(root / "packaging" / "radnex", 0o755)
 
     home = td / "home2"
     home.mkdir()
     env = base_env(home)
-    rc, out, err = run([str(root / "packaging" / "zimzilla"), "--version"], env=env, cwd="/")
+    rc, out, err = run([str(root / "packaging" / "radnex"), "--version"], env=env, cwd="/")
     path_py = shutil.which("python3")
     check("launcher: falls back to python3 on PATH",
           path_py is not None and path_py in err, err.strip()[-300:])
 
 
 def main() -> int:
+    if os.name == "nt":
+        print("install: skipped on Windows (install.sh is for Linux environments)")
+        return 0
     with tempfile.TemporaryDirectory() as td_str:
         td = Path(td_str)
         ctx = test_install_layout(td)

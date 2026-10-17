@@ -38,9 +38,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import crack as crack_mod  # noqa: E402
-from zimzilla import scope as scope_mod  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
+from radnex import crack as crack_mod  # noqa: E402
+from radnex import scope as scope_mod  # noqa: E402
+from radnex.config import Config  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -707,7 +707,7 @@ def test_scope_does_not_block_cracking() -> None:
 
 def test_arg_parse() -> None:
     """`/crack`'s flag parsing, which is where a typo becomes a wasted budget."""
-    from zimzilla.ui.app import CRACK_DEFAULT_BUDGET, _parse_crack_args
+    from radnex.ui.app import CRACK_DEFAULT_BUDGET, _parse_crack_args
 
     path, mode, mt, deep, err = _parse_crack_args(["hashes.txt"])
     check("parse: a bare path", path == "hashes.txt" and not err, err)
@@ -754,12 +754,12 @@ def test_wiring() -> None:
     cannot silently orphan the command in another — the same check `test_osint`
     makes for `/osint`.
     """
-    from zimzilla.ui.complete import SLASH_COMMANDS
+    from radnex.ui.complete import SLASH_COMMANDS
 
     names = [c for c, _ in SLASH_COMMANDS]
     check("wiring: /crack is in the completion menu", "/crack" in names, str(names))
 
-    app_src = (ROOT / "zimzilla" / "ui" / "app.py").read_text()
+    app_src = (ROOT / "radnex" / "ui" / "app.py").read_text()
     check("wiring: dispatch has a crack entry",
           '"crack": lambda a: self._cmd_crack(a)' in app_src)
     check("wiring: _cmd_crack is defined", "def _cmd_crack(" in app_src)

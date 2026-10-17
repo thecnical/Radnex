@@ -143,7 +143,7 @@ class HeaderBar(Static):
         sep = ("  │  ", p.dim)
 
         head = Text()
-        head.append("◈ ZIMZILLA", style=f"bold {p.primary}")
+        head.append("◈ RADNEX", style=f"bold {p.primary}")
         head.append(*sep)
         head.append(f"◆ {m.get('label', self.mode.upper())} ", style=mstyle)
         head.append(*sep)

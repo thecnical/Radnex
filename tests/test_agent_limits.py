@@ -48,8 +48,8 @@ sys.path.insert(0, str(ROOT))
 
 import anthropic  # noqa: E402
 
-from zimzilla.agent import Agent  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
+from radnex.agent import Agent  # noqa: E402
+from radnex.config import Config  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -547,7 +547,7 @@ def test_window_prefers_the_catalog(tmp: Path) -> None:
 
 def test_window_lookup_never_raises(tmp: Path) -> None:
     """A broken lookup must not break a turn."""
-    from zimzilla import sources
+    from radnex import sources
 
     check("window: an unknown source returns None",
           sources.context_window_for("http://127.0.0.1:9/nothing", "x") is None)

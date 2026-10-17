@@ -11,20 +11,20 @@
 # `model_list` is rejected with "Invalid model name" before any upstream call,
 # even if the upstream would have served it. So this file is the real ceiling on
 # what /model can select, and it has to be kept in step with the live catalog —
-# `zimzilla/logfare.py` fetches that catalog, and /logfare-models shows what it
+# `radnex/logfare.py` fetches that catalog, and /logfare-models shows what it
 # found. A model that disappears upstream must be deleted here too, or /model
 # offers a name the proxy accepts and the upstream then 404s.
 #
 # Every entry below is a `model_name` the proxy will accept. The upstream name
 # is the same string, prefixed with `openai/` for LiteLLM's OpenAI-compatible
-# route. Add a model here *and* to zimzilla/config.py + zimzilla/sources.py to
+# route. Add a model here *and* to radnex/config.py + radnex/sources.py to
 # make it selectable from /model.
 general_settings:
   # Required since litellm 1.104: without a master key the proxy refuses to
   # start, because it would otherwise accept every request with no
   # authentication. This proxy is a local translation shim in front of Logfare,
   # not a multi-tenant gateway, so the harness's own upstream token doubles as
-  # the proxy credential — ZimZilla already sends it as x-api-key, so the
+  # the proxy credential — Radnex already sends it as x-api-key, so the
   # request that worked before keeps working, while anything else on the box
   # that finds the port is now rejected.
   master_key: os.environ/ANTHROPIC_AUTH_TOKEN

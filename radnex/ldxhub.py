@@ -28,7 +28,7 @@ Six services are exposed to the agent as tools (see ``tools.py``):
     castdoc      PDF → docx/xlsx/pptx conversion (engine)
     refineloop   XLIFF translation revision (model)
 
-Credentials live in ``ZIMZILLA_HOME/ldxhub/source``, mode 600, in
+Credentials live in ``RADNEX_HOME/ldxhub/source``, mode 600, in
 the same ``export VAR="value"`` shape the other profiles use.
 Nothing here echoes a key.
 """
@@ -45,11 +45,11 @@ import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 
-ZIMZILLA_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 
 HOST = "gw.ldxhub.io"
 BASE_URL = f"https://{HOST}"
-PROFILE = ZIMZILLA_HOME / "ldxhub" / "source"
+PROFILE = RADNEX_HOME / "ldxhub" / "source"
 
 CACHE_TTL = 300.0
 JOB_TIMEOUT = 300.0

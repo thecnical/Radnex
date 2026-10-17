@@ -68,7 +68,7 @@ def main() -> int:
     # startup, not a test failure.
     check("requirements: declares markdown-it-py, which ui/markdown.py imports",
           "markdown-it-py" in names, str(names))
-    md_mod = (ROOT / "zimzilla" / "ui" / "markdown.py").read_text()
+    md_mod = (ROOT / "radnex" / "ui" / "markdown.py").read_text()
     check("requirements: and ui/markdown.py really does import it",
           "from markdown_it import" in md_mod,
           "no 'from markdown_it import' in ui/markdown.py")

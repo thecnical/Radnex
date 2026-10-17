@@ -31,7 +31,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import update  # noqa: E402
+from radnex import update  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -125,8 +125,8 @@ def test_find_checkout() -> None:
     with tempfile.TemporaryDirectory() as td:
         real = update.__file__
         try:
-            (Path(td) / "zimzilla").mkdir()
-            update.__file__ = str(Path(td) / "zimzilla" / "update.py")
+            (Path(td) / "radnex").mkdir()
+            update.__file__ = str(Path(td) / "radnex" / "update.py")
             check("find_checkout: None outside a repo", update.find_checkout() is None)
         finally:
             update.__file__ = real

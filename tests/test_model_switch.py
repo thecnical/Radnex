@@ -44,8 +44,8 @@ from unittest import mock
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla.config import KNOWN_MODELS, Config  # noqa: E402
-from zimzilla.ui.app import ZimZillaApp  # noqa: E402
+from radnex.config import KNOWN_MODELS, Config  # noqa: E402
+from radnex.ui.app import RadnexApp  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -91,13 +91,13 @@ async def _case_gateway(wd: Path, key: str, base_url: str, model: str) -> None:
     The cache is cold by construction — nothing has fetched for this process's
     gateway module in this temp home — which is the state that triggered the bug.
     """
-    from zimzilla import openrouter as or_mod
-    from zimzilla import tokenharbour as th_mod
+    from radnex import openrouter as or_mod
+    from radnex import tokenharbour as th_mod
 
     mod = {"openrouter": or_mod, "tokenharbour": th_mod}[key]
 
     cfg = _cfg(wd, base_url)
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
         await pilot.pause()
@@ -150,8 +150,8 @@ async def test_logfare_is_policed_against_its_own_live_catalog(wd: Path) -> None
     is the switch that must fetch, and a warm cache left by mount would hide
     whether it does.
     """
-    from zimzilla import logfare as lf_mod
-    from zimzilla.ui import app as app_mod
+    from radnex import logfare as lf_mod
+    from radnex.ui import app as app_mod
 
     live = [_Model("deepseek-v4.1-flash"), _Model("mimo-v2.6-flash")]
     calls = {"n": 0}
@@ -161,8 +161,8 @@ async def test_logfare_is_policed_against_its_own_live_catalog(wd: Path) -> None
         return (live, "")
 
     cfg = _cfg(wd, "http://localhost:4001")
-    app = ZimZillaApp(cfg)
-    with mock.patch.object(app_mod.ZimZillaApp, "_warm_logfare_catalog"), \
+    app = RadnexApp(cfg)
+    with mock.patch.object(app_mod.RadnexApp, "_warm_logfare_catalog"), \
             mock.patch.object(lf_mod, "fetch_models", stub):
         lf_mod.clear_cache()
         async with app.run_test(size=(110, 40)) as pilot:
@@ -193,12 +193,12 @@ async def test_a_non_gateway_source_is_left_alone(wd: Path) -> None:
     would be a round-trip to an unrelated host carrying an unrelated key.
     """
     cfg = _cfg(wd, "http://localhost:4001")
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
         await pilot.pause()
 
-        from zimzilla import openrouter as or_mod
+        from radnex import openrouter as or_mod
         called = {"n": 0}
 
         def spy(*a, **k):
@@ -236,8 +236,8 @@ async def test_the_footer_reports_the_catalogs_age(wd: Path) -> None:
     import time
     import urllib.request
 
-    from zimzilla import logfare as lf_mod
-    from zimzilla.ui import app as app_mod
+    from radnex import logfare as lf_mod
+    from radnex.ui import app as app_mod
 
     # A real payload through the real parser, so the cache holds real Model
     # objects and the render path reads the same shapes it does in production.
@@ -273,8 +273,8 @@ async def test_the_footer_reports_the_catalogs_age(wd: Path) -> None:
         return lines[-1] if lines else ""
 
     cfg = _cfg(wd, "http://localhost:4001")
-    app = ZimZillaApp(cfg)
-    with mock.patch.object(app_mod.ZimZillaApp, "_warm_logfare_catalog"), \
+    app = RadnexApp(cfg)
+    with mock.patch.object(app_mod.RadnexApp, "_warm_logfare_catalog"), \
             mock.patch.object(urllib.request, "urlopen", stub):
         async with app.run_test(size=(110, 40)) as pilot:
             app.pop_screen()
@@ -323,7 +323,7 @@ async def test_a_retired_stored_model_is_replaced_on_switch(wd: Path) -> None:
     a model name the operator never chose and has no reason to suspect. The
     switch is already paying for a round-trip, so it checks there.
     """
-    from zimzilla import logfare as lf_mod
+    from radnex import logfare as lf_mod
 
     class _Src:
         key, model = "logfare", "deepseek-v4.1-flash"
@@ -331,7 +331,7 @@ async def test_a_retired_stored_model_is_replaced_on_switch(wd: Path) -> None:
     live = [_Model("deepseek-v4.1-flash"), _Model("mimo-v2.6-flash")]
 
     cfg = _cfg(wd, "http://localhost:4001")
-    app = ZimZillaApp(cfg)
+    app = RadnexApp(cfg)
     async with app.run_test(size=(110, 40)) as pilot:
         app.pop_screen()
         await pilot.pause()

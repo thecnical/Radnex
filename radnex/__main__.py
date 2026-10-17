@@ -25,7 +25,7 @@ from .theme import THEME_NAMES, current_theme
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        prog="zimzilla",
+        prog="radnex",
         description="ZimZilla — an agentic coding CLI with a green-on-black hacker TUI.",
     )
     parser.add_argument("--model", "-m", default=None, help=f"model name (default: {DEFAULT_MODEL})")
@@ -52,7 +52,7 @@ def build_parser() -> argparse.ArgumentParser:
                         help="agent mode: auto | edits | plan | zim | danger | uncensored (default: auto)")
     parser.add_argument("--agents", default=None,
                         help="path to AGENTS.md used by zim mode (default: workdir, "
-                             "its parent, ~/.zimzilla, then ~)")
+                             "its parent, ~/.radnex, then ~)")
     parser.add_argument("--max-tokens", type=int, default=None, help="max output tokens per reply")
     parser.add_argument("--no-auto-compact", action="store_true",
                         help="never compact history automatically; /compact still works")
@@ -71,15 +71,15 @@ def build_parser() -> argparse.ArgumentParser:
 def _launcher_path() -> str | None:
     """The launcher script this run came through, if there is one.
 
-    ``packaging/zimzilla`` exports ``ZIMZILLA_ROOT`` before it execs the
+    ``packaging/zimzilla`` exports ``RADNEX_ROOT`` before it execs the
     interpreter, so the script is discoverable from there. A bare
     ``python -m zimzilla`` — no launcher — leaves the variable unset and gets
     ``None``.
     """
-    root = os.environ.get("ZIMZILLA_ROOT")
+    root = os.environ.get("RADNEX_ROOT")
     if not root:
         return None
-    launcher = Path(root) / "packaging" / "zimzilla"
+    launcher = Path(root) / "packaging" / "radnex"
     if launcher.is_file() and os.access(launcher, os.X_OK):
         return str(launcher)
     return None
@@ -144,7 +144,7 @@ def main(argv: list[str] | None = None) -> int:
     # --panes: hand the whole session to tmux. tmux owns ctrl+b and the splits;
     # every pane re-runs this same command without --panes, so each one is an
     # ordinary ZimZilla that happens to share a mailbox with its peers.
-    if args.panes and not os.environ.get("ZIMZILLA_PANE_SESSION"):
+    if args.panes and not os.environ.get("RADNEX_PANE_SESSION"):
         from . import panes as panes_mod
 
         if not panes_mod.tmux_available():
@@ -152,7 +152,7 @@ def main(argv: list[str] | None = None) -> int:
                   file=sys.stderr)
             return 2
         launcher = _launcher_path()
-        base = [launcher] if launcher else [sys.executable, "-m", "zimzilla"]
+        base = [launcher] if launcher else [sys.executable, "-m", "radnex"]
         # The pane command keeps everything the operator typed, minus the
         # launcher's own flags — so `zimzilla --panes --theme amber` opens
         # amber panes. The first pane additionally resumes, when asked.
@@ -161,14 +161,14 @@ def main(argv: list[str] | None = None) -> int:
         if args.resume:
             first_cmd = " ".join(shlex.quote(p) for p in [
                 *base, "--resume", args.resume, *_pane_inner_argv(raw_argv)])
-        state = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+        state = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
         conf = panes_mod.write_tmux_conf(state, zim_cmd)
         return panes_mod.launch(conf, zim_cmd, workdir, first_cmd=first_cmd)
 
     # Target scope: two files with one job each. allow.yaml arms the session
     # (its presence means the operator has declared their targets, so tools run
     # unattended); out-of-scope.yaml is the never-touch list. Each is looked for
-    # in the working directory first, then in ~/.zimzilla.
+    # in the working directory first, then in ~/.radnex.
     def _find(explicit: str | None, names: tuple[str, ...]) -> Path | None:
         if explicit:
             return Path(explicit).expanduser()
@@ -193,7 +193,7 @@ def main(argv: list[str] | None = None) -> int:
 
     # Zim mode follows the operator's AGENTS.md. The search order lives in
     # config.find_agents_file so the CLI and the runtime /mode zim path cannot
-    # drift apart: workdir, its parent, the installed doctrine in ~/.zimzilla,
+    # drift apart: workdir, its parent, the installed doctrine in ~/.radnex,
     # then ~. The installed copy is what makes zim mode work from any directory.
     agents_path = None
     if args.agents:
@@ -273,7 +273,7 @@ def main(argv: list[str] | None = None) -> int:
             "zimzilla: no credentials found.\n"
             "  Set ANTHROPIC_AUTH_TOKEN (preferred) or ANTHROPIC_API_KEY.\n"
             "  For the local Logfare route, source ZimZilla's own profile:\n"
-            "      set -a; . ~/.zimzilla/logfare/source; set +a\n"
+            "      set -a; . ~/.radnex/logfare/source; set +a\n"
             "  Or just run `./setup.sh` once, then launch with `zimzilla`.",
             file=sys.stderr,
         )
@@ -289,16 +289,16 @@ def main(argv: list[str] | None = None) -> int:
     # new modules. execv replaces the process image outright, which is exactly
     # what packaging/zimzilla already does with its own `exec "$PY" -m`.
     #
-    # ZIMZILLA_UPDATED guards the loop: once we have re-exec'd, the next launch
+    # RADNEX_UPDATED guards the loop: once we have re-exec'd, the next launch
     # of main() skips the check entirely, so a flaky fetch cannot make the
     # harness restart itself repeatedly.
-    if not os.environ.get("ZIMZILLA_UPDATED"):
+    if not os.environ.get("RADNEX_UPDATED"):
         result = update_mod.run(enabled=not args.no_update
-                                and os.environ.get("ZIMZILLA_NO_UPDATE") != "1")
+                                and os.environ.get("RADNEX_NO_UPDATE") != "1")
         if result.noteworthy:
             update_mod.format_result(result)
         if result.should_reexec:
-            os.environ["ZIMZILLA_UPDATED"] = "1"
+            os.environ["RADNEX_UPDATED"] = "1"
             # Re-exec through the launcher when there is one, so the venv
             # dependency sync it performs runs against the requirements.txt the
             # update just pulled. Going straight to sys.executable would skip
@@ -308,9 +308,9 @@ def main(argv: list[str] | None = None) -> int:
             launcher = _launcher_path()
             if launcher is not None:
                 os.execv(launcher, [launcher, *raw_argv])
-            os.execv(sys.executable, [sys.executable, "-m", "zimzilla", *raw_argv])
+            os.execv(sys.executable, [sys.executable, "-m", "radnex", *raw_argv])
 
-    from .ui.app import ZimZillaApp
+    from .ui.app import RadnexApp
     from .termcolors import detect_colors
 
     # Ask the terminal for its own colours. A terminal draws its padding — the
@@ -326,7 +326,7 @@ def main(argv: list[str] | None = None) -> int:
     # palettes are neon-on-black; `system` reads the unfiltered colours, since
     # it takes its text colour from the same place as its background.
     colors = detect_colors()
-    app = ZimZillaApp(cfg, term_bg=colors.dark_bg if colors else None,
+    app = RadnexApp(cfg, term_bg=colors.dark_bg if colors else None,
                       term_colors=colors)
     # `--resume` (what `/panes` passes to the relaunched process) restores the
     # conversation before the first frame, so the replayed transcript is drawn

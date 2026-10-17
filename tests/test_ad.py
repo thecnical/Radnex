@@ -30,10 +30,10 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import ad as ad_mod  # noqa: E402
-from zimzilla import hunt as hunt_mod  # noqa: E402
-from zimzilla import scope as scope_mod  # noqa: E402
-from zimzilla.config import Config  # noqa: E402
+from radnex import ad as ad_mod  # noqa: E402
+from radnex import hunt as hunt_mod  # noqa: E402
+from radnex import scope as scope_mod  # noqa: E402
+from radnex.config import Config  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 

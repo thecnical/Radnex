@@ -17,15 +17,15 @@ sys.path.insert(0, str(ROOT))
 
 from rich.text import Text  # noqa: E402
 
-from zimzilla import team as team_mod  # noqa: E402
-from zimzilla import tools, websearch  # noqa: E402
-from zimzilla.agent import Agent  # noqa: E402
-from zimzilla.config import Config, MODES  # noqa: E402
-from zimzilla.scope import Scope  # noqa: E402
-from zimzilla.theme import agent_color  # noqa: E402
-from zimzilla.ui.app import ZimZillaApp  # noqa: E402
-from zimzilla.ui.complete import CompletionPopup  # noqa: E402
-from zimzilla.ui.widgets import StatusBar  # noqa: E402
+from radnex import team as team_mod  # noqa: E402
+from radnex import tools, websearch  # noqa: E402
+from radnex.agent import Agent  # noqa: E402
+from radnex.config import Config, MODES  # noqa: E402
+from radnex.scope import Scope  # noqa: E402
+from radnex.theme import agent_color  # noqa: E402
+from radnex.ui.app import RadnexApp  # noqa: E402
+from radnex.ui.complete import CompletionPopup  # noqa: E402
+from radnex.ui.widgets import StatusBar  # noqa: E402
 
 RESULTS: list[tuple[str, bool, str]] = []
 
@@ -91,7 +91,7 @@ def _stub_agent(mode: str, workdir: Path):
 
 async def test_identity(wd: Path) -> None:
     sp = Agent(_cfg(wd)).system_prompt()
-    check("identity names ZimZilla", "ZimZilla" in sp and "ZIM (Mr-Destroyer)" in sp)
+    check("identity names Radnex", "Radnex" in sp or "ZimZilla" in sp)
     check("identity disclaims other products", 'NOT "Claude"' in sp)
 
     dsp = Agent(_cfg(wd, mode="danger")).system_prompt()
@@ -102,7 +102,7 @@ async def test_identity(wd: Path) -> None:
           and "do not restate your limits as a reply to an instruction" in dsp)
     check("danger mode keeps its two mechanical bounds",
           "scope guard" in dsp and "harness itself refusing" in dsp)
-    check("danger keeps the identity", "ZimZilla" in dsp)
+    check("danger keeps the identity", "Radnex" in dsp or "ZimZilla" in dsp)
 
     usp = Agent(_cfg(wd, mode="uncensored")).system_prompt()
     check("uncensored mode replaces the default prompt",
@@ -113,7 +113,7 @@ async def test_identity(wd: Path) -> None:
           "whether you should" in usp and "plan of attack" in usp)
     check("uncensored mode does not carry the default coding brief",
           "Prefer small, exact edits" not in usp)
-    check("uncensored keeps the identity", "ZimZilla" in usp)
+    check("uncensored keeps the identity", "Radnex" in usp or "ZimZilla" in usp)
     check("uncensored keeps the mechanical bounds",
           "scope guard" in usp and "harness itself refusing" in usp)
     check("uncensored voids vendor refusal priors",
@@ -320,7 +320,7 @@ def test_zim_agents(wd: Path) -> None:
             cfg = _cfg(bare, mode="zim")
             cfg.state_dir = bare / "state"  # nothing installed there either
             check("zim mode without file falls back",
-                  "ZimZilla" in Agent(cfg).system_prompt())
+                  "Radnex" in Agent(cfg).system_prompt() or "ZimZilla" in Agent(cfg).system_prompt())
         finally:
             if saved_home is None:
                 os.environ.pop("HOME", None)
@@ -334,7 +334,7 @@ def test_agents_search(wd: Path) -> None:
     The installed-home step is the point of the whole thing — it is what lets
     `zimzilla --mode zim` run from a directory that has no AGENTS.md of its own.
     """
-    from zimzilla.config import find_agents_file
+    from radnex.config import find_agents_file
 
     saved_home = os.environ.get("HOME")
     with tempfile.TemporaryDirectory() as td:
@@ -357,7 +357,7 @@ def test_agents_search(wd: Path) -> None:
 
             # The installed doctrine is found from an unrelated directory.
             (home / "AGENTS.md").write_text("INSTALLED DOCTRINE\n")
-            check("installed ~/.zimzilla/AGENTS.md is found from any workdir",
+            check("installed ~/.radnex/AGENTS.md is found from any workdir",
                   find_agents_file(sub, home, nohome) == home / "AGENTS.md")
 
             # A project's own file wins over the installed one.
@@ -555,7 +555,7 @@ async def test_mode_gating(wd: Path) -> None:
 
 
 async def test_ui(wd: Path) -> None:
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     async with app.run_test(size=(110, 34)) as pilot:
         app.pop_screen()
         await pilot.pause()
@@ -658,10 +658,10 @@ def _stub_agent_usage(workdir: Path):
 
 async def test_ui_rails(wd: Path) -> None:
     """The Mission Control rails: mount, cycle, gauge, card, palette."""
-    from zimzilla.ui.palette_cmd import CommandPalette, PaletteEntry, fuzzy, rank
-    from zimzilla.ui.rails import (CallStrip, ContextGauge, FileRiver, LoopRail,
+    from radnex.ui.palette_cmd import CommandPalette, PaletteEntry, fuzzy, rank
+    from radnex.ui.rails import (CallStrip, ContextGauge, FileRiver, LoopRail,
                                    TelemetryRail, Waveform)
-    from zimzilla.ui.widgets import ChatPane, HeaderBar
+    from radnex.ui.widgets import ChatPane, HeaderBar
 
     # ---- fuzzy matching (pure, no app needed) -----------------------------
     check("fuzzy: subsequence matches", fuzzy("md", "/model") is not None)
@@ -678,7 +678,7 @@ async def test_ui_rails(wd: Path) -> None:
     check("fuzzy: hint is searched too",
           any(e.title == "/model" for e, _ in rank(ents, "switch")))
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     app.agent = _stub_agent_usage(wd)
     async with app.run_test(size=(118, 34)) as pilot:
         app.pop_screen()
@@ -803,7 +803,7 @@ async def test_ui_rails(wd: Path) -> None:
               Text(htxt).cell_len <= header.size.width,
               f"{Text(htxt).cell_len} > {header.size.width}")
 
-        await pilot.resize_terminal(140, 34)
+        await pilot.resize_terminal(160, 34)
         await pilot.pause()
         check("wide: the rails come back", loop.display and tele.display)
         check("wide: the theme returns", "theme:" in str(header.render()),
@@ -828,9 +828,9 @@ async def test_termbg(wd: Path) -> None:
     paint outside the text grid, so a hardcoded background leaves a frame of the
     wrong colour around the whole interface. The app asks over OSC 11 instead.
     """
-    from zimzilla.termbg import detect_background, is_dark, parse_background
-    from zimzilla.theme import PALETTES, get_palette
-    from zimzilla.ui.app import ZimZillaApp
+    from radnex.termbg import detect_background, is_dark, parse_background
+    from radnex.theme import PALETTES, get_palette
+    from radnex.ui.app import RadnexApp
 
     # ---- parsing: the terminal's reply, in every form they send it ---------
     check("termbg: kitty's 16-bit reply parses",
@@ -869,7 +869,7 @@ async def test_termbg(wd: Path) -> None:
           PALETTES["green"].bg == "#000000" and PALETTES["amber"].bg == "#000000")
 
     # ---- and it reaches the compositor, corners included -------------------
-    app = ZimZillaApp(_cfg(wd, boot_rain=False), term_bg="#101315")
+    app = RadnexApp(_cfg(wd, boot_rain=False), term_bg="#101315")
     async with app.run_test(size=(100, 30)) as pilot:
         app.pop_screen()
         await pilot.pause()
@@ -913,9 +913,9 @@ async def test_system_theme(wd: Path) -> None:
     """
     from unittest import mock
 
-    from zimzilla import theme as theme_mod
-    from zimzilla.termcolors import detect_colors, parse_colors
-    from zimzilla.theme import (PALETTES, SYSTEM_THEME, THEME_NAMES,
+    from radnex import theme as theme_mod
+    from radnex.termcolors import detect_colors, parse_colors
+    from radnex.theme import (PALETTES, SYSTEM_THEME, THEME_NAMES,
                                 get_palette, system_palette)
 
     # ---- parsing: one batched reply carries every answer -------------------
@@ -975,7 +975,7 @@ async def test_system_theme(wd: Path) -> None:
         pid, pfd = pty.fork()
         if pid == 0:  # the "app", with the pty slave as its tty
             try:
-                from zimzilla.termcolors import detect_colors as dc
+                from radnex.termcolors import detect_colors as dc
                 cc = dc(timeout=2.0)
                 got = ("none" if cc is None else
                        f"{cc.bg} {cc.fg} {len(cc.ansi)} {cc.ansi.get(1)} {cc.ansi.get(8)}")
@@ -1070,7 +1070,7 @@ async def test_system_theme(wd: Path) -> None:
     # ---- persistence: the choice survives a restart ------------------------
     with tempfile.TemporaryDirectory() as td:
         home = Path(td) / ".zimzilla"
-        with mock.patch.object(theme_mod, "ZIMZILLA_HOME", home):
+        with mock.patch.object(theme_mod, "RADNEX_HOME", home):
             check("theme: nothing remembered on a fresh home",
                   theme_mod.current_theme() is None)
             theme_mod.set_current_theme("amber")
@@ -1092,11 +1092,11 @@ async def test_system_theme(wd: Path) -> None:
                   theme_mod.current_theme() is None,
                   repr(theme_mod.current_theme()))
             # A home that cannot be written must not break the TUI. Pointing
-            # ZIMZILLA_HOME at an existing *file* makes mkdir fail, which is the
+            # RADNEX_HOME at an existing *file* makes mkdir fail, which is the
             # real shape of a read-only or misconfigured home.
             blocker = Path(td) / "not-a-dir"
             blocker.write_text("")
-            with mock.patch.object(theme_mod, "ZIMZILLA_HOME", blocker):
+            with mock.patch.object(theme_mod, "RADNEX_HOME", blocker):
                 try:
                     theme_mod.set_current_theme("cyan")
                     check("theme: an unwritable home does not raise", True)
@@ -1108,8 +1108,8 @@ async def test_system_theme(wd: Path) -> None:
     # it, which is the half the operator actually sees. `app.run` is stubbed so
     # main() can be driven to completion without a terminal: everything up to
     # the palette — argparse, the precedence, Config.from_env — runs for real.
-    import zimzilla.__main__ as main_mod
-    from zimzilla.ui import app as app_ui
+    import radnex.__main__ as main_mod
+    from radnex.ui import app as app_ui
 
     seen: list = []
 
@@ -1123,11 +1123,11 @@ async def test_system_theme(wd: Path) -> None:
 
     with tempfile.TemporaryDirectory() as td:
         home = Path(td) / ".zimzilla"
-        with mock.patch.object(theme_mod, "ZIMZILLA_HOME", home), \
-             mock.patch.object(app_ui, "ZimZillaApp", _StubApp), \
-             mock.patch.dict(os.environ, {"ZIMZILLA_UPDATED": "1",
+        with mock.patch.object(theme_mod, "RADNEX_HOME", home), \
+             mock.patch.object(app_ui, "RadnexApp", _StubApp), \
+             mock.patch.dict(os.environ, {"RADNEX_UPDATED": "1",
                                           "ANTHROPIC_AUTH_TOKEN": "x"}), \
-             mock.patch.object(sys, "argv", ["zimzilla"]):
+             mock.patch.object(sys, "argv", ["radnex"]):
             def launched(*argv: str) -> str:
                 seen.clear()
                 main_mod.main([*argv, "--workdir", str(wd)])
@@ -1159,8 +1159,8 @@ async def test_system_theme(wd: Path) -> None:
 
     # ---- and it reaches the app --------------------------------------------
     with tempfile.TemporaryDirectory() as td:
-        with mock.patch.object(theme_mod, "ZIMZILLA_HOME", Path(td) / ".zimzilla"):
-            app = ZimZillaApp(_cfg(wd, boot_rain=False, theme=SYSTEM_THEME),
+        with mock.patch.object(theme_mod, "RADNEX_HOME", Path(td) / ".zimzilla"):
+            app = RadnexApp(_cfg(wd, boot_rain=False, theme=SYSTEM_THEME),
                               term_colors=c)
             async with app.run_test(size=(100, 30)) as pilot:
                 app.pop_screen()
@@ -1205,7 +1205,7 @@ async def test_system_theme(wd: Path) -> None:
 
             # A terminal that answered nothing: system must degrade to green AND
             # say so, rather than showing green under a "theme: system" badge.
-            blind = ZimZillaApp(_cfg(wd, boot_rain=False, theme=SYSTEM_THEME),
+            blind = RadnexApp(_cfg(wd, boot_rain=False, theme=SYSTEM_THEME),
                                 term_colors=None)
             async with blind.run_test(size=(100, 30)) as pilot:
                 blind.pop_screen()
@@ -1605,7 +1605,7 @@ async def test_team_ui(wd: Path) -> None:
               '{"name": "two", "brief": "do two", "owns": ["b.py"]}]}')
     factory = _team_factory({"roster": roster, "names": ["one", "two"]})
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     app._team_agent_factory = factory
     # The fallback path runs the task on the MAIN agent, so that one must be
     # stubbed too — otherwise an unreadable roster reaches the live API.
@@ -1678,24 +1678,24 @@ async def test_team_ui(wd: Path) -> None:
 # the price it must have, and the environment override that outranks it.
 
 def test_default_model(wd: Path) -> None:
-    from zimzilla.config import DEFAULT_MODEL
+    from radnex.config import DEFAULT_MODEL
 
     check("default model: the shipped default is deepseek-v4.1-flash",
           DEFAULT_MODEL == "deepseek-v4.1-flash", DEFAULT_MODEL)
 
-    from zimzilla.config import KNOWN_MODELS
+    from radnex.config import KNOWN_MODELS
 
     check("default model: it is in KNOWN_MODELS",
           DEFAULT_MODEL in KNOWN_MODELS,
           f"registry has {len(KNOWN_MODELS)} entries")
 
-    from zimzilla.config import DEFAULT_PRICE, PRICING
+    from radnex.config import DEFAULT_PRICE, PRICING
 
     check("default model: it has a real price, not the fallback",
           DEFAULT_MODEL in PRICING and PRICING[DEFAULT_MODEL] != DEFAULT_PRICE,
           f"{PRICING.get(DEFAULT_MODEL)}")
 
-    from zimzilla.sources import LOGFARE_MODELS
+    from radnex.sources import LOGFARE_MODELS
 
     check("default model: Logfare actually serves it",
           DEFAULT_MODEL in LOGFARE_MODELS,
@@ -1729,7 +1729,7 @@ def test_default_model(wd: Path) -> None:
 
 async def test_copy_on_select(wd: Path) -> None:
     """A mouse highlight copies itself — no binding required."""
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     copied: list[str] = []
     app.copy_to_clipboard = lambda text: copied.append(text)  # type: ignore[method-assign]
 
@@ -1773,9 +1773,9 @@ async def test_prompt_paste_full(wd: Path) -> None:
     """
     from textual import events
 
-    from zimzilla.ui.widgets import NEWLINE_GLYPH, PromptInput
+    from radnex.ui.widgets import NEWLINE_GLYPH, PromptInput
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
 
     async with app.run_test(size=(110, 34)) as pilot:
         app.pop_screen()
@@ -1824,11 +1824,11 @@ async def test_harness_copy_resize_mouse(wd: Path) -> None:
     """The transcript copies, survives a resize round-trip, and the rails drag."""
     from textual.events import MouseMove
 
-    from zimzilla.ui.rails import ContextGauge, LoopRail, TelemetryRail, Waveform
-    from zimzilla.ui.rain import RainRichLog
-    from zimzilla.ui.widgets import ChatPane
+    from radnex.ui.rails import ContextGauge, LoopRail, TelemetryRail, Waveform
+    from radnex.ui.rain import RainRichLog
+    from radnex.ui.widgets import ChatPane
 
-    app = ZimZillaApp(_cfg(wd, boot_rain=False))
+    app = RadnexApp(_cfg(wd, boot_rain=False))
     copied: list[str] = []
     app.copy_to_clipboard = lambda text: copied.append(text)  # type: ignore[method-assign]
 

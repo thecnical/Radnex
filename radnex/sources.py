@@ -8,7 +8,7 @@ points at. Two local LiteLLM proxies front two different upstreams:
 
 They go down independently, so the point of this module is to make switching
 between them a one-liner — ``/zim-tokenjuice`` / ``/zim-logfare`` — and to have
-the choice survive a restart (``~/.zimzilla/current-source``).
+the choice survive a restart (``~/.radnex/current-source``).
 
 Nothing here echoes a key. Credentials live in each source's profile file, mode
 600, exactly as before.
@@ -24,7 +24,7 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-ZIMZILLA_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 DEFAULT_HOME = Path.home()
 DEFAULT_ROOT = Path(__file__).resolve().parent.parent
 
@@ -138,6 +138,14 @@ def models_for(base_url: str) -> tuple[str, ...] | None:
         from . import aihubmix as ah_mod
         cached = ah_mod.cached_ids()
         return tuple(cached) if cached else None
+    if key == "apinex":
+        from . import apinex as api_mod
+        cached = api_mod.cached_ids()
+        return tuple(cached) if cached else None
+    if key == "radox":
+        from . import radox as rx_mod
+        cached = rx_mod.cached_ids()
+        return tuple(cached) if cached else None
     return MODELS_BY_KEY.get(key) or None
 
 
@@ -164,6 +172,12 @@ def catalog_models(key: str) -> list | None:
     if key == "aihubmix":
         from . import aihubmix as ah_mod
         return ah_mod.cached_models()
+    if key == "apinex":
+        from . import apinex as api_mod
+        return api_mod.cached_models()
+    if key == "radox":
+        from . import radox as rx_mod
+        return rx_mod.cached_models()
     return None
 
 
@@ -210,11 +224,11 @@ def _first(paths: list[Path]) -> Path | None:
 def _service_candidates(key: str) -> list[Path]:
     if key == "logfare":
         return [
-            ZIMZILLA_HOME / "logfare" / "start-litellm.sh",
+            RADNEX_HOME / "logfare" / "start-litellm.sh",
             DEFAULT_ROOT / "packaging" / "logfare" / "start-litellm.sh",
         ]
     return [
-        ZIMZILLA_HOME / "tokenjuice" / "start-litellm.sh",
+        RADNEX_HOME / "tokenjuice" / "start-litellm.sh",
         DEFAULT_HOME / "start-litellm.sh",
     ]
 
@@ -222,11 +236,11 @@ def _service_candidates(key: str) -> list[Path]:
 def _config_candidates(key: str) -> list[Path]:
     if key == "logfare":
         return [
-            ZIMZILLA_HOME / "logfare" / "litellm-config.yaml",
+            RADNEX_HOME / "logfare" / "litellm-config.yaml",
             DEFAULT_ROOT / "packaging" / "logfare" / "litellm-config.yaml",
         ]
     return [
-        ZIMZILLA_HOME / "tokenjuice" / "litellm-config.yaml",
+        RADNEX_HOME / "tokenjuice" / "litellm-config.yaml",
         DEFAULT_HOME / "litellm-config.yaml",
     ]
 
@@ -234,11 +248,11 @@ def _config_candidates(key: str) -> list[Path]:
 def _profile_candidates(key: str) -> list[Path]:
     if key == "logfare":
         return [
-            ZIMZILLA_HOME / "logfare" / "source",
+            RADNEX_HOME / "logfare" / "source",
             DEFAULT_ROOT / "packaging" / "logfare" / "source",
         ]
     return [
-        ZIMZILLA_HOME / "tokenjuice" / "source",
+        RADNEX_HOME / "tokenjuice" / "source",
         DEFAULT_HOME / "claude-source" / "deepseek-claude",
     ]
 
@@ -273,6 +287,10 @@ def source_for_port(port: int) -> str | None:
     for key, src in discover().items():
         if src.port == port:
             return key
+    if port == 4001:
+        return "logfare"
+    if port == 4000:
+        return "tokenjuice"
     return None
 
 
@@ -281,7 +299,7 @@ def source_for_port(port: int) -> str | None:
 # ---------------------------------------------------------------------------
 
 def _state_file() -> Path:
-    return ZIMZILLA_HOME / "current-source"
+    return RADNEX_HOME / "current-source"
 
 
 #: Sources that are always selectable, whether or not `discover()` finds them
@@ -292,7 +310,7 @@ def _state_file() -> Path:
 #: `discover()`, which only knows the two LiteLLM proxies — its buyer is started
 #: and stopped by the operator, so requiring it to be up at selection time would
 #: lose the choice every time the proxy was down.
-BUILTIN_KEYS = frozenset({"tokenharbour", "openrouter", "unorouter", "antseed", "aihubmix"})
+BUILTIN_KEYS = frozenset({"tokenharbour", "openrouter", "unorouter", "antseed", "aihubmix", "apinex", "radox"})
 
 
 def current_key() -> str | None:
@@ -313,7 +331,7 @@ def current_key() -> str | None:
 def set_current(key: str) -> None:
     """Record the selection. Never fatal — a read-only home must not break the TUI."""
     try:
-        ZIMZILLA_HOME.mkdir(parents=True, exist_ok=True)
+        RADNEX_HOME.mkdir(parents=True, exist_ok=True)
         _state_file().write_text(key + "\n", encoding="utf-8")
     except OSError:
         pass
@@ -332,9 +350,15 @@ def active_key(base_url: str) -> str | None:
     # module-level import would make them import each other.
     from . import aihubmix as ah_mod
     from . import antseed as as_mod
+    from . import apinex as api_mod
     from . import openrouter as or_mod
+    from . import radox as rx_mod
     from . import tokenharbour as th_mod
     from . import unorouter as uno_mod
+    if api_mod.is_apinex(base_url):
+        return "apinex"
+    if rx_mod.is_radox(base_url):
+        return "radox"
     if th_mod.is_tokenharbour(base_url):
         return "tokenharbour"
     if or_mod.is_openrouter(base_url):
@@ -405,7 +429,7 @@ def start_proxy(src: Source, timeout: float = 180.0) -> tuple[bool, str]:
         return False, f"no service manager at {src.service}"
 
     env = dict(os.environ)
-    env.setdefault("ZIMZILLA_ROOT", str(src.root))
+    env.setdefault("RADNEX_ROOT", str(src.root))
     env["LITELLM_ENV_FILE"] = str(src.profile)
     env["LITELLM_CONFIG"] = str(src.config)
     env["LITELLM_PORT"] = str(src.port)

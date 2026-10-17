@@ -90,7 +90,7 @@ def _stub_urlopen(payload: dict | None = None, error: Exception | None = None):
 
 def test_chat_filter() -> None:
     """Only entries advertising chat/completions are offered as models."""
-    from zimzilla import logfare as lf
+    from radnex import logfare as lf
 
     lf.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -105,7 +105,7 @@ def test_chat_filter() -> None:
 
 def test_health_is_read() -> None:
     """Status, uptime and traffic come through, and drive `healthy`."""
-    from zimzilla import logfare as lf
+    from radnex import logfare as lf
 
     lf.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -127,7 +127,7 @@ def test_health_is_read() -> None:
 
 def test_parse_is_total() -> None:
     """A malformed entry degrades; it never takes the catalog down."""
-    from zimzilla import logfare as lf
+    from radnex import logfare as lf
 
     messy = lf._parse_models({"data": [
         {"model_id": "ok", "endpoints": ["chat/completions"],
@@ -146,7 +146,7 @@ def test_parse_is_total() -> None:
 
 def test_fetch_is_total() -> None:
     """fetch_models returns errors; it never raises into the TUI."""
-    from zimzilla import logfare as lf
+    from radnex import logfare as lf
 
     lf.clear_cache()
     with mock.patch("urllib.request.urlopen",
@@ -165,7 +165,7 @@ def test_fetch_is_total() -> None:
 
 def test_cache() -> None:
     """A warm cache answers without a second request; clear_cache empties it."""
-    from zimzilla import logfare as lf
+    from radnex import logfare as lf
 
     lf.clear_cache()
     calls = []
@@ -201,8 +201,8 @@ def test_cache_expiry() -> None:
     """
     import time
 
-    from zimzilla import logfare as lf
-    from zimzilla import sources as s
+    from radnex import logfare as lf
+    from radnex import sources as s
 
     proxy = "http://localhost:4001"
     lf.clear_cache()
@@ -240,8 +240,8 @@ def test_cache_expiry() -> None:
 
 def test_sources_prefers_live() -> None:
     """sources.models_for("logfare") is the fetched list, not the declaration."""
-    from zimzilla import logfare as lf
-    from zimzilla import sources as s
+    from radnex import logfare as lf
+    from radnex import sources as s
 
     proxy = "http://localhost:4001"
     lf.clear_cache()
@@ -273,8 +273,8 @@ def test_declared_fallback_is_plausible() -> None:
     honest by a test — only a fetch can — but it can be kept *small*, and this
     pins it to the set that was live when the fetch was added.
     """
-    from zimzilla import sources as s
-    from zimzilla.config import KNOWN_MODELS, PRICING
+    from radnex import sources as s
+    from radnex.config import KNOWN_MODELS, PRICING
 
     check("fallback: LOGFARE_MODELS is the four live models",
           set(s.LOGFARE_MODELS) ==
@@ -293,7 +293,7 @@ def test_declared_fallback_is_plausible() -> None:
 
 def test_is_logfare() -> None:
     """The host test distinguishes the gateway from the local proxy."""
-    from zimzilla import logfare as lf
+    from radnex import logfare as lf
 
     check("host: a local proxy is not the gateway",
           not lf.is_logfare("http://localhost:4001"))

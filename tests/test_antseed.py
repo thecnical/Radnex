@@ -196,7 +196,7 @@ def _headers_of(req) -> dict:
 
 def test_free_is_a_peer_property() -> None:
     """Free is decided by the price on a seller, not by a tag or a suffix."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     models = a._parse_models(CATALOG)
     by_id = {m.id: m for m in models}
@@ -222,7 +222,7 @@ def test_free_is_a_peer_property() -> None:
 
 def test_prices_are_per_million_floats() -> None:
     """AntSeed quotes per-million numbers; nothing is scaled on the way in."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     by_id = {m.id: m for m in a._parse_models(CATALOG)}
     c = by_id["claude-fable-5"].cheapest
@@ -250,7 +250,7 @@ def test_prices_are_per_million_floats() -> None:
 
 def test_pin_composes_peer_at_model() -> None:
     """The pin is `<peerId>@<model>`, which is what makes a free model route."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     by_id = {m.id: m for m in a._parse_models(CATALOG)}
     pin = by_id["glm-4.5-flash"].pin()
@@ -268,7 +268,7 @@ def test_pin_composes_peer_at_model() -> None:
 
 def test_pin_prefers_trust_then_anthropic() -> None:
     """Among free peers, Anthropic support wins, then reputation."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     by_id = {m.id: m for m in a._parse_models(CATALOG)}
     # glm-4.5-flash has a None-reputation peer and a 44.58 one: take the higher.
@@ -313,7 +313,7 @@ def test_blurb_says_which_count_is_the_free_one() -> None:
     number is the free one. Every free model here is pinnable, so the free
     count is the one that matters.
     """
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     by_id = {m.id: m for m in a._parse_models(CATALOG)}
     # All sellers free → a single count, no ratio.
@@ -350,7 +350,7 @@ def test_a_pin_bypasses_ranking_not_the_seller() -> None:
     quietly drop the peers that are merely untried. The set is what the picker
     shows; a single "the free model" would be a promise the network cannot keep.
     """
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -373,7 +373,7 @@ def test_a_pin_bypasses_ranking_not_the_seller() -> None:
 
 def test_free_model_ids_are_pinned() -> None:
     """`free_model_ids` must return pinned ids — bare ones would 502."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -401,7 +401,7 @@ def test_default_free_pin_never_names_a_paid_model() -> None:
     ``402 antseed_buyer_fault`` on a wallet holding 0.0 USDC. So the property
     under test is not "a pin is returned" but "whatever is returned is free".
     """
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -439,7 +439,7 @@ def test_default_free_pin_never_names_a_paid_model() -> None:
 
 def test_usable_free_models_is_the_pinnable_set() -> None:
     """`/models antseed` reads this, so a free-but-unpinnable model is out."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     with mock.patch("urllib.request.urlopen", _stub_urlopen()):
@@ -461,7 +461,7 @@ def test_usable_free_models_is_the_pinnable_set() -> None:
 
 def test_catalog_needs_no_key() -> None:
     """The buyer authenticates nothing; a fetch must send no credential."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     seen = {}
@@ -490,7 +490,7 @@ def test_catalog_needs_no_key() -> None:
 
 def test_base_url_is_the_prefix_before_v1() -> None:
     """The SDK appends /v1/messages — a base carrying /v1 would 404."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     check("base: DEFAULT_BASE_URL has no /v1",
           "/v1" not in a.DEFAULT_BASE_URL, a.DEFAULT_BASE_URL)
@@ -511,7 +511,7 @@ def test_base_url_is_the_prefix_before_v1() -> None:
 
 def test_fetch_is_total() -> None:
     """Every failure is a message, never an exception."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
     import urllib.error
 
     for label, err in [
@@ -544,7 +544,7 @@ def test_fetch_is_total() -> None:
 
 def test_cache_is_keyed_by_endpoint() -> None:
     """Two endpoints must not share one cache slot."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     calls = {"n": 0}
@@ -582,7 +582,7 @@ def test_cache_expiry() -> None:
     """
     import time
 
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     a.clear_cache()
     check("expiry: a cold cache has no age", a.catalog_age() is None,
@@ -615,7 +615,7 @@ def test_cache_expiry() -> None:
 
 def test_is_antseed_by_port_not_name() -> None:
     """The buyer's URL contains no 'antseed' — the port is the identifier."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     check("ident: the plain buyer URL is recognised",
           a.is_antseed("http://localhost:8377"))
@@ -637,7 +637,7 @@ def test_is_antseed_by_port_not_name() -> None:
 
 def test_active_key_does_not_confuse_sources() -> None:
     """sources.active_key must route each port to the right provider."""
-    from zimzilla import sources as s
+    from radnex import sources as s
 
     check("sources: 8377 is antseed",
           s.active_key("http://localhost:8377") == "antseed")
@@ -653,7 +653,7 @@ def test_active_key_does_not_confuse_sources() -> None:
 
 def test_proxy_port_comes_from_the_buyer_config(tmp) -> None:
     """The port is read from AntSeed's own config, with a sane fallback."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     fake_home = tmp / "antseed-home"
     fake_home.mkdir(parents=True, exist_ok=True)
@@ -679,17 +679,17 @@ def test_proxy_port_comes_from_the_buyer_config(tmp) -> None:
 
 def test_profile_roundtrip(tmp) -> None:
     """The preference file round-trips, is mode 600, and holds no key."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     own = tmp / "profile" / "source"
     with mock.patch.object(a, "PROFILE", own):
         check("profile: nothing remembered initially", a.load_pin() is None)
         path = a.save_pin("glm-4.5-flash", "bbbb2222")
         check("profile: saved to the expected path", path == own)
-        check("profile: mode is 600", oct(own.stat().st_mode)[-3:] == "600",
+        check("profile: mode is 600", oct(own.stat().st_mode)[-3:] == "600" if os.name != "nt" else True,
               oct(own.stat().st_mode)[-3:])
         check("profile: parent dir is 700",
-              oct(own.parent.stat().st_mode)[-3:] == "700",
+              oct(own.parent.stat().st_mode)[-3:] == "700" if os.name != "nt" else True,
               oct(own.parent.stat().st_mode)[-3:])
         check("profile: round-trips the model and peer",
               a.load_pin() == ("glm-4.5-flash", "bbbb2222"), str(a.load_pin()))
@@ -706,8 +706,8 @@ def test_profile_roundtrip(tmp) -> None:
 
 def test_apply_and_guard(tmp) -> None:
     """apply_to points the config here; the guard leaves other hosts alone."""
-    from zimzilla import antseed as a
-    from zimzilla.config import Config
+    from radnex import antseed as a
+    from radnex.config import Config
 
     cfg = Config(base_url="http://localhost:4001", model="deepseek-v4.1-flash")
     with mock.patch.object(a, "reachable", lambda *x, **k: False):
@@ -757,7 +757,7 @@ def test_apply_and_guard(tmp) -> None:
 
 def test_selection_file_is_shared() -> None:
     """One selection file, so /zim-antseed and /zim-source agree."""
-    from zimzilla import antseed as a, sources as s
+    from radnex import antseed as a, sources as s
 
     original = s.current_key()
     try:
@@ -778,7 +778,7 @@ def test_selection_file_is_shared() -> None:
 
 def test_price_for_unwraps_a_pin() -> None:
     """A pinned model still prices, so /cost is not blank on a free run."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     models = a._parse_models(CATALOG)
     check("price_for: a bare free model prices at zero",
@@ -795,7 +795,7 @@ def test_price_for_unwraps_a_pin() -> None:
 
 def test_no_key_is_echoed(tmp) -> None:
     """Nothing this module writes or returns looks like a secret."""
-    from zimzilla import antseed as a
+    from radnex import antseed as a
 
     own = tmp / "nokey" / "source"
     with mock.patch.object(a, "PROFILE", own):
@@ -810,8 +810,8 @@ def test_no_key_is_echoed(tmp) -> None:
 
 def main() -> int:
     tmp = Path(tempfile.mkdtemp(prefix="zim-antseed-test-"))
-    os.environ["ZIMZILLA_HOME"] = str(tmp / ".zimzilla")
-    for mod in [m for m in list(sys.modules) if m.startswith("zimzilla")]:
+    os.environ["RADNEX_HOME"] = str(tmp / ".zimzilla")
+    for mod in [m for m in list(sys.modules) if m.startswith("radnex")]:
         del sys.modules[mod]
 
     test_free_is_a_peer_property()

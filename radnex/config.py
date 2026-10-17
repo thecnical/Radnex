@@ -20,8 +20,12 @@ DEFAULT_BASE_URL = "http://localhost:4001"
 DEFAULT_MODEL = "deepseek-v4.1-flash"
 
 # The harness dotdir. setup.sh installs the proxy files, the doctrine file and
-# the session state here; ZIMZILLA_HOME moves the whole lot.
-DEFAULT_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+# the session state here; RADNEX_HOME moves the whole lot.
+DEFAULT_HOME = Path(
+    os.environ.get("RADNEX_HOME")
+    or os.environ.get("RADNEX_HOME")
+    or (Path.home() / ".radnex")
+)
 
 
 def find_agents_file(
@@ -35,7 +39,7 @@ def find_agents_file(
 
       1. ``<workdir>/AGENTS.md``      — the project's own doctrine
       2. ``<workdir>/../AGENTS.md``   — a checkout's root file, seen from a subdir
-      3. ``<home>/AGENTS.md``         — the installed doctrine (~/.zimzilla)
+      3. ``<home>/AGENTS.md``         — the installed doctrine (~/.radnex or ~/.radnex)
       4. ``<user_home>/AGENTS.md``    — a hand-kept global file (~)
 
     Step 3 is what makes zim mode work from any directory: the file is installed
@@ -280,6 +284,14 @@ class Config:
     # session that started elsewhere still picks the file up.
     agents_path: Path | None = None
     state_dir: Path = field(default_factory=lambda: Path(DEFAULT_HOME))
+    # Ephemeral Prompt Caching (Anthropic Messages API compatible gateways)
+    prompt_caching: bool = True
+    # Zero-downtime smart failover strictly to verified 100% free models
+    smart_failover: bool = True
+    # Shadow git checkpoints and instant rollback (/undo)
+    shadow_checkpoints: bool = True
+    # Webhook URL for headless notifications and report dispatch
+    webhook_url: str | None = None
 
     @property
     def api_key_present(self) -> bool:
@@ -292,9 +304,11 @@ class Config:
             base_url=os.environ.get("ANTHROPIC_BASE_URL", DEFAULT_BASE_URL).rstrip("/"),
             api_key=os.environ.get("ANTHROPIC_API_KEY") or None,
             auth_token=os.environ.get("ANTHROPIC_AUTH_TOKEN") or None,
-            model=os.environ.get("ZIMZILLA_MODEL")
+            model=os.environ.get("RADNEX_MODEL")
+            or os.environ.get("ZIMZILLA_MODEL")
             or os.environ.get("ANTHROPIC_MODEL")
             or DEFAULT_MODEL,
+            webhook_url=os.environ.get("RADNEX_WEBHOOK_URL") or None,
         )
         for key, value in overrides.items():
             if value is not None:

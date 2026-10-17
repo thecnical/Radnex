@@ -16,8 +16,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from zimzilla import scope_validator as sv  # noqa: E402
-from zimzilla.scope import HostSet, Scope  # noqa: E402
+from radnex import scope_validator as sv  # noqa: E402
+from radnex.scope import HostSet, Scope  # noqa: E402
 
 FAILS: list[str] = []
 

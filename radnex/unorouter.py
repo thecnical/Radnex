@@ -86,10 +86,10 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-ZIMZILLA_HOME = Path(os.environ.get("ZIMZILLA_HOME") or (Path.home() / ".zimzilla"))
+RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".zimzilla"))
 #: Where the operator keeps their per-provider shell profiles — the same
 #: ``~/claude-source/<name>`` files a plain ``source`` loads for Claude Code.
-CLAUDE_SOURCE = Path(os.environ.get("ZIMZILLA_CLAUDE_SOURCE")
+CLAUDE_SOURCE = Path(os.environ.get("RADNEX_CLAUDE_SOURCE")
                      or (Path.home() / "claude-source"))
 
 #: The canonical host. Matching is by this substring, so a trailing slash and any
@@ -110,7 +110,7 @@ DEFAULT_BASE_URL = "https://api.unorouter.com"
 PRICING_URL = f"{DEFAULT_BASE_URL}/api/pricing"
 
 #: The profile this module writes and reads for the in-TUI key.
-PROFILE = ZIMZILLA_HOME / "unorouter" / "source"
+PROFILE = RADNEX_HOME / "unorouter" / "source"
 
 #: A fetched catalog older than this is refetched rather than trusted. The free
 #: tier turns over, so a stale list is exactly the wrong list this picker exists

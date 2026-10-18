@@ -95,7 +95,7 @@ fi
 
 if [[ -z "$GW_CHOICE" ]]; then
   printf '\n  Select an AI Gateway to configure:\n\n'
-  printf '  [1] APInex       (https://apinex.bond/  · Free models: DeepSeek-V4.1, Gemini 2.5) [Recommended]\n'
+  printf '  [1] APInex       (https://apinex.bond/  · Free models: free/deepseek-v4.1-flash, free/gemini-3.8-flash) [Recommended]\n'
   printf '  [2] Radox AI     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)\n'
   printf '  [3] OpenRouter   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)\n'
   printf '  [4] UnoRouter    (Hosted redundant gateway · Free models)\n'
@@ -119,7 +119,7 @@ if [[ "$GW_CHOICE" == "1" ]]; then
 # Radnex — APInex profile
 export ANTHROPIC_BASE_URL="https://api.apinex.bond"
 export ANTHROPIC_AUTH_TOKEN="$KEY"
-export ANTHROPIC_MODEL="deepseek-v4.1-flash"
+export ANTHROPIC_MODEL="free/deepseek-v4.1-flash"
 export ANTHROPIC_API_KEY=""
 EOF
   )

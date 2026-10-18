@@ -711,7 +711,7 @@ class SetupModal(ModalScreen[bool]):
             yield Static(id="setup-modal-title")
             yield Static(
                 "Select an AI Gateway & configure credentials:\n"
-                "  [1] APInex       · https://apinex.bond (Free: DeepSeek-V4.1, Gemini 2.5)\n"
+                "  [1] APInex       · https://apinex.bond (Free: free/deepseek-v4.1-flash, free/gemini-3.8-flash)\n"
                 "  [2] Radox AI     · https://radoxai.com (Free: DeepSeek-V4-Flash, Claude Opus)\n"
                 "  [3] OpenRouter   · https://openrouter.ai (Free: DeepSeek, Llama, Qwen)\n"
                 "  [4] UnoRouter    · Hosted zero-downtime gateway\n"
@@ -759,7 +759,7 @@ class SetupModal(ModalScreen[bool]):
             if not key:
                 self.notify("APInex requires an API key", severity="error")
                 return
-            api_mod.save_key(key)
+            api_mod.save_key(key, "free/deepseek-v4.1-flash")
             api_mod.apply_to(app.cfg)
             sources_mod.set_current("apinex")
             app.agent._client = None
@@ -2369,7 +2369,7 @@ class RadnexApp(App):
         t.append("  AI GATEWAY & API KEY SETUP\n\n", style=f"bold {p.accent}")
         t.append("  Configure an upstream gateway with your API key:\n\n", style=p.dim)
         gateways = [
-            ("/apinex-api-setup <key>", "APInex", "Free: DeepSeek-V4.1, Gemini 2.5"),
+            ("/apinex-api-setup <key>", "APInex", "Free: free/deepseek-v4.1-flash, free/gemini-3.8-flash"),
             ("/radox-api-setup <key>", "Radox AI", "Free: DeepSeek-V4-Flash, Claude Opus 4.8"),
             ("/openrouter-api-setup <key>", "OpenRouter", "Free: DeepSeek, Llama, Qwen"),
             ("/unorouter-api-setup <key>", "UnoRouter", "Hosted zero-downtime gateway"),
@@ -3614,7 +3614,9 @@ class RadnexApp(App):
             # before launch. Record it anyway: the environment does not survive
             # the next launch, and the whole point of the selection file is that
             # the choice does.
-            mod.set_current(kind)
+            if hasattr(mod, "set_current"):
+                mod.set_current(kind)
+            sources_mod.set_current(kind)
             self._sys_line(f"already on {label} ({origin})", ok=True)
             return
 
@@ -3624,7 +3626,9 @@ class RadnexApp(App):
             return
         origin, model = applied
         self.agent._client = None      # rebuild against the new host
-        mod.set_current(kind)
+        if hasattr(mod, "set_current"):
+            mod.set_current(kind)
+        sources_mod.set_current(kind)
         self._refresh_after_source_change(label, f"key from {origin}")
 
         # A first switch with no model chosen lands on whatever the profile

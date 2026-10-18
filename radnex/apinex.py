@@ -30,13 +30,21 @@ DEFAULT_BASE_URL = "https://api.apinex.bond"
 PROFILE = RADNEX_HOME / "apinex" / "source"
 CACHE_TTL = 300.0
 
+FREE_PREFIXES = ("free/", "free-")
 FREE_SUFFIXES = ("-free", ":free")
 
 PREFERRED_FREE_MODELS = (
-    "deepseek-v4.1-flash",
-    "gemini-2.5-flash",
-    "glm-4.5-flash",
-    "qwen-2.5-coder-32b",
+    "free/deepseek-v4.1-flash",
+    "free/deepseek-v4-flash-0731",
+    "free/deepseek-v4-pro-0813",
+    "free/gemini-3.8-flash",
+    "free/qwen-3.8-max",
+    "free/gpt-6-luna",
+    "free/glm-5.3-flashx",
+    "free/glm-5.3",
+    "free/glm-5.3-flash",
+    "free/mimo-v2.6-pro",
+    "free/jev-1.13",
 )
 
 
@@ -140,8 +148,31 @@ def load_credentials() -> tuple[str, str, str] | None:
     return None
 
 
+def set_current(key: str = "apinex") -> None:
+    from . import sources as s_mod
+    s_mod.set_current(key)
+
+
+def default_free_model(token: str = "") -> str:
+    return "free/deepseek-v4.1-flash"
+
+
+def normalize_model(model: str, token: str = "") -> str:
+    if not model or model in ("deepseek-v3", "deepseek", "deepseek-chat"):
+        return default_free_model(token)
+    if not model.startswith("free/"):
+        candidate = f"free/{model}"
+        if candidate in PREFERRED_FREE_MODELS:
+            return candidate
+        for p in PREFERRED_FREE_MODELS:
+            if model in p:
+                return p
+    return model
+
+
 def save_key(token: str, model: str = "") -> Path:
     PROFILE.parent.mkdir(parents=True, exist_ok=True)
+    model = normalize_model(model, token)
     body = (
         f"# Radnex — APInex profile\n"
         f'export ANTHROPIC_BASE_URL="{DEFAULT_BASE_URL}"\n'
@@ -163,10 +194,6 @@ def has_key() -> bool:
     return load_credentials() is not None
 
 
-def default_free_model(token: str = "") -> str:
-    return "deepseek-v4.1-flash"
-
-
 def apply_to(cfg) -> tuple[str, str] | None:
     creds = load_credentials()
     if creds is None:
@@ -175,8 +202,7 @@ def apply_to(cfg) -> tuple[str, str] | None:
     cfg.base_url = DEFAULT_BASE_URL
     cfg.auth_token = token
     cfg.api_key = ""
-    if not model:
-        model = default_free_model(token)
+    model = normalize_model(model, token)
     if model:
         cfg.model = model
     return origin, model

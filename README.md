@@ -178,7 +178,7 @@ APInex provides ultra-low latency endpoints and free chat models:
   ```text
   /cpss-apinex
   ```
-- **Available Free Models:** `deepseek-v4.1-flash`, `gemini-2.5-flash`, `glm-4.5-flash`, `qwen-2.5-coder-32b`.
+- **Available Free Models:** `free/deepseek-v4.1-flash`, `free/deepseek-v4-flash-0731`, `free/deepseek-v4-pro-0813`, `free/gemini-3.8-flash`, `free/qwen-3.8-max`, `free/gpt-6-luna`, `free/glm-5.3`, `free/mimo-v2.6-pro`, `free/jev-1.13`.
 
 ### 2. Radox AI (`https://radoxai.com/`)
 Radox AI provides top-tier free reasoning and vision models:

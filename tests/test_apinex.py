@@ -41,11 +41,11 @@ def test_credentials_flow() -> None:
         prof = tmp / "source"
         with mock.patch.object(api_mod, "PROFILE", prof):
             check("creds: none initially", api_mod.load_credentials() is None)
-            saved = api_mod.save_key("sk-api-testkey-12345678", "deepseek-v4.1-flash")
+            saved = api_mod.save_key("sk-api-testkey-12345678", "free/deepseek-v4.1-flash")
             check("creds: written to profile", saved.is_file())
             creds = api_mod.load_credentials()
             check("creds: load returns tuple", creds is not None and creds[0] == "sk-api-testkey-12345678")
-            check("creds: model saved", creds is not None and creds[1] == "deepseek-v4.1-flash")
+            check("creds: model saved", creds is not None and creds[1] == "free/deepseek-v4.1-flash")
 
 
 def test_free_models_filtering() -> None:

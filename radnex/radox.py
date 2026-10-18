@@ -161,6 +161,11 @@ def save_key(token: str, model: str = "") -> Path:
     return PROFILE
 
 
+def set_current(key: str = "radox") -> None:
+    from . import sources as s_mod
+    s_mod.set_current(key)
+
+
 def has_key() -> bool:
     return load_credentials() is not None
 

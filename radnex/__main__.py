@@ -128,7 +128,7 @@ def _interactive_setup(cfg: Config) -> bool:
         print("\033[1;36m│\033[0m  \033[1mRADNEX · AI Gateway & API Key Configuration Wizard\033[0m          \033[1;36m│\033[0m")
         print("\033[1;36m╰──────────────────────────────────────────────────────────────╯\033[0m")
         print("  No AI credentials detected. Select an AI Provider to configure:\n")
-        print("  \033[1;32m[1]\033[0m \033[1mAPInex\033[0m       (https://apinex.bond/  · Free models: DeepSeek-V4.1, Gemini 2.5)")
+        print("  \033[1;32m[1]\033[0m \033[1mAPInex\033[0m       (https://apinex.bond/  · Free models: free/deepseek-v4.1-flash, free/gemini-3.8-flash)")
         print("  \033[1;32m[2]\033[0m \033[1mRadox AI\033[0m     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)")
         print("  \033[1;32m[3]\033[0m \033[1mOpenRouter\033[0m   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)")
         print("  \033[1;32m[4]\033[0m \033[1mUnoRouter\033[0m    (Hosted redundant gateway · Free models)")

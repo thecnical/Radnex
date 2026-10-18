@@ -76,7 +76,7 @@ fi
 step "Configuring AI Gateway"
 
 EXISTING_GW=""
-for g in apinex radox openrouter unorouter aihubmix tokenharbour logfare; do
+for g in antseed apinex radox openrouter unorouter aihubmix tokenharbour logfare; do
   if [[ -f "$RADNEX_HOME/$g/source" ]]; then
     EXISTING_GW="$g"
     break
@@ -95,20 +95,45 @@ fi
 
 if [[ -z "$GW_CHOICE" ]]; then
   printf '\n  Select an AI Gateway to configure:\n\n'
-  printf '  [1] APInex       (https://apinex.bond/  · Free models: free/deepseek-v4.1-flash, free/gemini-3.8-flash) [Recommended]\n'
-  printf '  [2] Radox AI     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)\n'
-  printf '  [3] OpenRouter   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)\n'
-  printf '  [4] UnoRouter    (Hosted redundant gateway · Free models)\n'
-  printf '  [5] AIHubMix     (Multi-model bridge · Free models)\n'
-  printf '  [6] TokenHarbour (High-speed streaming · Free models)\n'
-  printf '  [7] Logfare      (Local LiteLLM proxy :4001)\n'
-  printf '  [8] AntSeed P2P  (Local buyer on :8377 · No key needed)\n\n'
-  printf '  Choice [1-8]: '
+  printf '  [1] AntSeed P2P  (100%% Free · No API Key Needed · Unlimited Models) [Default / Recommended]\n'
+  printf '  [2] APInex       (https://apinex.bond/  · Free models: free/deepseek-v4.1-flash, free/gemini-3.8-flash)\n'
+  printf '  [3] Radox AI     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)\n'
+  printf '  [4] OpenRouter   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)\n'
+  printf '  [5] UnoRouter    (Hosted redundant gateway · Free models)\n'
+  printf '  [6] AIHubMix     (Multi-model bridge · Free models)\n'
+  printf '  [7] TokenHarbour (High-speed streaming · Free models)\n'
+  printf '  [8] Logfare      (Local LiteLLM proxy :4001)\n\n'
+  printf '  Choice [1-8, Default=1]: '
   read -r GW_CHOICE || GW_CHOICE="1"
+  [[ -n "$GW_CHOICE" ]] || GW_CHOICE="1"
 fi
 
 KEY=""
 if [[ "$GW_CHOICE" == "1" ]]; then
+  if ! command -v antseed >/dev/null 2>&1; then
+    if command -v npm >/dev/null 2>&1; then
+      printf '  \033[36m▸\033[0m Installing AntSeed P2P CLI via npm...\n'
+      npm install -g @antseed/cli 2>/dev/null || npm install --prefix "$HOME/.local" @antseed/cli 2>/dev/null || true
+    fi
+  fi
+  mkdir -p "$RADNEX_HOME/antseed"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/antseed/source" <<EOF
+# Radnex — AntSeed source preference
+export ANTSEED_MODEL="deepseek-v4-flash"
+export ANTSEED_PEER="73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736"
+export ANTHROPIC_BASE_URL="http://localhost:8377"
+export ANTHROPIC_MODEL="73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736@deepseek-v4-flash"
+export ANTHROPIC_AUTH_TOKEN="antseed-local-no-key"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/antseed/source"
+  printf '%s\n' "antseed" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/antseed/source (mode 600)"
+  ok "AntSeed P2P configured with pinned free peer: 73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736@deepseek-v4-flash (Apex Ant)"
+elif [[ "$GW_CHOICE" == "2" ]]; then
   printf '\n  Paste your APInex API Key (get one free at https://apinex.bond/):\n  key: '
   read -r KEY || true
   [[ -n "$KEY" ]] || die "no key entered."
@@ -126,7 +151,7 @@ EOF
   chmod 600 "$RADNEX_HOME/apinex/source"
   printf '%s\n' "apinex" > "$RADNEX_HOME/current-source"
   ok "$RADNEX_HOME/apinex/source (mode 600)"
-elif [[ "$GW_CHOICE" == "2" ]]; then
+elif [[ "$GW_CHOICE" == "3" ]]; then
   printf '\n  Paste your Radox AI API Key (get one free at https://radoxai.com/):\n  key: '
   read -r KEY || true
   [[ -n "$KEY" ]] || die "no key entered."
@@ -144,7 +169,7 @@ EOF
   chmod 600 "$RADNEX_HOME/radox/source"
   printf '%s\n' "radox" > "$RADNEX_HOME/current-source"
   ok "$RADNEX_HOME/radox/source (mode 600)"
-elif [[ "$GW_CHOICE" == "3" ]]; then
+elif [[ "$GW_CHOICE" == "4" ]]; then
   printf '\n  Paste your OpenRouter API Key (https://openrouter.ai/):\n  key: '
   read -r KEY || true
   [[ -n "$KEY" ]] || die "no key entered."
@@ -162,7 +187,7 @@ EOF
   chmod 600 "$RADNEX_HOME/openrouter/source"
   printf '%s\n' "openrouter" > "$RADNEX_HOME/current-source"
   ok "$RADNEX_HOME/openrouter/source (mode 600)"
-elif [[ "$GW_CHOICE" == "4" ]]; then
+elif [[ "$GW_CHOICE" == "5" ]]; then
   printf '\n  Paste your UnoRouter API Key:\n  key: '
   read -r KEY || true
   [[ -n "$KEY" ]] || die "no key entered."
@@ -180,7 +205,7 @@ EOF
   chmod 600 "$RADNEX_HOME/unorouter/source"
   printf '%s\n' "unorouter" > "$RADNEX_HOME/current-source"
   ok "$RADNEX_HOME/unorouter/source (mode 600)"
-elif [[ "$GW_CHOICE" == "5" ]]; then
+elif [[ "$GW_CHOICE" == "6" ]]; then
   printf '\n  Paste your AIHubMix API Key:\n  key: '
   read -r KEY || true
   [[ -n "$KEY" ]] || die "no key entered."
@@ -198,7 +223,7 @@ EOF
   chmod 600 "$RADNEX_HOME/aihubmix/source"
   printf '%s\n' "aihubmix" > "$RADNEX_HOME/current-source"
   ok "$RADNEX_HOME/aihubmix/source (mode 600)"
-elif [[ "$GW_CHOICE" == "6" ]]; then
+elif [[ "$GW_CHOICE" == "7" ]]; then
   printf '\n  Paste your TokenHarbour API Key:\n  key: '
   read -r KEY || true
   [[ -n "$KEY" ]] || die "no key entered."
@@ -217,9 +242,6 @@ EOF
   printf '%s\n' "tokenharbour" > "$RADNEX_HOME/current-source"
   ok "$RADNEX_HOME/tokenharbour/source (mode 600)"
 elif [[ "$GW_CHOICE" == "8" ]]; then
-  printf '%s\n' "antseed" > "$RADNEX_HOME/current-source"
-  ok "AntSeed P2P selected"
-elif [[ "$GW_CHOICE" == "7" ]]; then
   printf '\n  Paste your Logfare API key (starts with lfu_):\n  key: '
   read -rs KEY || true
   printf '\n'

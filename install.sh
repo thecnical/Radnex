@@ -210,9 +210,19 @@ esac
 
 # --- 4. the credential -------------------------------------------------------
 
+# Attempt automatic install of AntSeed CLI if npm is available
+if ! command -v antseed >/dev/null 2>&1; then
+  if command -v npm >/dev/null 2>&1; then
+    step "Installing AntSeed P2P CLI (@antseed/cli)"
+    spin "installed @antseed/cli" npm install -g @antseed/cli </dev/null \
+      || spin "installed @antseed/cli (local)" npm install --prefix "$HOME/.local" @antseed/cli </dev/null \
+      || warn "npm install of @antseed/cli failed — install manually with npm i -g @antseed/cli"
+  fi
+fi
+
 # Check if any supported gateway profile already exists
 _configured_gw=""
-for _gw in apinex radox openrouter unorouter aihubmix tokenharbour logfare; do
+for _gw in antseed apinex radox openrouter unorouter aihubmix tokenharbour logfare; do
   if [[ -r "$RADNEX_HOME/$_gw/source" ]]; then
     _configured_gw="$_gw"
     break

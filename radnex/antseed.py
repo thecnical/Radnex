@@ -80,8 +80,11 @@ this code sees a token.
 
 from __future__ import annotations
 
+import atexit
 import json
 import os
+import shutil
+import subprocess
 import urllib.error
 import urllib.request
 from dataclasses import dataclass, field
@@ -92,6 +95,8 @@ RADNEX_HOME = Path(os.environ.get("RADNEX_HOME") or (Path.home() / ".radnex"))
 #: The buyer's own identity directory. It holds ``config.json`` (which names the
 #: proxy port) and the node's wallet — read for the port, never for a secret.
 ANTSEED_HOME = Path(os.environ.get("ANTSEED_DATA_DIR") or (Path.home() / ".antseed"))
+
+_BUYER_PROCESS: subprocess.Popen | None = None
 
 #: Matched as a substring, so ``http://localhost:8377``, ``http://127.0.0.1:8377``
 #: and a tunnel host all count. The port is what actually identifies it; see
@@ -193,6 +198,90 @@ def reachable(timeout: float = 1.5) -> bool:
             return resp.status == 200
     except (urllib.error.URLError, OSError, ValueError):
         return False
+
+
+def find_antseed_cli() -> str | None:
+    """Locate the antseed CLI executable."""
+    found = shutil.which("antseed")
+    if found:
+        return found
+    candidates = [
+        Path.home() / ".local" / "bin" / "antseed",
+        Path.home() / ".npm-global" / "bin" / "antseed",
+        Path("/usr/local/bin/antseed"),
+        Path("/usr/bin/antseed"),
+    ]
+    for c in candidates:
+        if c.is_file() and os.access(c, os.X_OK):
+            return str(c)
+    return None
+
+
+def start_buyer(timeout: float = 6.0) -> bool:
+    """Start `antseed buyer start` in the background and wait until it answers.
+
+    Automatically registers an `atexit` cleanup hook to stop the buyer process
+    when Radnex exits, ensuring no zombie background processes are left behind.
+    """
+    global _BUYER_PROCESS
+    if reachable(timeout=0.8):
+        return True
+
+    exe = find_antseed_cli()
+    if not exe:
+        return False
+
+    log_dir = RADNEX_HOME / "antseed"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "buyer.log"
+
+    try:
+        f = open(log_file, "a", encoding="utf-8")
+        _BUYER_PROCESS = subprocess.Popen(
+            [exe, "buyer", "start"],
+            stdout=f,
+            stderr=subprocess.STDOUT,
+            stdin=subprocess.DEVNULL,
+        )
+    except Exception:
+        return False
+
+    atexit.register(stop_buyer)
+
+    import time
+    start_time = time.monotonic()
+    while time.monotonic() - start_time < timeout:
+        if reachable(timeout=0.6):
+            return True
+        if _BUYER_PROCESS.poll() is not None:
+            break
+        time.sleep(0.3)
+
+    return reachable(timeout=0.8)
+
+
+def stop_buyer() -> None:
+    """Stop the antseed buyer proxy if it was started by this process."""
+    global _BUYER_PROCESS
+    if _BUYER_PROCESS is not None:
+        try:
+            if _BUYER_PROCESS.poll() is None:
+                _BUYER_PROCESS.terminate()
+                try:
+                    _BUYER_PROCESS.wait(timeout=2.0)
+                except subprocess.TimeoutExpired:
+                    _BUYER_PROCESS.kill()
+        except Exception:
+            pass
+        finally:
+            _BUYER_PROCESS = None
+
+
+def ensure_buyer(timeout: float = 6.0) -> bool:
+    """Ensure the AntSeed buyer is reachable, starting it if necessary."""
+    if reachable(timeout=0.8):
+        return True
+    return start_buyer(timeout=timeout)
 
 
 # ---------------------------------------------------------------------------
@@ -781,13 +870,15 @@ def save_pin(model: str, peer: str = "") -> Path:
     return PROFILE
 
 
-def load_credentials() -> tuple[str, str, str] | None:
+def load_credentials(auto_start: bool = True) -> tuple[str, str, str] | None:
     """``(token, model, origin)`` in the shape the other gateways use.
 
     AntSeed has no key, so the token is :data:`NO_KEY_PLACEHOLDER` — the same
     marker :func:`apply_to` sets. It exists so ``/zim-antseed`` can share one
     code path with ``/zim-openrouter`` rather than branching around a credential
     lookup that does not apply here.
+
+    Automatically starts the local buyer if installed and not yet running.
 
     ``None`` when no buyer is reachable: that is the honest analogue of "no key
     found", because a switch to a proxy that is not running would report success
@@ -803,6 +894,8 @@ def load_credentials() -> tuple[str, str, str] | None:
     in place — the stale paid name behind the 402. Reporting a free pin here
     makes the switch land on something that costs nothing without the fetch.
     """
+    if auto_start and not reachable():
+        start_buyer()
     if not reachable():
         return None
     pin = load_pin()
@@ -816,8 +909,10 @@ def load_credentials() -> tuple[str, str, str] | None:
     return NO_KEY_PLACEHOLDER, model or (default_free_pin() or ""), "local buyer"
 
 
-def apply_to(cfg) -> tuple[str, str] | None:
+def apply_to(cfg, auto_start: bool = True) -> tuple[str, str] | None:
     """Point *cfg* at the local AntSeed buyer. Returns ``(origin, model)``.
+
+    Automatically starts the local buyer if installed and not yet running.
 
     ``auth_token`` is set to a placeholder because the harness refuses to start
     without one (``api_key_present`` is False for an empty config) while the
@@ -835,6 +930,8 @@ def apply_to(cfg) -> tuple[str, str] | None:
     to a proxy that is not running would look like success and then fail on the
     first turn.
     """
+    if auto_start and not reachable():
+        start_buyer()
     if not reachable():
         return None
     cfg.base_url = DEFAULT_BASE_URL

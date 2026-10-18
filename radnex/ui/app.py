@@ -711,14 +711,14 @@ class SetupModal(ModalScreen[bool]):
             yield Static(id="setup-modal-title")
             yield Static(
                 "Select an AI Gateway & configure credentials:\n"
-                "  [1] APInex       · https://apinex.bond (Free: free/deepseek-v4.1-flash, free/gemini-3.8-flash)\n"
-                "  [2] Radox AI     · https://radoxai.com (Free: DeepSeek-V4-Flash, Claude Opus)\n"
-                "  [3] OpenRouter   · https://openrouter.ai (Free: DeepSeek, Llama, Qwen)\n"
-                "  [4] UnoRouter    · Hosted zero-downtime gateway\n"
-                "  [5] AIHubMix     · https://aihubmix.com (Multi-model bridge)\n"
-                "  [6] TokenHarbour · High-speed streaming\n"
-                "  [7] Custom       · Direct ANTHROPIC_API_KEY / AUTH_TOKEN\n"
-                "  [8] AntSeed      · Local P2P Buyer (:8377 · keyless)\n",
+                "  [1] AntSeed P2P  · Local P2P Buyer (:8377 · 100% Free · No API key needed) (Default)\n"
+                "  [2] APInex       · https://apinex.bond (Free: free/deepseek-v4.1-flash, free/gemini-3.8-flash)\n"
+                "  [3] Radox AI     · https://radoxai.com (Free: DeepSeek-V4-Flash, Claude Opus)\n"
+                "  [4] OpenRouter   · https://openrouter.ai (Free: DeepSeek, Llama, Qwen)\n"
+                "  [5] UnoRouter    · Hosted zero-downtime gateway\n"
+                "  [6] AIHubMix     · https://aihubmix.com (Multi-model bridge)\n"
+                "  [7] TokenHarbour · High-speed streaming\n"
+                "  [8] Custom       · Direct ANTHROPIC_API_KEY / AUTH_TOKEN\n",
                 id="setup-modal-desc",
             )
             yield Input(placeholder="Gateway number [1-8] (default: 1)", id="setup-modal-choice")
@@ -756,6 +756,11 @@ class SetupModal(ModalScreen[bool]):
 
         app = self.app
         if choice == "1":
+            as_mod.apply_to(app.cfg, auto_start=True)
+            sources_mod.set_current("antseed")
+            app.agent._client = None
+            app._refresh_after_source_change("AntSeed", "P2P buyer")
+        elif choice == "2":
             if not key:
                 self.notify("APInex requires an API key", severity="error")
                 return
@@ -764,7 +769,7 @@ class SetupModal(ModalScreen[bool]):
             sources_mod.set_current("apinex")
             app.agent._client = None
             app._refresh_after_source_change("APInex", "key saved")
-        elif choice == "2":
+        elif choice == "3":
             if not key:
                 self.notify("Radox AI requires an API key", severity="error")
                 return
@@ -773,7 +778,7 @@ class SetupModal(ModalScreen[bool]):
             sources_mod.set_current("radox")
             app.agent._client = None
             app._refresh_after_source_change("Radox AI", "key saved")
-        elif choice == "3":
+        elif choice == "4":
             if not key:
                 self.notify("OpenRouter requires an API key", severity="error")
                 return
@@ -782,7 +787,7 @@ class SetupModal(ModalScreen[bool]):
             sources_mod.set_current("openrouter")
             app.agent._client = None
             app._refresh_after_source_change("OpenRouter", "key saved")
-        elif choice == "4":
+        elif choice == "5":
             if not key:
                 self.notify("UnoRouter requires an API key", severity="error")
                 return
@@ -791,7 +796,7 @@ class SetupModal(ModalScreen[bool]):
             sources_mod.set_current("unorouter")
             app.agent._client = None
             app._refresh_after_source_change("UnoRouter", "key saved")
-        elif choice == "5":
+        elif choice == "6":
             if not key:
                 self.notify("AIHubMix requires an API key", severity="error")
                 return
@@ -800,7 +805,7 @@ class SetupModal(ModalScreen[bool]):
             sources_mod.set_current("aihubmix")
             app.agent._client = None
             app._refresh_after_source_change("AIHubMix", "key saved")
-        elif choice == "6":
+        elif choice == "7":
             if not key:
                 self.notify("TokenHarbour requires an API key", severity="error")
                 return
@@ -809,7 +814,7 @@ class SetupModal(ModalScreen[bool]):
             sources_mod.set_current("tokenharbour")
             app.agent._client = None
             app._refresh_after_source_change("TokenHarbour", "key saved")
-        elif choice == "7":
+        elif choice == "8":
             if not key:
                 self.notify("Custom credentials require a key", severity="error")
                 return
@@ -817,11 +822,6 @@ class SetupModal(ModalScreen[bool]):
             app.cfg.api_key = key
             app.agent._client = None
             app._refresh_after_source_change("Custom", "credentials set")
-        elif choice == "8":
-            as_mod.apply_to(app.cfg)
-            sources_mod.set_current("antseed")
-            app.agent._client = None
-            app._refresh_after_source_change("AntSeed", "P2P buyer")
         else:
             self.notify("Invalid gateway choice (enter 1-8)", severity="warning")
             return
@@ -6568,9 +6568,23 @@ class RadnexApp(App):
     def action_clear(self) -> None:
         self._cmd_clear()
 
+    def on_unmount(self) -> None:
+        try:
+            phish_mod.stop()
+        except Exception:
+            pass
+        try:
+            as_mod.stop_buyer()
+        except Exception:
+            pass
+
     def action_quit(self) -> None:
         try:
             phish_mod.stop()
+        except Exception:
+            pass
+        try:
+            as_mod.stop_buyer()
         except Exception:
             pass
         self.exit()

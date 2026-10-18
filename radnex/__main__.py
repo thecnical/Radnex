@@ -128,21 +128,32 @@ def _interactive_setup(cfg: Config) -> bool:
         print("\033[1;36m│\033[0m  \033[1mRADNEX · AI Gateway & API Key Configuration Wizard\033[0m          \033[1;36m│\033[0m")
         print("\033[1;36m╰──────────────────────────────────────────────────────────────╯\033[0m")
         print("  No AI credentials detected. Select an AI Provider to configure:\n")
-        print("  \033[1;32m[1]\033[0m \033[1mAPInex\033[0m       (https://apinex.bond/  · Free models: free/deepseek-v4.1-flash, free/gemini-3.8-flash)")
-        print("  \033[1;32m[2]\033[0m \033[1mRadox AI\033[0m     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)")
-        print("  \033[1;32m[3]\033[0m \033[1mOpenRouter\033[0m   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)")
-        print("  \033[1;32m[4]\033[0m \033[1mUnoRouter\033[0m    (Hosted redundant gateway · Free models)")
-        print("  \033[1;32m[5]\033[0m \033[1mAIHubMix\033[0m     (Multi-model bridge · Free GLM-5.3, Qwen-3.8)")
-        print("  \033[1;32m[6]\033[0m \033[1mTokenHarbour\033[0m (High-capacity stream · Free DeepSeek, Qwen)")
-        print("  \033[1;32m[7]\033[0m \033[1mCustom/Anthropic\033[0m (Direct ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN)")
-        print("  \033[1;32m[8]\033[0m \033[1mAntSeed P2P\033[0m  (Local P2P Buyer on :8377 · No key needed)")
+        print("  \033[1;32m[1]\033[0m \033[1mAntSeed P2P\033[0m  (100% Free · No API Key Needed · Unlimited Models) \033[1;36m[Default / Recommended]\033[0m")
+        print("  \033[1;32m[2]\033[0m \033[1mAPInex\033[0m       (https://apinex.bond/  · Free models: free/deepseek-v4.1-flash, free/gemini-3.8-flash)")
+        print("  \033[1;32m[3]\033[0m \033[1mRadox AI\033[0m     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)")
+        print("  \033[1;32m[4]\033[0m \033[1mOpenRouter\033[0m   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)")
+        print("  \033[1;32m[5]\033[0m \033[1mUnoRouter\033[0m    (Hosted redundant gateway · Free models)")
+        print("  \033[1;32m[6]\033[0m \033[1mAIHubMix\033[0m     (Multi-model bridge · Free GLM-5.3, Qwen-3.8)")
+        print("  \033[1;32m[7]\033[0m \033[1mTokenHarbour\033[0m (High-capacity stream · Free DeepSeek, Qwen)")
+        print("  \033[1;32m[8]\033[0m \033[1mCustom/Anthropic\033[0m (Direct ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN)")
         print("  \033[1;31m[0]\033[0m \033[2mExit\033[0m\n")
 
-        choice = input("\033[1mSelect an option [1-8, or 0 to exit]: \033[0m").strip()
-        if not choice or choice in ("0", "q", "quit", "exit"):
+        choice = input("\033[1mSelect an option [1-8, Default=1]: \033[0m").strip()
+        if not choice:
+            choice = "1"
+        if choice in ("0", "q", "quit", "exit"):
             return False
 
         if choice == "1":
+            print("  Connecting to AntSeed P2P network...")
+            as_mod.save_pin("deepseek-v4-flash", "73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736")
+            as_mod.apply_to(cfg)
+            sources_mod.set_current("antseed")
+            print("  \033[32m✔ AntSeed P2P configured as primary!\033[0m No API key required.")
+            print("    Pinned free verified peer: 73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736@deepseek-v4-flash (Apex Ant)\n")
+            return True
+
+        elif choice == "2":
             key = input("\n\033[1mPaste your APInex API Key (https://apinex.bond/): \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -153,7 +164,7 @@ def _interactive_setup(cfg: Config) -> bool:
             print(f"  \033[32m✔ APInex configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
             return True
 
-        elif choice == "2":
+        elif choice == "3":
             key = input("\n\033[1mPaste your Radox AI API Key (https://radoxai.com/): \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -164,7 +175,7 @@ def _interactive_setup(cfg: Config) -> bool:
             print(f"  \033[32m✔ Radox AI configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
             return True
 
-        elif choice == "3":
+        elif choice == "4":
             key = input("\n\033[1mPaste your OpenRouter API Key (https://openrouter.ai/): \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -175,7 +186,7 @@ def _interactive_setup(cfg: Config) -> bool:
             print(f"  \033[32m✔ OpenRouter configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
             return True
 
-        elif choice == "4":
+        elif choice == "5":
             key = input("\n\033[1mPaste your UnoRouter API Key: \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -186,7 +197,7 @@ def _interactive_setup(cfg: Config) -> bool:
             print(f"  \033[32m✔ UnoRouter configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
             return True
 
-        elif choice == "5":
+        elif choice == "6":
             key = input("\n\033[1mPaste your AIHubMix API Key: \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -197,7 +208,7 @@ def _interactive_setup(cfg: Config) -> bool:
             print(f"  \033[32m✔ AIHubMix configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
             return True
 
-        elif choice == "6":
+        elif choice == "7":
             key = input("\n\033[1mPaste your TokenHarbour API Key: \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -208,7 +219,7 @@ def _interactive_setup(cfg: Config) -> bool:
             print(f"  \033[32m✔ TokenHarbour configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
             return True
 
-        elif choice == "7":
+        elif choice == "8":
             key = input("\n\033[1mPaste your Custom/Anthropic API Key or Auth Token: \033[0m").strip()
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
@@ -216,12 +227,6 @@ def _interactive_setup(cfg: Config) -> bool:
             cfg.auth_token = key
             cfg.api_key = key
             print("  \033[32m✔ Custom credentials set!\033[0m\n")
-            return True
-
-        elif choice == "8":
-            as_mod.apply_to(cfg)
-            sources_mod.set_current("antseed")
-            print("  \033[32m✔ AntSeed P2P selected!\033[0m\n")
             return True
 
         else:

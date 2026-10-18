@@ -168,7 +168,27 @@ RADNEX integrates 8 cloud gateways. Each gateway can be configured either via th
 
 > 💡 **Interactive Setup Popup:** Inside RADNEX, type `/setup` (or run `radnex --setup` from bash) to open the interactive setup window where you can select any provider, paste your key, and activate it immediately.
 
-### 1. APInex (`https://apinex.bond/`)
+### 1. AntSeed P2P (Default / Recommended · 100% Free · No API Key Needed)
+Decentralized peer-to-peer AI inference mesh (`https://antseed.com/` / `https://antseedstats.com/`):
+- **Zero Configuration:** No API key needed! Runs 100% free with unlimited decentralized inference.
+- **Auto-Managed Buyer:** Radnex automatically launches `antseed buyer start` in the background on port `:8377` when started, and cleanly shuts it down when you exit.
+- **Switch to AntSeed:**
+  ```text
+  /cpss-antseed
+  ```
+- **Live Peer Models & Pinning:**
+  ```text
+  /antseed-models
+  ```
+- **Verified Free Models & Fast DHT Pins:**
+  - `73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736@deepseek-v4-flash` (Apex Ant · High Speed)
+  - `1d90f467689d499dc435e5744b4613c3203eb0aa@deepseek-v4-flash`
+  - `1d90f467689d499dc435e5744b4613c3203eb0aa@glm-5.3-flash`
+  - `0b0b9574d5b038f6fd906325e699020423adf446@grok-4.7`
+  - `d19ffae0e85b5230422019926b2f37ec0f1f41f3@jev-latest`
+  - `minimax-m27`, `qwen3-6-27b`, `gpt-oss-120b`
+
+### 2. APInex (`https://apinex.bond/`)
 APInex provides ultra-low latency endpoints and free chat models:
 - **Setup Command:**
   ```text
@@ -180,7 +200,7 @@ APInex provides ultra-low latency endpoints and free chat models:
   ```
 - **Available Free Models:** `free/deepseek-v4.1-flash`, `free/deepseek-v4-flash-0731`, `free/deepseek-v4-pro-0813`, `free/gemini-3.8-flash`, `free/qwen-3.8-max`, `free/gpt-6-luna`, `free/glm-5.3`, `free/mimo-v2.6-pro`, `free/jev-1.13`.
 
-### 2. Radox AI (`https://radoxai.com/`)
+### 3. Radox AI (`https://radoxai.com/`)
 Radox AI provides top-tier free reasoning and vision models:
 - **Setup Command:**
   ```text
@@ -192,7 +212,7 @@ Radox AI provides top-tier free reasoning and vision models:
   ```
 - **Available Free Models:** `deepseek-v4-flash-0731`, `deepseek-v4-pro-0813`, `qwen3.8-27b`, `gemma-2-2b`, `claude-opus-4.8`, `gpt-5.6-luna`.
 
-### 3. OpenRouter (`https://openrouter.ai/`)
+### 4. OpenRouter (`https://openrouter.ai/`)
 Access hundreds of public models with a single key:
 - **Setup Command:**
   ```text
@@ -208,7 +228,7 @@ Access hundreds of public models with a single key:
   ```
 - **Available Free Models:** `deepseek/deepseek-v4.1:free`, `qwen/qwen4-72b:free`, `meta/llama-5-70b:free`, `z-ai/glm-6-air`.
 
-### 4. UnoRouter
+### 5. UnoRouter
 A hosted gateway with multi-channel redundancy tiers:
 - **Setup Command:**
   ```text
@@ -224,7 +244,7 @@ A hosted gateway with multi-channel redundancy tiers:
   ```
 - **Available Free Models:** `deepseek/deepseek-chat:free`, `qwen/qwen-2.5-coder-32b-instruct:free`, `google/gemini-2.0-flash-exp:free`.
 
-### 5. AIHubMix
+### 6. AIHubMix
 Unified multi-provider bridge:
 - **Setup Command:**
   ```text
@@ -236,7 +256,7 @@ Unified multi-provider bridge:
   ```
 - **Available Free Models:** `coding-glm-5.3-flash-free`, `qwen3.8-flash-free`, `union-alpha-free`.
 
-### 6. TokenHarbour
+### 7. TokenHarbour
 High-capacity token streaming mesh:
 - **Setup Command:**
   ```text
@@ -247,18 +267,6 @@ High-capacity token streaming mesh:
   /cpss-tokenharbour
   ```
 - **Available Free Models:** `deepseek-chat-free`, `qwen-2.5-coder-32b-free`, `gemini-2.5-flash-free`.
-
-### 7. AntSeed (P2P Mesh)
-Distributed peer-to-peer free inference mesh:
-- **Check Buyer Port:** Runs locally on `:4005`.
-- **Switch to AntSeed:**
-  ```text
-  /cpss-antseed
-  ```
-- **Pin Free Peer:**
-  ```text
-  /antseed-models
-  ```
 
 ### 8. Logfare
 Dedicated local proxy with public status checks:

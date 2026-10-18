@@ -94,7 +94,32 @@ if [[ "$_skip_profile" != "1" ]]; then
   # The hosted gateways — TokenHarbour, OpenRouter, UnoRouter, AIHubMix, APInex,
   # Radox AI, AntSeed — are remote/hosted: there is no local LiteLLM proxy to start.
   case "$_current_source" in
-    tokenharbour|openrouter|unorouter|aihubmix|apinex|radox|antseed)
+    antseed)
+      if [[ -r "$RADNEX_HOME/antseed/source" ]]; then
+        LITELLM_ENV_FILE="${_env_override:-$RADNEX_HOME/antseed/source}"
+      fi
+      RADNEX_NO_PROXY=1
+      # Auto-start local AntSeed buyer on :8377 if not already answering
+      _as_port="${ANTSEED_PORT:-8377}"
+      if ! curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${_as_port}/v1/models" --max-time 1 2>/dev/null | grep -q "200"; then
+        _as_exe=""
+        for _cand in "$(command -v antseed || true)" "$HOME/.local/bin/antseed" "$HOME/.npm-global/bin/antseed" "/usr/local/bin/antseed" "/usr/bin/antseed"; do
+          if [[ -n "$_cand" && -x "$_cand" ]]; then
+            _as_exe="$_cand"
+            break
+          fi
+        done
+        if [[ -n "$_as_exe" ]]; then
+          mkdir -p "$RADNEX_HOME/antseed"
+          info "Starting local AntSeed P2P buyer on :${_as_port}..."
+          "$_as_exe" buyer start >> "$RADNEX_HOME/antseed/buyer.log" 2>&1 &
+          _as_pid=$!
+          trap 'kill $_as_pid 2>/dev/null || true' EXIT INT TERM
+          sleep 1.2
+        fi
+      fi
+      ;;
+    tokenharbour|openrouter|unorouter|aihubmix|apinex|radox)
       if [[ -r "$RADNEX_HOME/$_current_source/source" ]]; then
         LITELLM_ENV_FILE="${_env_override:-$RADNEX_HOME/$_current_source/source}"
       fi

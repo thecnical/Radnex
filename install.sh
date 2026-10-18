@@ -44,6 +44,7 @@ PROFILE="$RADNEX_HOME/logfare/source"
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
 step() { printf '\n\033[36m▸\033[0m \033[1m%s\033[0m\n' "$*"; }
 ok()   { printf '  \033[32m✔\033[0m %s\n' "$*"; }
+info() { printf '  \033[36mℹ\033[0m %s\n' "$*"; }
 warn() { printf '  \033[33m⚠\033[0m %s\n' "$*" >&2; }
 die()  { printf '\n\033[31m✖ %s\033[0m\n' "$*" >&2; exit 1; }
 note() { printf '      \033[36m%s\033[0m\n' "$*" >&2; }

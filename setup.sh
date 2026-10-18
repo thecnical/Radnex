@@ -42,6 +42,7 @@ fi
 bold() { printf '\033[1m%s\033[0m\n' "$*"; }
 step() { printf '\n\033[36m▸\033[0m \033[1m%s\033[0m\n' "$*"; }
 ok()   { printf '  \033[32m✔\033[0m %s\n' "$*"; }
+info() { printf '  \033[36mℹ\033[0m %s\n' "$*"; }
 warn() { printf '  \033[33m⚠\033[0m %s\n' "$*" >&2; }
 die()  { printf '\n\033[31m✖ %s\033[0m\n' "$*" >&2; exit 1; }
 # A command the user should run by hand. stderr, like the warnings around it.
@@ -354,7 +355,7 @@ else
 fi
 
 # Only configure and run LiteLLM if Logfare local proxy was selected
-if [[ "$GW_CHOICE" == "7" || ( "$EXISTING_GW" == "logfare" && "$GW_CHOICE" == "keep" ) ]]; then
+if [[ "$GW_CHOICE" == "8" || ( "$EXISTING_GW" == "logfare" && "$GW_CHOICE" == "keep" ) ]]; then
 
   # --- 4. litellm --------------------------------------------------------------
 

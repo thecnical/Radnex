@@ -173,7 +173,7 @@ APInex provides ultra-low latency endpoints and free chat models:
   ```
 - **Switch to APInex:**
   ```text
-  /rx-apinex
+  /cpss-apinex
   ```
 - **Available Free Models:** `deepseek-v4.1-flash`, `gemini-2.5-flash`, `glm-4.5-flash`, `qwen-2.5-coder-32b`.
 
@@ -185,7 +185,7 @@ Radox AI provides top-tier free reasoning and vision models:
   ```
 - **Switch to Radox AI:**
   ```text
-  /rx-radox
+  /cpss-radox
   ```
 - **Available Free Models:** `deepseek-v3`, `gemini-2.0-flash`, `claude-3-5-haiku-20241022`, `gpt-4o-mini`.
 
@@ -197,7 +197,7 @@ Access hundreds of public models with a single key:
   ```
 - **Switch to OpenRouter:**
   ```text
-  /rx-openrouter
+  /cpss-openrouter
   ```
 - **Browse Free Models:**
   ```text
@@ -213,7 +213,7 @@ A hosted gateway with multi-channel redundancy tiers:
   ```
 - **Switch to UnoRouter:**
   ```text
-  /rx-unorouter
+  /cpss-unorouter
   ```
 - **View Upstream Redundancy:**
   ```text
@@ -229,7 +229,7 @@ Unified multi-provider bridge:
   ```
 - **Switch to AIHubMix:**
   ```text
-  /rx-aihubmix
+  /cpss-aihubmix
   ```
 - **Available Free Models:** `coding-glm-5.3-flash-free`, `qwen3.8-flash-free`, `union-alpha-free`.
 
@@ -241,7 +241,7 @@ High-capacity token streaming mesh:
   ```
 - **Switch to TokenHarbour:**
   ```text
-  /rx-tokenharbour
+  /cpss-tokenharbour
   ```
 - **Available Free Models:** `deepseek-chat-free`, `qwen-2.5-coder-32b-free`, `gemini-2.5-flash-free`.
 
@@ -250,7 +250,7 @@ Distributed peer-to-peer free inference mesh:
 - **Check Buyer Port:** Runs locally on `:4005`.
 - **Switch to AntSeed:**
   ```text
-  /rx-antseed
+  /cpss-antseed
   ```
 - **Pin Free Peer:**
   ```text
@@ -261,7 +261,7 @@ Distributed peer-to-peer free inference mesh:
 Dedicated local proxy with public status checks:
 - **Switch to Logfare:**
   ```text
-  /rx-logfare
+  /cpss-logfare
   ```
 - **View Live Status:**
   ```text
@@ -377,7 +377,31 @@ Changes the cyber-matrix UI colour palette.
 
 ---
 
-### 2. Multi-Agent & Orchestration Commands
+### 2. CPSS Gateway & Proxy Commands
+
+#### `/cpss-source`
+Displays live status, connection latency, and active credentials for all 8 integrated gateways.
+```text
+/cpss-source
+```
+
+#### `/cpss-apinex`, `/cpss-radox`, `/cpss-openrouter`, `/cpss-unorouter`, `/cpss-aihubmix`, `/cpss-tokenharbour`, `/cpss-antseed`, `/cpss-logfare`
+Switches active AI routing immediately to the named upstream gateway.
+```text
+/cpss-apinex
+/cpss-radox
+/cpss-unorouter
+```
+
+#### `/cpss-opencode`
+Launches an interactive, sandboxed OpenCode terminal session behind fresh rotating proxy IPs.
+```text
+/cpss-opencode
+```
+
+---
+
+### 3. Multi-Agent & Orchestration Commands
 
 #### `/panes`
 Relaunches the current session into a multi-pane tmux environment.
@@ -400,7 +424,7 @@ Fans out a single complex task across multiple parallel agent workers.
 
 ---
 
-### 3. Offensive Reconnaissance & Target Scoping Commands
+### 4. Offensive Reconnaissance & Target Scoping Commands
 
 #### `/target <domain>`
 Sets the primary authorized target domain for the session.
@@ -498,7 +522,7 @@ Follow this step-by-step example to run an authorized security assessment agains
 radnex --mode cpss
 
 # Step 2: Ensure you are on a free gateway
-/rx-apinex
+/cpss-apinex
 /model deepseek-v4.1-flash
 
 # Step 3: Configure webhook for milestone alerts

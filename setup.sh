@@ -96,7 +96,7 @@ fi
 if [[ -z "$GW_CHOICE" ]]; then
   printf '\n  Select an AI Gateway to configure:\n\n'
   printf '  [1] APInex       (https://apinex.bond/  · Free models: DeepSeek-V4.1, Gemini 2.5) [Recommended]\n'
-  printf '  [2] Radox AI     (https://radoxai.com/  · Free models: DeepSeek-V3, Gemini 2.0, Claude Haiku)\n'
+  printf '  [2] Radox AI     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)\n'
   printf '  [3] OpenRouter   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)\n'
   printf '  [4] UnoRouter    (Hosted redundant gateway · Free models)\n'
   printf '  [5] AIHubMix     (Multi-model bridge · Free models)\n'
@@ -135,9 +135,9 @@ elif [[ "$GW_CHOICE" == "2" ]]; then
     umask 077
     cat > "$RADNEX_HOME/radox/source" <<EOF
 # Radnex — Radox AI profile
-export ANTHROPIC_BASE_URL="https://api.radoxai.com"
+export ANTHROPIC_BASE_URL="https://radoxai.com"
 export ANTHROPIC_AUTH_TOKEN="$KEY"
-export ANTHROPIC_MODEL="deepseek-v3"
+export ANTHROPIC_MODEL="deepseek-v4-flash-0731"
 export ANTHROPIC_API_KEY=""
 EOF
   )
@@ -325,12 +325,10 @@ else
     warn "could not download pagekite.py — /phish will fall back to cloudflared/ngrok"
   fi
 fi
-if [[ ! -f "$RADNEX_HOME/pagekite.name" ]]; then
-  warn "no kite name at $RADNEX_HOME/pagekite.name"
-  warn "write your kite (e.g. radnex.pagekite.me) there, or export PAGEKITE_NAME."
-  warn "first-time signup:  $PK_DIR/pagekite.py --signup"
-else
+if [[ -f "$RADNEX_HOME/pagekite.name" ]]; then
   ok "kite name: $(tr -d '[:space:]' < "$RADNEX_HOME/pagekite.name")"
+else
+  info "PageKite: optional tunnel for /phish (run $PK_DIR/pagekite.py --signup if needed)"
 fi
 
 # Only configure and run LiteLLM if Logfare local proxy was selected

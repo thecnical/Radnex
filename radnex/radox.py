@@ -33,10 +33,12 @@ CACHE_TTL = 300.0
 FREE_SUFFIXES = ("-free", ":free")
 
 PREFERRED_FREE_MODELS = (
-    "deepseek-v3",
-    "gemini-2.0-flash",
-    "gpt-4o-mini",
-    "claude-3-5-haiku-20241022",
+    "deepseek-v4-flash-0731",
+    "deepseek-v4-pro-0813",
+    "qwen3.8-27b",
+    "gemma-2-2b",
+    "claude-opus-4.8",
+    "gpt-5.6-luna",
 )
 
 
@@ -140,6 +142,8 @@ def load_credentials() -> tuple[str, str, str] | None:
 
 def save_key(token: str, model: str = "") -> Path:
     PROFILE.parent.mkdir(parents=True, exist_ok=True)
+    if not model or model in ("deepseek-v3", "deepseek", "deepseek-chat"):
+        model = default_free_model(token)
     body = (
         f"# Radnex — Radox AI profile\n"
         f'export ANTHROPIC_BASE_URL="{DEFAULT_BASE_URL}"\n'
@@ -162,7 +166,7 @@ def has_key() -> bool:
 
 
 def default_free_model(token: str = "") -> str:
-    return "deepseek-v3"
+    return "deepseek-v4-flash-0731"
 
 
 def apply_to(cfg) -> tuple[str, str] | None:
@@ -173,7 +177,7 @@ def apply_to(cfg) -> tuple[str, str] | None:
     cfg.base_url = DEFAULT_BASE_URL
     cfg.auth_token = token
     cfg.api_key = ""
-    if not model:
+    if not model or model in ("deepseek-v3", "deepseek", "deepseek-chat"):
         model = default_free_model(token)
     if model:
         cfg.model = model

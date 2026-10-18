@@ -663,6 +663,175 @@ class ScopePasteScreen(ModalScreen[str | None]):
         self.dismiss(None)
 
 
+class SetupModal(ModalScreen[bool]):
+    """Interactive popup modal to select an AI gateway and enter an API key."""
+
+    DEFAULT_CSS = """
+    SetupModal {
+        align: center middle;
+        background: $background 70%;
+    }
+    #setup-modal-box {
+        width: 80;
+        height: auto;
+        border: round $primary;
+        padding: 1 2;
+        background: $surface;
+    }
+    #setup-modal-title {
+        height: auto;
+        margin-bottom: 1;
+    }
+    #setup-modal-desc {
+        height: auto;
+        margin-bottom: 1;
+    }
+    #setup-modal-choice {
+        margin-bottom: 1;
+    }
+    #setup-modal-key {
+        margin-bottom: 1;
+    }
+    #setup-modal-keys {
+        height: auto;
+        margin-top: 1;
+    }
+    """
+
+    BINDINGS = [
+        Binding("escape", "cancel", "cancel", priority=True),
+    ]
+
+    def __init__(self, palette) -> None:
+        super().__init__()
+        self.palette = palette
+
+    def compose(self) -> ComposeResult:
+        with Vertical(id="setup-modal-box"):
+            yield Static(id="setup-modal-title")
+            yield Static(
+                "Select an AI Gateway & configure credentials:\n"
+                "  [1] APInex       · https://apinex.bond (Free: DeepSeek-V4.1, Gemini 2.5)\n"
+                "  [2] Radox AI     · https://radoxai.com (Free: DeepSeek-V4-Flash, Claude Opus)\n"
+                "  [3] OpenRouter   · https://openrouter.ai (Free: DeepSeek, Llama, Qwen)\n"
+                "  [4] UnoRouter    · Hosted zero-downtime gateway\n"
+                "  [5] AIHubMix     · https://aihubmix.com (Multi-model bridge)\n"
+                "  [6] TokenHarbour · High-speed streaming\n"
+                "  [7] Custom       · Direct ANTHROPIC_API_KEY / AUTH_TOKEN\n"
+                "  [8] AntSeed      · Local P2P Buyer (:8377 · keyless)\n",
+                id="setup-modal-desc",
+            )
+            yield Input(placeholder="Gateway number [1-8] (default: 1)", id="setup-modal-choice")
+            yield Input(placeholder="Paste your API key here (leave blank for AntSeed)", id="setup-modal-key", password=True)
+            yield Static(id="setup-modal-keys")
+
+    def on_mount(self) -> None:
+        p = self.palette
+        t = Text()
+        t.append("⚙ AI GATEWAY & API KEY SETUP", style=f"bold {p.accent}")
+        self.query_one("#setup-modal-title", Static).update(t)
+
+        keys = Text()
+        keys.append("Enter", style=f"bold {p.accent}")
+        keys.append(" Save & Activate   ·   ", style=p.dim)
+        keys.append("Tab", style=f"bold {p.primary}")
+        keys.append(" Next Field   ·   ", style=p.dim)
+        keys.append("Esc", style=f"bold {p.red}")
+        keys.append(" Cancel", style=p.dim)
+        self.query_one("#setup-modal-keys", Static).update(keys)
+
+        self.query_one("#setup-modal-choice", Input).focus()
+
+    @on(Input.Submitted, "#setup-modal-choice")
+    def _choice_submitted(self) -> None:
+        self.query_one("#setup-modal-key", Input).focus()
+
+    @on(Input.Submitted, "#setup-modal-key")
+    def _key_submitted(self) -> None:
+        self.action_submit()
+
+    def action_submit(self) -> None:
+        choice = self.query_one("#setup-modal-choice", Input).value.strip() or "1"
+        key = self.query_one("#setup-modal-key", Input).value.strip()
+
+        app = self.app
+        if choice == "1":
+            if not key:
+                self.notify("APInex requires an API key", severity="error")
+                return
+            api_mod.save_key(key)
+            api_mod.apply_to(app.cfg)
+            sources_mod.set_current("apinex")
+            app.agent._client = None
+            app._refresh_after_source_change("APInex", "key saved")
+        elif choice == "2":
+            if not key:
+                self.notify("Radox AI requires an API key", severity="error")
+                return
+            rx_mod.save_key(key, "deepseek-v4-flash-0731")
+            rx_mod.apply_to(app.cfg)
+            sources_mod.set_current("radox")
+            app.agent._client = None
+            app._refresh_after_source_change("Radox AI", "key saved")
+        elif choice == "3":
+            if not key:
+                self.notify("OpenRouter requires an API key", severity="error")
+                return
+            or_mod.save_key(key)
+            or_mod.apply_to(app.cfg)
+            sources_mod.set_current("openrouter")
+            app.agent._client = None
+            app._refresh_after_source_change("OpenRouter", "key saved")
+        elif choice == "4":
+            if not key:
+                self.notify("UnoRouter requires an API key", severity="error")
+                return
+            uno_mod.save_key(key)
+            uno_mod.apply_to(app.cfg)
+            sources_mod.set_current("unorouter")
+            app.agent._client = None
+            app._refresh_after_source_change("UnoRouter", "key saved")
+        elif choice == "5":
+            if not key:
+                self.notify("AIHubMix requires an API key", severity="error")
+                return
+            ah_mod.save_key(key)
+            ah_mod.apply_to(app.cfg)
+            sources_mod.set_current("aihubmix")
+            app.agent._client = None
+            app._refresh_after_source_change("AIHubMix", "key saved")
+        elif choice == "6":
+            if not key:
+                self.notify("TokenHarbour requires an API key", severity="error")
+                return
+            th_mod.save_key(key)
+            th_mod.apply_to(app.cfg)
+            sources_mod.set_current("tokenharbour")
+            app.agent._client = None
+            app._refresh_after_source_change("TokenHarbour", "key saved")
+        elif choice == "7":
+            if not key:
+                self.notify("Custom credentials require a key", severity="error")
+                return
+            app.cfg.auth_token = key
+            app.cfg.api_key = key
+            app.agent._client = None
+            app._refresh_after_source_change("Custom", "credentials set")
+        elif choice == "8":
+            as_mod.apply_to(app.cfg)
+            sources_mod.set_current("antseed")
+            app.agent._client = None
+            app._refresh_after_source_change("AntSeed", "P2P buyer")
+        else:
+            self.notify("Invalid gateway choice (enter 1-8)", severity="warning")
+            return
+
+        self.dismiss(True)
+
+    def action_cancel(self) -> None:
+        self.dismiss(False)
+
+
 class FindingsPanel(ModalScreen[None]):
     """The hunt's finding tracker, as its own window.
 
@@ -1464,6 +1633,19 @@ class RadnexApp(App):
         if text.startswith("/"):
             self._handle_command(text)
             return
+
+        # Auto-detect slash commands typed without leading slash (e.g. cpss-apinex, setup, help, mode)
+        first_token = text.split()[0].lower() if text else ""
+        from .complete import SLASH_COMMANDS
+        known_slash = {c[0][1:] for c in SLASH_COMMANDS}
+        if first_token in known_slash or first_token.startswith(("cpss-", "zim-", "rx-")) or first_token in (
+            "setup", "api-setup", "help", "mode", "model", "models", "clear", "exit", "quit",
+            "status", "cost", "rain", "think", "theme", "undo", "save", "load", "compact",
+            "limits", "team", "osint", "phish", "ad", "crack", "findings", "panes",
+        ):
+            self._handle_command("/" + text)
+            return
+
         if self.busy:
             self._sys_line("harness is busy — Ctrl+C to interrupt", warn=True)
             return
@@ -2188,7 +2370,7 @@ class RadnexApp(App):
         t.append("  Configure an upstream gateway with your API key:\n\n", style=p.dim)
         gateways = [
             ("/apinex-api-setup <key>", "APInex", "Free: DeepSeek-V4.1, Gemini 2.5"),
-            ("/radox-api-setup <key>", "Radox AI", "Free: DeepSeek-V3, Gemini 2.0"),
+            ("/radox-api-setup <key>", "Radox AI", "Free: DeepSeek-V4-Flash, Claude Opus 4.8"),
             ("/openrouter-api-setup <key>", "OpenRouter", "Free: DeepSeek, Llama, Qwen"),
             ("/unorouter-api-setup <key>", "UnoRouter", "Hosted zero-downtime gateway"),
             ("/aihubmix-api-setup <key>", "AIHubMix", "Multi-model bridge"),
@@ -2201,6 +2383,7 @@ class RadnexApp(App):
         t.append("\n  After saving a key, switch gateway anytime:\n", style=p.dim)
         t.append("  /cpss-apinex  ·  /cpss-radox  ·  /cpss-openrouter  ·  /cpss-unorouter  ·  /cpss-source\n", style=f"bold {p.primary}")
         self.query_one(ChatPane).write_block(t)
+        self.push_screen(SetupModal(self.palette))
 
     def _cmd_mode(self, args) -> None:
         p = self.palette
@@ -3474,7 +3657,7 @@ class RadnexApp(App):
                 return
 
         known = {"logfare", "tokenjuice", "tokenharbour", "openrouter",
-                 "unorouter", "antseed", "aihubmix"}
+                 "unorouter", "antseed", "aihubmix", "apinex", "radox"}
         if key not in known:
             self._sys_line(
                 f"unknown upstream: {key} — try one of "

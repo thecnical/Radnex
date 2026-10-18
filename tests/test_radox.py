@@ -40,11 +40,11 @@ def test_credentials_flow() -> None:
         prof = tmp / "source"
         with mock.patch.object(rx_mod, "PROFILE", prof):
             check("creds: none initially", rx_mod.load_credentials() is None)
-            saved = rx_mod.save_key("sk-rx-testkey-12345678", "deepseek-v3")
+            saved = rx_mod.save_key("sk-rx-testkey-12345678", "deepseek-v4-flash-0731")
             check("creds: written to profile", saved.is_file())
             creds = rx_mod.load_credentials()
             check("creds: load returns tuple", creds is not None and creds[0] == "sk-rx-testkey-12345678")
-            check("creds: model saved", creds is not None and creds[1] == "deepseek-v3")
+            check("creds: model saved", creds is not None and creds[1] == "deepseek-v4-flash-0731")
 
 
 def test_models_fallback() -> None:

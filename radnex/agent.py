@@ -318,8 +318,12 @@ class Agent:
         if self._client is None:
             import anthropic
 
+            base_url = (self.cfg.base_url or "").strip().rstrip("/")
+            if base_url.endswith("/v1"):
+                base_url = base_url[:-3].rstrip("/")
+
             kwargs = {
-                "base_url": self.cfg.base_url,
+                "base_url": base_url or None,
                 # Bound the wait on a silent proxy. The SDK default is 600s;
                 # a stalled stream would otherwise leave the UI "working" with
                 # nothing arriving and no error for ten minutes.
@@ -1277,7 +1281,7 @@ class Agent:
         if isinstance(e, anthropic.NotFoundError):
             return (
                 "model or endpoint not found (404). If you switched models, the "
-                "proxy may not offer that name."
+                "proxy may not offer that name. Use /setup or /models to select an active model."
             )
         if isinstance(e, anthropic.RateLimitError):
             # A free tier is throttled per model, not per account, so the fix is

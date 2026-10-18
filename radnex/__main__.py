@@ -66,6 +66,8 @@ def build_parser() -> argparse.ArgumentParser:
                              "another Radnex pane, and the panes' agents can message each other")
     parser.add_argument("--resume", default=None, metavar="SESSION",
                         help="restore a saved session at launch (used by /panes)")
+    parser.add_argument("--setup", action="store_true",
+                        help="open the interactive AI gateway & API key setup wizard and exit")
     parser.add_argument("--version", action="version", version=f"radnex {__version__}")
     return parser
 
@@ -127,7 +129,7 @@ def _interactive_setup(cfg: Config) -> bool:
         print("\033[1;36m╰──────────────────────────────────────────────────────────────╯\033[0m")
         print("  No AI credentials detected. Select an AI Provider to configure:\n")
         print("  \033[1;32m[1]\033[0m \033[1mAPInex\033[0m       (https://apinex.bond/  · Free models: DeepSeek-V4.1, Gemini 2.5)")
-        print("  \033[1;32m[2]\033[0m \033[1mRadox AI\033[0m     (https://radoxai.com/  · Free models: DeepSeek-V3, Gemini 2.0, Claude Haiku)")
+        print("  \033[1;32m[2]\033[0m \033[1mRadox AI\033[0m     (https://radoxai.com/  · Free models: DeepSeek-V4-Flash, Claude Opus 4.8)")
         print("  \033[1;32m[3]\033[0m \033[1mOpenRouter\033[0m   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)")
         print("  \033[1;32m[4]\033[0m \033[1mUnoRouter\033[0m    (Hosted redundant gateway · Free models)")
         print("  \033[1;32m[5]\033[0m \033[1mAIHubMix\033[0m     (Multi-model bridge · Free GLM-5.3, Qwen-3.8)")
@@ -156,7 +158,7 @@ def _interactive_setup(cfg: Config) -> bool:
             if not key:
                 print("  \033[33m⚠ No key entered. Aborted.\033[0m")
                 return False
-            path = rx_mod.save_key(key)
+            path = rx_mod.save_key(key, "deepseek-v4-flash-0731")
             rx_mod.apply_to(cfg)
             sources_mod.set_current("radox")
             print(f"  \033[32m✔ Radox AI configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
@@ -251,6 +253,13 @@ def main(argv: list[str] | None = None) -> int:
         for m in models:
             print(m)
         return 0
+
+    if args.setup:
+        cfg = Config.from_env()
+        if _interactive_setup(cfg):
+            print("\033[32m✔ Configuration saved. Launch with: radnex\033[0m\n")
+            return 0
+        return 1
 
     workdir = Path(args.workdir).expanduser() if args.workdir else Path.cwd()
 

@@ -158,12 +158,15 @@ radnex --headless --mode cpss -C /path/to/target
 | `--think` | `--think` | Display the model's internal thinking / reasoning chain. |
 | `--no-think`| `--no-think` | Hide model reasoning chain and display direct responses only. |
 | `--no-update`| `--no-update` | Skip automatic git pull and dependency check on boot. |
+| `--setup`    | `--setup`     | Launch the interactive AI gateway & API key setup wizard. |
 
 ---
 
 ## 🌐 Step 3: Cloud Gateway Onboarding & Configuration (Step-by-Step)
 
-RADNEX integrates 8 cloud gateways. Each gateway can be configured either via interactive slash commands inside the shell or by setting environment variables.
+RADNEX integrates 8 cloud gateways. Each gateway can be configured either via the interactive `/setup` modal inside the shell, via `radnex --setup` in your terminal, or with slash commands.
+
+> 💡 **Interactive Setup Popup:** Inside RADNEX, type `/setup` (or run `radnex --setup` from bash) to open the interactive setup window where you can select any provider, paste your key, and activate it immediately.
 
 ### 1. APInex (`https://apinex.bond/`)
 APInex provides ultra-low latency endpoints and free chat models:
@@ -187,7 +190,7 @@ Radox AI provides top-tier free reasoning and vision models:
   ```text
   /cpss-radox
   ```
-- **Available Free Models:** `deepseek-v3`, `gemini-2.0-flash`, `claude-3-5-haiku-20241022`, `gpt-4o-mini`.
+- **Available Free Models:** `deepseek-v4-flash-0731`, `deepseek-v4-pro-0813`, `qwen3.8-27b`, `gemma-2-2b`, `claude-opus-4.8`, `gpt-5.6-luna`.
 
 ### 3. OpenRouter (`https://openrouter.ai/`)
 Access hundreds of public models with a single key:

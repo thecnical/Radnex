@@ -81,6 +81,15 @@ if [[ -n "$_inherited_base_url" \
   RADNEX_NO_PROXY=1
 fi
 
+# Quick flags bypass proxy and profile requirements:
+for _arg in "$@"; do
+  if [[ "$_arg" == "--setup" || "$_arg" == "--help" || "$_arg" == "-h" || "$_arg" == "--version" || "$_arg" == "--list-models" ]]; then
+    _skip_profile=1
+    RADNEX_NO_PROXY=1
+    break
+  fi
+done
+
 if [[ "$_skip_profile" != "1" ]]; then
   # The hosted gateways — TokenHarbour, OpenRouter, UnoRouter, AIHubMix, APInex,
   # Radox AI, AntSeed — are remote/hosted: there is no local LiteLLM proxy to start.

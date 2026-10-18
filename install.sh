@@ -210,21 +210,30 @@ esac
 
 # --- 4. the credential -------------------------------------------------------
 
+# Check if any supported gateway profile already exists
+_configured_gw=""
+for _gw in apinex radox openrouter unorouter aihubmix tokenharbour logfare; do
+  if [[ -r "$RADNEX_HOME/$_gw/source" ]]; then
+    _configured_gw="$_gw"
+    break
+  fi
+done
+
 if [[ "${RADNEX_SKIP_SETUP:-0}" == "1" ]]; then
   warn "RADNEX_SKIP_SETUP=1 — not configuring the route"
-elif [[ -r "$PROFILE" ]]; then
-  step "Route already configured"
-  ok "$PROFILE exists"
+elif [[ -n "$_configured_gw" ]]; then
+  step "AI Gateway already configured"
+  ok "$RADNEX_HOME/$_configured_gw/source exists"
 elif [[ -r /dev/tty ]]; then
-  # setup.sh prompts for the key. Reconnect its stdin to the terminal: under
+  # setup.sh prompts for the gateway & key. Reconnect its stdin to the terminal: under
   # `curl | bash` this script's own stdin is the pipe, so a bare `read` would
   # eat the rest of the script instead of waiting for the operator.
-  step "Configuring the Logfare route"
+  step "Configuring your AI Gateway"
   "$INSTALL_DIR/setup.sh" </dev/tty \
-    || warn "setup did not finish — run $INSTALL_DIR/setup.sh when you have your key"
+    || warn "setup did not finish — run $INSTALL_DIR/setup.sh when you have your key, or configure on boot"
 else
-  warn "no terminal available to prompt for a key"
-  note "run: $INSTALL_DIR/setup.sh"
+  warn "no terminal available to prompt for an API key"
+  note "run: $INSTALL_DIR/setup.sh or launch radnex interactively"
 fi
 
 # --- done --------------------------------------------------------------------

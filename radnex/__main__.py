@@ -11,8 +11,10 @@ from pathlib import Path
 from . import __version__
 from . import aihubmix as ah_mod
 from . import antseed as as_mod
+from . import apinex as api_mod
 from . import logfare as lf_mod
 from . import openrouter as or_mod
+from . import radox as rx_mod
 from . import sources as sources_mod
 from . import session as session_mod
 from . import tokenharbour as th_mod
@@ -115,6 +117,117 @@ def _pane_inner_argv(argv: list[str]) -> list[str]:
         out.append(a)
         i += 1
     return out
+
+
+def _interactive_setup(cfg: Config) -> bool:
+    """Prompt the operator to select and configure an AI gateway when no keys are found."""
+    try:
+        print("\n\033[1;36m╭──────────────────────────────────────────────────────────────╮\033[0m")
+        print("\033[1;36m│\033[0m  \033[1mRADNEX · AI Gateway & API Key Configuration Wizard\033[0m          \033[1;36m│\033[0m")
+        print("\033[1;36m╰──────────────────────────────────────────────────────────────╯\033[0m")
+        print("  No AI credentials detected. Select an AI Provider to configure:\n")
+        print("  \033[1;32m[1]\033[0m \033[1mAPInex\033[0m       (https://apinex.bond/  · Free models: DeepSeek-V4.1, Gemini 2.5)")
+        print("  \033[1;32m[2]\033[0m \033[1mRadox AI\033[0m     (https://radoxai.com/  · Free models: DeepSeek-V3, Gemini 2.0, Claude Haiku)")
+        print("  \033[1;32m[3]\033[0m \033[1mOpenRouter\033[0m   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)")
+        print("  \033[1;32m[4]\033[0m \033[1mUnoRouter\033[0m    (Hosted redundant gateway · Free models)")
+        print("  \033[1;32m[5]\033[0m \033[1mAIHubMix\033[0m     (Multi-model bridge · Free GLM-5.3, Qwen-3.8)")
+        print("  \033[1;32m[6]\033[0m \033[1mTokenHarbour\033[0m (High-capacity stream · Free DeepSeek, Qwen)")
+        print("  \033[1;32m[7]\033[0m \033[1mCustom/Anthropic\033[0m (Direct ANTHROPIC_API_KEY / ANTHROPIC_AUTH_TOKEN)")
+        print("  \033[1;32m[8]\033[0m \033[1mAntSeed P2P\033[0m  (Local P2P Buyer on :8377 · No key needed)")
+        print("  \033[1;31m[0]\033[0m \033[2mExit\033[0m\n")
+
+        choice = input("\033[1mSelect an option [1-8, or 0 to exit]: \033[0m").strip()
+        if not choice or choice in ("0", "q", "quit", "exit"):
+            return False
+
+        if choice == "1":
+            key = input("\n\033[1mPaste your APInex API Key (https://apinex.bond/): \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            path = api_mod.save_key(key)
+            api_mod.apply_to(cfg)
+            sources_mod.set_current("apinex")
+            print(f"  \033[32m✔ APInex configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
+            return True
+
+        elif choice == "2":
+            key = input("\n\033[1mPaste your Radox AI API Key (https://radoxai.com/): \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            path = rx_mod.save_key(key)
+            rx_mod.apply_to(cfg)
+            sources_mod.set_current("radox")
+            print(f"  \033[32m✔ Radox AI configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
+            return True
+
+        elif choice == "3":
+            key = input("\n\033[1mPaste your OpenRouter API Key (https://openrouter.ai/): \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            path = or_mod.save_key(key)
+            or_mod.apply_to(cfg)
+            sources_mod.set_current("openrouter")
+            print(f"  \033[32m✔ OpenRouter configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
+            return True
+
+        elif choice == "4":
+            key = input("\n\033[1mPaste your UnoRouter API Key: \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            path = uno_mod.save_key(key)
+            uno_mod.apply_to(cfg)
+            sources_mod.set_current("unorouter")
+            print(f"  \033[32m✔ UnoRouter configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
+            return True
+
+        elif choice == "5":
+            key = input("\n\033[1mPaste your AIHubMix API Key: \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            path = ah_mod.save_key(key)
+            ah_mod.apply_to(cfg)
+            sources_mod.set_current("aihubmix")
+            print(f"  \033[32m✔ AIHubMix configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
+            return True
+
+        elif choice == "6":
+            key = input("\n\033[1mPaste your TokenHarbour API Key: \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            path = th_mod.save_key(key)
+            th_mod.apply_to(cfg)
+            sources_mod.set_current("tokenharbour")
+            print(f"  \033[32m✔ TokenHarbour configured!\033[0m Key saved to {path}. Active model: {cfg.model}\n")
+            return True
+
+        elif choice == "7":
+            key = input("\n\033[1mPaste your Custom/Anthropic API Key or Auth Token: \033[0m").strip()
+            if not key:
+                print("  \033[33m⚠ No key entered. Aborted.\033[0m")
+                return False
+            cfg.auth_token = key
+            cfg.api_key = key
+            print("  \033[32m✔ Custom credentials set!\033[0m\n")
+            return True
+
+        elif choice == "8":
+            as_mod.apply_to(cfg)
+            sources_mod.set_current("antseed")
+            print("  \033[32m✔ AntSeed P2P selected!\033[0m\n")
+            return True
+
+        else:
+            print("  \033[33m⚠ Invalid choice.\033[0m")
+            return False
+    except (KeyboardInterrupt, EOFError):
+        print("\n  \033[33mSetup cancelled.\033[0m")
+        return False
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -243,7 +356,8 @@ def main(argv: list[str] | None = None) -> int:
     _remembered = sources_mod.current_key()
     for _key, _mod in (("tokenharbour", th_mod), ("openrouter", or_mod),
                        ("unorouter", uno_mod), ("antseed", as_mod),
-                       ("aihubmix", ah_mod)):
+                       ("aihubmix", ah_mod), ("apinex", api_mod),
+                       ("radox", rx_mod)):
         if _remembered == _key and _mod.applies_to_default_endpoint(cfg.base_url):
             _mod.apply_to(cfg)
             break
@@ -269,15 +383,18 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
     if not cfg.api_key_present:
-        print(
-            "radnex: no credentials found.\n"
-            "  Set ANTHROPIC_AUTH_TOKEN (preferred) or ANTHROPIC_API_KEY.\n"
-            "  For the local Logfare route, source Radnex's own profile:\n"
-            "      set -a; . ~/.radnex/logfare/source; set +a\n"
-            "  Or just run `./setup.sh` once, then launch with `radnex`.",
-            file=sys.stderr,
-        )
-        return 2
+        if sys.stdin.isatty():
+            if not _interactive_setup(cfg):
+                return 2
+        else:
+            print(
+                "radnex: no credentials found.\n"
+                "  Set ANTHROPIC_AUTH_TOKEN (preferred) or ANTHROPIC_API_KEY.\n"
+                "  For a free gateway, run `./setup.sh` or configure APInex, Radox AI, OpenRouter.\n"
+                "  Or launch interactively with `radnex` to open the setup wizard.",
+                file=sys.stderr,
+            )
+            return 2
 
     # Launch-time self-update. This runs after the preflight checks, so a
     # launch that cannot proceed anyway never pulls, and before the TUI takes

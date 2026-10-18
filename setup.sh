@@ -71,85 +71,174 @@ if ! ( cd / && "$PY" -c 'import anthropic, textual, rich, yaml' ) >/dev/null 2>&
   exit 1
 fi
 
-# --- 1. locate a credential --------------------------------------------------
+# --- 1. select gateway & locate/prompt for credential ------------------------
 
-step "Looking for a Logfare credential"
+step "Configuring AI Gateway"
 
-KEY=""
-KEY_SRC=""
-
-# A Logfare key starts with `lfu_`. Only a key with that prefix is trusted
-# automatically — a shell often has ANTHROPIC_AUTH_TOKEN exported for a
-# *different* provider (another proxy, another vendor), and silently adopting
-# it would point the harness at the wrong service with no visible symptom.
-# That is exactly the failure this whole profile mechanism exists to prevent.
-is_logfare_key() { [[ "${1:-}" == lfu_* ]]; }
-
-# 1. An existing profile. These files are Logfare-specific, so try them first.
-#    The shipped repo profile comes last — it is the shared fallback.
-for candidate in "$PROFILE" "$HOME/logfare/source" "$SELF/../logfare/source" \
-                 "$SELF/packaging/logfare/source"; do
-  [[ -f "$candidate" ]] || continue
-  found="$(set -a; . "$candidate" 2>/dev/null; printf '%s' "${ANTHROPIC_AUTH_TOKEN:-}")"
-  if is_logfare_key "$found"; then
-    KEY="$found"; KEY_SRC="$candidate"; break
-  elif [[ -n "$found" ]]; then
-    warn "ignoring $candidate — its token is not a Logfare key (no lfu_ prefix)"
+EXISTING_GW=""
+for g in apinex radox openrouter unorouter aihubmix tokenharbour logfare; do
+  if [[ -f "$RADNEX_HOME/$g/source" ]]; then
+    EXISTING_GW="$g"
+    break
   fi
 done
 
-# 2. The ambient token, but only when it is genuinely a Logfare key.
-if [[ -z "$KEY" ]] && is_logfare_key "${ANTHROPIC_AUTH_TOKEN:-}"; then
-  KEY="$ANTHROPIC_AUTH_TOKEN"; KEY_SRC="\$ANTHROPIC_AUTH_TOKEN"
+GW_CHOICE=""
+if [[ -n "$EXISTING_GW" ]]; then
+  ok "found existing profile for $EXISTING_GW at $RADNEX_HOME/$EXISTING_GW/source"
+  printf '  Press Enter to keep current configuration, or type [r] to reconfigure: '
+  read -r RECONF || true
+  if [[ "$RECONF" != "r" && "$RECONF" != "R" ]]; then
+    GW_CHOICE="keep"
+  fi
 fi
 
-if [[ -n "$KEY" ]]; then
-  ok "using the credential from $KEY_SRC"
-else
-  warn "no credential found"
-  printf '\n  Paste your Logfare API key (starts with lfu_).\n'
-  printf '  Get one at https://logfare.ai — it is stored with mode 600 and never echoed.\n\n'
-  printf '  key: '
-  # -s: do not echo the key to the terminal.
+if [[ -z "$GW_CHOICE" ]]; then
+  printf '\n  Select an AI Gateway to configure:\n\n'
+  printf '  [1] APInex       (https://apinex.bond/  · Free models: DeepSeek-V4.1, Gemini 2.5) [Recommended]\n'
+  printf '  [2] Radox AI     (https://radoxai.com/  · Free models: DeepSeek-V3, Gemini 2.0, Claude Haiku)\n'
+  printf '  [3] OpenRouter   (https://openrouter.ai/ · Free models: DeepSeek, Llama, Qwen)\n'
+  printf '  [4] UnoRouter    (Hosted redundant gateway · Free models)\n'
+  printf '  [5] AIHubMix     (Multi-model bridge · Free models)\n'
+  printf '  [6] TokenHarbour (High-speed streaming · Free models)\n'
+  printf '  [7] Logfare      (Local LiteLLM proxy :4001)\n'
+  printf '  [8] AntSeed P2P  (Local buyer on :8377 · No key needed)\n\n'
+  printf '  Choice [1-8]: '
+  read -r GW_CHOICE || GW_CHOICE="1"
+fi
+
+KEY=""
+if [[ "$GW_CHOICE" == "1" ]]; then
+  printf '\n  Paste your APInex API Key (get one free at https://apinex.bond/):\n  key: '
+  read -r KEY || true
+  [[ -n "$KEY" ]] || die "no key entered."
+  mkdir -p "$RADNEX_HOME/apinex"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/apinex/source" <<EOF
+# Radnex — APInex profile
+export ANTHROPIC_BASE_URL="https://api.apinex.bond"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="deepseek-v4.1-flash"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/apinex/source"
+  printf '%s\n' "apinex" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/apinex/source (mode 600)"
+elif [[ "$GW_CHOICE" == "2" ]]; then
+  printf '\n  Paste your Radox AI API Key (get one free at https://radoxai.com/):\n  key: '
+  read -r KEY || true
+  [[ -n "$KEY" ]] || die "no key entered."
+  mkdir -p "$RADNEX_HOME/radox"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/radox/source" <<EOF
+# Radnex — Radox AI profile
+export ANTHROPIC_BASE_URL="https://api.radoxai.com"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="deepseek-v3"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/radox/source"
+  printf '%s\n' "radox" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/radox/source (mode 600)"
+elif [[ "$GW_CHOICE" == "3" ]]; then
+  printf '\n  Paste your OpenRouter API Key (https://openrouter.ai/):\n  key: '
+  read -r KEY || true
+  [[ -n "$KEY" ]] || die "no key entered."
+  mkdir -p "$RADNEX_HOME/openrouter"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/openrouter/source" <<EOF
+# Radnex — OpenRouter profile
+export ANTHROPIC_BASE_URL="https://openrouter.ai/api"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="deepseek/deepseek-v4.1:free"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/openrouter/source"
+  printf '%s\n' "openrouter" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/openrouter/source (mode 600)"
+elif [[ "$GW_CHOICE" == "4" ]]; then
+  printf '\n  Paste your UnoRouter API Key:\n  key: '
+  read -r KEY || true
+  [[ -n "$KEY" ]] || die "no key entered."
+  mkdir -p "$RADNEX_HOME/unorouter"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/unorouter/source" <<EOF
+# Radnex — UnoRouter profile
+export ANTHROPIC_BASE_URL="https://api.unorouter.com"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="deepseek/deepseek-chat:free"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/unorouter/source"
+  printf '%s\n' "unorouter" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/unorouter/source (mode 600)"
+elif [[ "$GW_CHOICE" == "5" ]]; then
+  printf '\n  Paste your AIHubMix API Key:\n  key: '
+  read -r KEY || true
+  [[ -n "$KEY" ]] || die "no key entered."
+  mkdir -p "$RADNEX_HOME/aihubmix"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/aihubmix/source" <<EOF
+# Radnex — AIHubMix profile
+export ANTHROPIC_BASE_URL="https://aihubmix.com"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="coding-glm-5.3-flash-free"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/aihubmix/source"
+  printf '%s\n' "aihubmix" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/aihubmix/source (mode 600)"
+elif [[ "$GW_CHOICE" == "6" ]]; then
+  printf '\n  Paste your TokenHarbour API Key:\n  key: '
+  read -r KEY || true
+  [[ -n "$KEY" ]] || die "no key entered."
+  mkdir -p "$RADNEX_HOME/tokenharbour"
+  (
+    umask 077
+    cat > "$RADNEX_HOME/tokenharbour/source" <<EOF
+# Radnex — TokenHarbour profile
+export ANTHROPIC_BASE_URL="https://api.tokenharbour.net"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="deepseek-chat-free"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$RADNEX_HOME/tokenharbour/source"
+  printf '%s\n' "tokenharbour" > "$RADNEX_HOME/current-source"
+  ok "$RADNEX_HOME/tokenharbour/source (mode 600)"
+elif [[ "$GW_CHOICE" == "8" ]]; then
+  printf '%s\n' "antseed" > "$RADNEX_HOME/current-source"
+  ok "AntSeed P2P selected"
+elif [[ "$GW_CHOICE" == "7" ]]; then
+  printf '\n  Paste your Logfare API key (starts with lfu_):\n  key: '
   read -rs KEY || true
   printf '\n'
   [[ -n "$KEY" ]] || die "no key entered."
-  KEY_SRC="prompt"
-  ok "key received (${#KEY} chars)"
+  mkdir -p "$LOG_DIR"
+  (
+    umask 077
+    cat > "$PROFILE" <<EOF
+# Radnex — Logfare profile (generated by setup.sh)
+export ANTHROPIC_BASE_URL="http://localhost:$PORT"
+export ANTHROPIC_AUTH_TOKEN="$KEY"
+export ANTHROPIC_MODEL="deepseek-v4.1-flash"
+export ANTHROPIC_API_KEY=""
+EOF
+  )
+  chmod 600 "$PROFILE"
+  printf '%s\n' "logfare" > "$RADNEX_HOME/current-source"
+  ok "$PROFILE (mode 600)"
 fi
-
-[[ "$KEY" == lfu_* ]] || warn "that key does not start with 'lfu_' — continuing anyway"
-
-# --- 2. write the profile ----------------------------------------------------
-
-step "Writing the credential profile"
-mkdir -p "$LOG_DIR"
-# umask is process-global, so the 077 has to stay inside this subshell: leaking
-# it would make every file created later in this script (the proxy config, the
-# manager, the Token Juice route) 0600/0700 instead of 0644/0755.
-(
-  umask 077   # create the file 600 from the start — never world-readable
-  {
-    printf '# Radnex — Logfare profile (generated by setup.sh)\n'
-    printf '# Treat this file as a credential. Never commit it.\n\n'
-    printf 'export ANTHROPIC_BASE_URL="http://localhost:%s"\n' "$PORT"
-    printf 'export ANTHROPIC_AUTH_TOKEN="%s"\n' "$KEY"
-    printf 'export ANTHROPIC_MODEL="deepseek-v4.1-flash"\n\n'
-    printf '# Load-bearing: an empty string keeps ANTHROPIC_AUTH_TOKEN authoritative\n'
-    printf '# and clears any real API key inherited from the shell.\n'
-    printf 'export ANTHROPIC_API_KEY=""\n\n'
-    printf '# Model aliases — the models Logfare currently serves.\n'
-    printf '# Logfare retires models without notice; /logfare-models in the TUI\n'
-    printf '# lists what is live right now.\n'
-    printf 'export MODEL_DEFAULT="deepseek-v4.1-flash"\n'
-    printf 'export MODEL_DEEPSEEK_FLASH="deepseek-v4.1-flash"\n'
-    printf 'export MODEL_QWEN="qwen-3.8-27b"\n'
-    printf 'export MODEL_GEMMA="gemma-4-26b"\n'
-    printf 'export MODEL_AUTO="logfare/auto"\n'
-  } > "$PROFILE"
-)
-chmod 600 "$PROFILE"
-ok "$PROFILE (mode 600)"
 
 # --- 3. proxy files ----------------------------------------------------------
 
@@ -238,106 +327,87 @@ else
 fi
 if [[ ! -f "$RADNEX_HOME/pagekite.name" ]]; then
   warn "no kite name at $RADNEX_HOME/pagekite.name"
-  warn "write your kite (e.g. zim.pagekite.me) there, or export PAGEKITE_NAME."
+  warn "write your kite (e.g. radnex.pagekite.me) there, or export PAGEKITE_NAME."
   warn "first-time signup:  $PK_DIR/pagekite.py --signup"
 else
   ok "kite name: $(tr -d '[:space:]' < "$RADNEX_HOME/pagekite.name")"
 fi
 
-# --- 4. litellm --------------------------------------------------------------
+# Only configure and run LiteLLM if Logfare local proxy was selected
+if [[ "$GW_CHOICE" == "7" || ( "$EXISTING_GW" == "logfare" && "$GW_CHOICE" == "keep" ) ]]; then
 
-# The proxy gets its OWN venv. It cannot live in the harness's: litellm[proxy]
-# requires rich<14.0 and textual 8.x requires rich>=14.2, so an environment
-# holding both cannot resolve at all. start-litellm.sh already looks in
-# $RADNEX_HOME/venv, so that is where this goes. A litellm that already
-# exists anywhere is reused rather than duplicated.
-PROXY_VENV="$RADNEX_HOME/venv"
-PROXY_PY="$PROXY_VENV/bin/python"
+  # --- 4. litellm --------------------------------------------------------------
 
-step "Checking the LiteLLM proxy"
-if command -v litellm >/dev/null 2>&1; then
-  ok "litellm on PATH"
-elif [[ -x "$HOME/.local/bin/litellm" ]]; then
-  ok "litellm present at ~/.local/bin/litellm"
-elif [[ -x "$PROXY_PY" ]] && "$PROXY_PY" -c 'import litellm' >/dev/null 2>&1; then
-  ok "litellm in $PROXY_VENV"
-else
-  printf '  building the proxy venv at %s (this can take a minute)...\n' "$PROXY_VENV"
-  "$PY" -m venv "$PROXY_VENV" || die "could not create $PROXY_VENV"
-  "$PROXY_PY" -m pip install --quiet --disable-pip-version-check --upgrade pip || true
-  # Both floors are load-bearing, and they live here rather than in
-  # requirements.txt because this is the environment that has to satisfy them.
-  #
-  # litellm[proxy]>=1.100.1 — the harness talks to this proxy over Anthropic's
-  # /v1/messages, and every Logfare model is registered as `openai/<name>`.
-  # Older litellm only served /v1/messages for provider == anthropic, so an
-  # openai/* model raised "Anthropic messages provider config not found for
-  # model: ..." — a 500 on the one route Radnex actually uses, while
-  # /v1/chat/completions kept working and made the proxy look healthy.
-  #
-  # uvloop>=0.22.1 — litellm hardcodes uvicorn's event loop to uvloop on Linux
-  # (litellm/proxy/proxy_cli.py::_get_loop_type — not configurable, no flag or
-  # env var overrides it). uvloop <0.22 still imports
-  # BaseDefaultEventLoopPolicy, which Python 3.14 removed, so the proxy dies at
-  # startup with "cannot import name 'BaseDefaultEventLoopPolicy'" and never
-  # binds its port.
-  "$PROXY_PY" -m pip install --quiet --disable-pip-version-check \
-    "litellm[proxy]>=1.100.1" "uvloop>=0.22.1" </dev/null \
-    || die "could not install litellm[proxy] into $PROXY_VENV"
-  ok "litellm installed into $PROXY_VENV"
-fi
+  # The proxy gets its OWN venv. It cannot live in the harness's: litellm[proxy]
+  # requires rich<14.0 and textual 8.x requires rich>=14.2, so an environment
+  # holding both cannot resolve at all. start-litellm.sh already looks in
+  # $RADNEX_HOME/venv, so that is where this goes. A litellm that already
+  # exists anywhere is reused rather than duplicated.
+  PROXY_VENV="$RADNEX_HOME/venv"
+  PROXY_PY="$PROXY_VENV/bin/python"
 
-# --- 5. start the proxy ------------------------------------------------------
+  step "Checking the LiteLLM proxy"
+  if command -v litellm >/dev/null 2>&1; then
+    ok "litellm on PATH"
+  elif [[ -x "$HOME/.local/bin/litellm" ]]; then
+    ok "litellm present at ~/.local/bin/litellm"
+  elif [[ -x "$PROXY_PY" ]] && "$PROXY_PY" -c 'import litellm' >/dev/null 2>&1; then
+    ok "litellm in $PROXY_VENV"
+  else
+    printf '  building the proxy venv at %s (this can take a minute)...\n' "$PROXY_VENV"
+    "$PY" -m venv "$PROXY_VENV" || die "could not create $PROXY_VENV"
+    "$PROXY_PY" -m pip install --quiet --disable-pip-version-check --upgrade pip || true
+    "$PROXY_PY" -m pip install --quiet --disable-pip-version-check \
+      "litellm[proxy]>=1.100.1" "uvloop>=0.22.1" </dev/null \
+      || die "could not install litellm[proxy] into $PROXY_VENV"
+    ok "litellm installed into $PROXY_VENV"
+  fi
 
-step "Starting the proxy on :$PORT"
-# Reuse anything already healthy on the port — the user may already run a
-# proxy (another tool, or an earlier install) and starting a second one would
-# only fail to bind.
-if curl -s -o /dev/null -w '%{http_code}' \
-     "http://127.0.0.1:$PORT/health/liveliness" --max-time 2 | grep -q 200; then
-  ok "a proxy is already serving :$PORT — reusing it"
-elif "$SERVICE" start; then
-  ok "proxy healthy on :$PORT"
-else
-  warn "proxy did not start — see /tmp/litellm-zim.log"
-  warn "continuing; the launcher will retry on next run."
-fi
+  # --- 5. start the proxy ------------------------------------------------------
 
-# --- 6. verify the route -----------------------------------------------------
+  step "Starting the proxy on :$PORT"
+  if curl -s -o /dev/null -w '%{http_code}' \
+       "http://127.0.0.1:$PORT/health/liveliness" --max-time 2 | grep -q 200; then
+    ok "a proxy is already serving :$PORT — reusing it"
+  elif "$SERVICE" start; then
+    ok "proxy healthy on :$PORT"
+  else
+    warn "proxy did not start — see /tmp/litellm-radnex.log"
+    warn "continuing; the launcher will retry on next run."
+  fi
 
-step "Verifying the route"
-if curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/health/liveliness" --max-time 3 | grep -q 200; then
-  ok "proxy answers on :$PORT"
-else
-  warn "proxy not answering yet"
-fi
+  # --- 6. verify the route -----------------------------------------------------
 
-# A live round-trip through the proxy proves the key actually works. The
-# upstream reports "temporarily unavailable" under load, so give it one retry
-# before calling the key bad.
-BODY='{"model":"deepseek-v4.1-flash","max_tokens":8,"messages":[{"role":"user","content":"say ok"}]}'
-probe() {
-  curl -s -o /tmp/zim-setup-probe.json -w '%{http_code}' \
-    -X POST "http://127.0.0.1:$PORT/v1/messages" \
-    -H "content-type: application/json" \
-    -H "anthropic-version: 2023-06-01" \
-    -H "x-api-key: $KEY" \
-    --max-time 30 -d "$BODY" || true
-}
-CODE="$(probe)"
-if [[ "$CODE" != "200" ]]; then
-  printf '  upstream busy (HTTP %s) — retrying once...\n' "$CODE"
-  sleep 3
+  step "Verifying the route"
+  if curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:$PORT/health/liveliness" --max-time 3 | grep -q 200; then
+    ok "proxy answers on :$PORT"
+  else
+    warn "proxy not answering yet"
+  fi
+
+  BODY='{"model":"deepseek-v4.1-flash","max_tokens":8,"messages":[{"role":"user","content":"say ok"}]}'
+  probe() {
+    curl -s -o /tmp/radnex-setup-probe.json -w '%{http_code}' \
+      -X POST "http://127.0.0.1:$PORT/v1/messages" \
+      -H "content-type: application/json" \
+      -H "anthropic-version: 2023-06-01" \
+      -H "x-api-key: $KEY" \
+      --max-time 30 -d "$BODY" || true
+  }
   CODE="$(probe)"
+  if [[ "$CODE" != "200" ]]; then
+    printf '  upstream busy (HTTP %s) — retrying once...\n' "$CODE"
+    sleep 3
+    CODE="$(probe)"
+  fi
+  if [[ "$CODE" == "200" ]]; then
+    ok "live request through the proxy succeeded"
+  else
+    warn "live request returned HTTP $CODE"
+    head -c 300 /tmp/radnex-setup-probe.json 2>/dev/null; printf '\n'
+  fi
+  rm -f /tmp/radnex-setup-probe.json
 fi
-if [[ "$CODE" == "200" ]]; then
-  ok "live request through the proxy succeeded"
-else
-  warn "live request returned HTTP $CODE"
-  warn "either the key is wrong or Logfare's upstream is down right now:"
-  head -c 300 /tmp/zim-setup-probe.json 2>/dev/null; printf '\n'
-fi
-rm -f /tmp/zim-setup-probe.json
 
 # --- done --------------------------------------------------------------------
 
@@ -346,8 +416,6 @@ bold "╭───────────────────────�
 bold "│  setup complete.                             │"
 bold "╰──────────────────────────────────────────────╯"
 printf '\n'
-printf '    \033[36mradnex\033[0m                 # launch (starts the proxy if needed)\n'
+printf '    \033[36mradnex\033[0m                 # launch\n'
 printf '    \033[36mradnex -C ~/proj\033[0m       # run against another directory\n'
-printf '    \033[36mradnex --mode zim\033[0m      # full auto, follows AGENTS.md\n\n'
-printf '  Manage the proxy:\n'
-printf '    %s {status|stop|restart|logs}\n\n' "$SERVICE"
+printf '    \033[36mradnex --mode cpss\033[0m     # full auto, follows AGENTS.md doctrine\n\n'

@@ -2065,6 +2065,8 @@ class RadnexApp(App):
             "cpss-source": lambda a: self._cmd_zim_source(None),
             "zim-source": lambda a: self._cmd_zim_source(None),
             "rx-source": lambda a: self._cmd_zim_source(None),
+            "setup": lambda a: self._cmd_setup_menu(),
+            "api-setup": lambda a: self._cmd_setup_menu(),
             "tokenharbour-api-setup": lambda a: self._cmd_tokenharbour_key(a),
             "tokenharbour-models": lambda a: self._cmd_tokenharbour_models(a),
             "openrouter-api-setup": lambda a: self._cmd_gateway_key("openrouter", a),
@@ -2111,6 +2113,7 @@ class RadnexApp(App):
         p = self.palette
         rows = [
             ("/help", "this help"),
+            ("/setup", "interactive API key & gateway setup guide"),
             ("/mode [name]", "switch mode: auto | edits | plan | cpss | danger | uncensored"),
             ("/clear", "wipe the transcript and conversation history"),
             ("/model [name]", "show or switch the model"),
@@ -2176,6 +2179,27 @@ class RadnexApp(App):
         t.append("@path attaches a file's contents   ·   type / or @ for the popup\n", style=p.dim)
         t.append("  KEYS  ", style=f"bold {p.accent}")
         t.append("↑↓ select · Tab accept · Esc close · Ctrl+C interrupt · Ctrl+D exit\n", style=p.dim)
+        self.query_one(ChatPane).write_block(t)
+
+    def _cmd_setup_menu(self) -> None:
+        p = self.palette
+        t = Text()
+        t.append("  AI GATEWAY & API KEY SETUP\n\n", style=f"bold {p.accent}")
+        t.append("  Configure an upstream gateway with your API key:\n\n", style=p.dim)
+        gateways = [
+            ("/apinex-api-setup <key>", "APInex", "Free: DeepSeek-V4.1, Gemini 2.5"),
+            ("/radox-api-setup <key>", "Radox AI", "Free: DeepSeek-V3, Gemini 2.0"),
+            ("/openrouter-api-setup <key>", "OpenRouter", "Free: DeepSeek, Llama, Qwen"),
+            ("/unorouter-api-setup <key>", "UnoRouter", "Hosted zero-downtime gateway"),
+            ("/aihubmix-api-setup <key>", "AIHubMix", "Multi-model bridge"),
+            ("/tokenharbour-api-setup <key>", "TokenHarbour", "High-speed streaming"),
+        ]
+        for cmd, name, blurb in gateways:
+            t.append(f"  {cmd:<30}", style=f"bold {p.primary}")
+            t.append(f"{name:<14}", style=f"bold {p.accent}")
+            t.append(f"{blurb}\n", style=p.dim)
+        t.append("\n  After saving a key, switch gateway anytime:\n", style=p.dim)
+        t.append("  /cpss-apinex  ·  /cpss-radox  ·  /cpss-openrouter  ·  /cpss-unorouter  ·  /cpss-source\n", style=f"bold {p.primary}")
         self.query_one(ChatPane).write_block(t)
 
     def _cmd_mode(self, args) -> None:

@@ -25,6 +25,7 @@ from ..theme import THEME_NAMES, Palette
 # (command, description)
 SLASH_COMMANDS: list[tuple[str, str]] = [
     ("/help", "show the command reference"),
+    ("/setup", "show API key & gateway setup guide"),
     ("/mode", "switch mode: auto | edits | plan | cpss | danger | uncensored"),
     ("/model", "show or switch the model"),
     ("/cost", "session token and cost breakdown"),

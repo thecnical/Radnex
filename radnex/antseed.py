@@ -569,20 +569,69 @@ def free_model_ids(base_url: str = "", **kw) -> tuple[list[str] | None, str]:
     return out, ""
 
 
+ANTSEEDSTATS_API_URL = "https://antseedstats.com/api/v1"
+
 #: Free models measured to answer, in the order a fresh switch should try them.
-#: This ranks *reliability*, not quality, because the network's own reputation
-#: score does not predict it — it inverts. Measured 2026-10-15 over the nine
-#: free pins, two attempts each: the four below returned 200 both times, while
-#: the highest-reputation free peer (``jev-latest``, trust 68.9) returned 502
-#: twice and the lowest (``qwen2.5-coder-7b``, trust 28.6) returned 200 twice.
-#: A name here that has since gone away simply falls through to the ranking in
-#: :func:`default_free_pin`, so a stale entry costs one dictionary lookup.
+#: Updated with live top models tracked on AntSeedStats (https://antseedstats.com).
 PREFERRED_FREE_MODELS = (
+    "deepseek-v4-flash",
+    "z-ai-glm-5-3-flash",
+    "minimax-m27",
+    "grok-4-7",
+    "qwen3-6-27b",
+    "gpt-oss-120b",
     "nemotron-120b-free",
     "nemotron-3-ultra-free",
     "glm-4.5-flash",
     "qwen2.5-coder-7b",
 )
+
+
+def fetch_antseedstats_pins(timeout: float = 6.0) -> list[dict]:
+    """Fetch live free pinned models from AntSeedStats (https://antseedstats.com/).
+
+    Queries AntSeedStats public DHT catalog for all zero-priced models and their
+    active free peers, returning records with `request_id` (the `<peerId>@<model>` pin),
+    `model`, `seller_name`, `reputation`, and `verified` status.
+    """
+    req = urllib.request.Request(
+        f"{ANTSEEDSTATS_API_URL}/models",
+        headers={"User-Agent": "Radnex/1.0 (P2P Discovery)"},
+    )
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception:
+        return []
+
+    models_data = (data.get("data") or {}).get("models", [])
+    free_model_ids = [
+        m["model"] for m in models_data
+        if isinstance(m, dict) and m.get("min_input_usd_per_m") == 0 and m.get("min_output_usd_per_m") == 0
+    ]
+
+    pins: list[dict] = []
+    for mid in free_model_ids[:8]:
+        try:
+            m_req = urllib.request.Request(
+                f"{ANTSEEDSTATS_API_URL}/models/{mid}",
+                headers={"User-Agent": "Radnex/1.0 (P2P Discovery)"},
+            )
+            with urllib.request.urlopen(m_req, timeout=timeout) as m_resp:
+                m_data = json.loads(m_resp.read().decode("utf-8")).get("data", {})
+                for s in m_data.get("sellers", []):
+                    if s.get("free") and s.get("request_id"):
+                        pins.append({
+                            "model": mid,
+                            "display": m_data.get("display") or mid,
+                            "pin": s["request_id"],
+                            "seller_name": s.get("name", "Unknown"),
+                            "reputation": s.get("reputation", 0.0),
+                            "verified": s.get("verified", False),
+                        })
+        except Exception:
+            continue
+    return pins
 
 
 def default_free_pin(base_url: str = "", **kw) -> str | None:

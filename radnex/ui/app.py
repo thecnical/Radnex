@@ -2660,11 +2660,16 @@ class RadnexApp(App):
         # a direct ANTHROPIC_BASE_URL) has no catalog to check against, and the
         # old behaviour — accept anything — is right there.
         if active and check_name not in models:
-            self._sys_line(
-                f"{name} is not served by {active} — see /model for the list",
-                warn=True,
-            )
-            return
+            if active == "antseed" and "@" in name:
+                # An explicit peer pin from AntSeedStats/DHT is accepted directly
+                # even if the local buyer catalog is still warming up its crawl.
+                pass
+            else:
+                self._sys_line(
+                    f"{name} is not served by {active} — see /model for the list",
+                    warn=True,
+                )
+                return
         self.cfg.model = name
         self.agent.set_model(name)
         self.query_one(HeaderBar).set_model(name)

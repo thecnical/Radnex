@@ -18,6 +18,11 @@
 
 set -euo pipefail
 
+# Diagnostics go to stderr so piped/redirected runs stay parseable.
+die()  { printf '\033[31m[radnex]\033[0m %s\n' "$*" >&2; exit 2; }
+warn() { printf '\033[33m[radnex]\033[0m %s\n' "$*" >&2; }
+info() { printf '\033[36m[radnex]\033[0m %s\n' "$*" >&2; }
+
 # Find the checkout. This launcher lives in <root>/packaging/, so when
 # RADNEX_ROOT is not already exported — run.sh and the installed shim both
 # export it — the checkout is the parent of this file's directory. readlink -f
@@ -103,7 +108,7 @@ if [[ "$_skip_profile" != "1" ]]; then
       _as_port="${ANTSEED_PORT:-8377}"
       if ! curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${_as_port}/v1/models" --max-time 1 2>/dev/null | grep -q "200"; then
         _as_exe=""
-        for _cand in "$(command -v antseed || true)" "$HOME/.local/bin/antseed" "$HOME/.npm-global/bin/antseed" "/usr/local/bin/antseed" "/usr/bin/antseed"; do
+        for _cand in "$(command -v antseed || true)" "$HOME/.local/bin/antseed" "$RADNEX_HOME/node/bin/antseed" "$HOME/.npm-global/bin/antseed" "/usr/local/bin/antseed" "/usr/bin/antseed"; do
           if [[ -n "$_cand" && -x "$_cand" ]]; then
             _as_exe="$_cand"
             break
@@ -167,11 +172,6 @@ LITELLM_SERVICE="${LITELLM_SERVICE:-$RADNEX_HOME/logfare/start-litellm.sh}"
 
 RADNEX_NO_PROXY="${RADNEX_NO_PROXY:-0}"
 RADNEX_REQUIRE_PROXY="${RADNEX_REQUIRE_PROXY:-0}"
-
-# Diagnostics go to stderr so piped/redirected runs stay parseable.
-die()  { printf '\033[31m[radnex]\033[0m %s\n' "$*" >&2; exit 2; }
-warn() { printf '\033[33m[radnex]\033[0m %s\n' "$*" >&2; }
-info() { printf '\033[36m[radnex]\033[0m %s\n' "$*" >&2; }
 
 # Keep the checkout's own venv in step with requirements.txt.
 #

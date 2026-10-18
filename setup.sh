@@ -111,23 +111,41 @@ fi
 
 KEY=""
 if [[ "$GW_CHOICE" == "1" ]]; then
-  if ! command -v antseed >/dev/null 2>&1 && [[ ! -x "$HOME/.local/bin/antseed" ]]; then
+  if ! command -v antseed >/dev/null 2>&1 && [[ ! -x "$HOME/.local/bin/antseed" ]] && [[ ! -x "$RADNEX_HOME/node/bin/antseed" ]]; then
     if ! command -v npm >/dev/null 2>&1; then
       if command -v apt-get >/dev/null 2>&1; then
-        step "Installing nodejs and npm for AntSeed P2P CLI..."
-        sudo apt-get update -y && sudo apt-get install -y nodejs npm || true
+        step "Checking system packages and attempting to fix dependencies..."
+        sudo apt-get --fix-broken install -y >/dev/null 2>&1 || true
+        sudo apt-get install -y nodejs npm >/dev/null 2>&1 || true
       fi
     fi
-    if command -v npm >/dev/null 2>&1; then
+    # If apt is still broken (e.g. unmet libc6 dependencies on Kali rolling), download standalone Node.js runtime
+    if ! command -v npm >/dev/null 2>&1 && [[ ! -x "$RADNEX_HOME/node/bin/npm" ]]; then
+      step "Downloading portable Node.js runtime (bypassing broken system packages)..."
+      mkdir -p "$RADNEX_HOME/node"
+      _arch="$(uname -m)"
+      _node_arch=""
+      case "$_arch" in
+        x86_64) _node_arch="x64" ;;
+        aarch64|arm64) _node_arch="arm64" ;;
+      esac
+      if [[ -n "$_node_arch" ]]; then
+        curl -fsSL "https://nodejs.org/dist/v20.18.0/node-v20.18.0-linux-${_node_arch}.tar.gz" 2>/dev/null | tar -xz -C "$RADNEX_HOME/node" --strip-components=1 2>/dev/null || true
+      fi
+    fi
+    _npm_exe="$(command -v npm 2>/dev/null || true)"
+    [[ -n "$_npm_exe" ]] || _npm_exe="$RADNEX_HOME/node/bin/npm"
+    if [[ -x "$_npm_exe" ]]; then
       step "Installing AntSeed P2P CLI (@antseed/cli)..."
-      npm install -g @antseed/cli 2>/dev/null || sudo npm install -g @antseed/cli 2>/dev/null || npm install --prefix "$HOME/.local" @antseed/cli 2>/dev/null || true
+      "$_npm_exe" install -g @antseed/cli 2>/dev/null || sudo "$_npm_exe" install -g @antseed/cli 2>/dev/null || "$_npm_exe" install --prefix "$HOME/.local" @antseed/cli 2>/dev/null || true
     fi
   fi
-  if command -v antseed >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/antseed" ]]; then
+  if command -v antseed >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/antseed" ]] || [[ -x "$RADNEX_HOME/node/bin/antseed" ]]; then
     ok "antseed CLI is installed and ready"
   else
     warn "antseed CLI (@antseed/cli) could not be installed automatically."
-    note "Please run: sudo apt update && sudo apt install -y nodejs npm && sudo npm install -g @antseed/cli"
+    note "To fix Kali dependencies: sudo apt --fix-broken install -y"
+    note "Then install AntSeed: sudo apt install -y nodejs npm && sudo npm install -g @antseed/cli"
   fi
   mkdir -p "$RADNEX_HOME/antseed"
   (

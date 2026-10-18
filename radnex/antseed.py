@@ -207,6 +207,7 @@ def find_antseed_cli() -> str | None:
         return found
     candidates = [
         Path.home() / ".local" / "bin" / "antseed",
+        RADNEX_HOME / "node" / "bin" / "antseed",
         Path.home() / ".npm-global" / "bin" / "antseed",
         Path("/usr/local/bin/antseed"),
         Path("/usr/bin/antseed"),

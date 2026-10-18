@@ -179,13 +179,13 @@ class SmartRouter:
     def get_candidate_gateways(self, current_key: str | None = None) -> list[str]:
         """Order gateways by health and priority, keeping current gateway first if healthy."""
         order = [
-            "unorouter",
-            "aihubmix",
-            "openrouter",
-            "tokenharbour",
+            "antseed",
             "apinex",
             "radox",
-            "antseed",
+            "openrouter",
+            "unorouter",
+            "aihubmix",
+            "tokenharbour",
             "logfare",
             "tokenjuice",
         ]
@@ -253,50 +253,56 @@ class SmartRouter:
     def _load_gateway_creds(self, key: str) -> tuple[str, str, str] | None:
         """Load credentials and base URL for a given gateway key."""
         try:
+            if key == "antseed":
+                from . import antseed as as_mod
+                if as_mod.ensure_buyer():
+                    pin = as_mod.load_pin()
+                    model = (f"{pin[1]}@{pin[0]}" if (pin and pin[0] and pin[1])
+                             else as_mod.default_free_pin() or "73b4c9335fa239f9c6df3d28d5bf5d3cdf4de736@deepseek-v4-flash")
+                    return as_mod.NO_KEY_PLACEHOLDER, model, as_mod.base_url()
+                return None
+
             if key == "unorouter":
                 from . import unorouter as uno_mod
                 creds = uno_mod.load_credentials()
-                token = creds[0] if creds else ""
-                return token, creds[1] if creds else "", uno_mod.DEFAULT_BASE_URL
+                if not creds or not creds[0]:
+                    return None
+                return creds[0], creds[1], uno_mod.DEFAULT_BASE_URL
 
             if key == "aihubmix":
                 from . import aihubmix as ah_mod
                 creds = ah_mod.load_credentials()
-                token = creds[0] if creds else ""
-                return token, creds[1] if creds else "", ah_mod.DEFAULT_BASE_URL
+                if not creds or not creds[0]:
+                    return None
+                return creds[0], creds[1], ah_mod.DEFAULT_BASE_URL
 
             if key == "openrouter":
                 from . import openrouter as or_mod
                 creds = or_mod.load_credentials()
-                token = creds[0] if creds else ""
-                return token, creds[1] if creds else "", or_mod.DEFAULT_BASE_URL
+                if not creds or not creds[0]:
+                    return None
+                return creds[0], creds[1], or_mod.DEFAULT_BASE_URL
 
             if key == "tokenharbour":
                 from . import tokenharbour as th_mod
                 creds = th_mod.load_credentials()
-                if creds:
-                    return creds[0], creds[1], th_mod.DEFAULT_BASE_URL
-                return None
+                if not creds or not creds[0]:
+                    return None
+                return creds[0], creds[1], th_mod.DEFAULT_BASE_URL
 
             if key == "apinex":
                 from . import apinex as api_mod
                 creds = api_mod.load_credentials()
-                if creds:
-                    return creds[0], creds[1], api_mod.DEFAULT_BASE_URL
-                return None
+                if not creds or not creds[0]:
+                    return None
+                return creds[0], creds[1], api_mod.DEFAULT_BASE_URL
 
             if key == "radox":
                 from . import radox as rx_mod
                 creds = rx_mod.load_credentials()
-                if creds:
-                    return creds[0], creds[1], rx_mod.DEFAULT_BASE_URL
-                return None
-
-            if key == "antseed":
-                from . import antseed as as_mod
-                if as_mod.reachable():
-                    return "", "", as_mod.base_url()
-                return None
+                if not creds or not creds[0]:
+                    return None
+                return creds[0], creds[1], rx_mod.DEFAULT_BASE_URL
 
             if key in ("logfare", "tokenjuice"):
                 from . import sources as s_mod
@@ -309,6 +315,8 @@ class SmartRouter:
                         or profile.get("ANTHROPIC_API_KEY")
                         or ""
                     )
+                    if not token:
+                        return None
                     return token, src.model, src.base_url
                 return None
         except Exception as exc:

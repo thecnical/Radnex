@@ -1332,9 +1332,16 @@ class Agent:
                 )
             return f"bad request: {msg[:300]}"
         if isinstance(e, anthropic.APIConnectionError):
+            url = str(e.request.url) if getattr(e, "request", None) else ""
+            if "8377" in url:
+                return (
+                    f"cannot reach the AntSeed P2P buyer at {url}. "
+                    "Make sure the buyer is running (start with `antseed buyer start`). "
+                    "If not installed: sudo apt install -y nodejs npm && sudo npm install -g @antseed/cli"
+                )
             return (
-                f"cannot reach the API endpoint at {e.request.url if getattr(e,'request',None) else '?'}. "
-                "Is the LiteLLM proxy running?"
+                f"cannot reach the API endpoint at {url or '?'}. "
+                "Is the upstream gateway or proxy running?"
             )
         # A stall, not a failure: the connection was accepted and then went
         # quiet. Distinct from APIConnectionError, which never connected.

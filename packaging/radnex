@@ -115,7 +115,15 @@ if [[ "$_skip_profile" != "1" ]]; then
           "$_as_exe" buyer start >> "$RADNEX_HOME/antseed/buyer.log" 2>&1 &
           _as_pid=$!
           trap 'kill $_as_pid 2>/dev/null || true' EXIT INT TERM
-          sleep 1.2
+          # Wait up to 5s for the buyer to be ready on :8377
+          for _i in {1..10}; do
+            if curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${_as_port}/v1/models" --max-time 1 2>/dev/null | grep -q "200"; then
+              break
+            fi
+            sleep 0.5
+          done
+        else
+          warn "antseed CLI not found! To enable AntSeed P2P: sudo apt install -y nodejs npm && sudo npm install -g @antseed/cli"
         fi
       fi
       ;;

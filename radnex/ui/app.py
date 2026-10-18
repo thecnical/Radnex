@@ -1372,6 +1372,16 @@ class RadnexApp(App):
         # round-trip to a status API that has nothing to do with the session.
         if sources_mod.active_key(self.cfg.base_url) == "logfare":
             self._warm_logfare_catalog()
+        elif sources_mod.active_key(self.cfg.base_url) == "antseed":
+            if not as_mod.reachable():
+                if as_mod.ensure_buyer():
+                    self._sys_line("AntSeed P2P buyer started (:8377)", ok=True)
+                else:
+                    self._sys_line(
+                        "AntSeed buyer not running on :8377. If CLI is missing: "
+                        "sudo apt install -y nodejs npm && sudo npm install -g @antseed/cli",
+                        warn=True,
+                    )
         # Replay anything the user typed while the boot animation was running.
         text = "".join(typed or [])
         inp.focus()

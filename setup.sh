@@ -111,11 +111,23 @@ fi
 
 KEY=""
 if [[ "$GW_CHOICE" == "1" ]]; then
-  if ! command -v antseed >/dev/null 2>&1; then
-    if command -v npm >/dev/null 2>&1; then
-      printf '  \033[36m▸\033[0m Installing AntSeed P2P CLI via npm...\n'
-      npm install -g @antseed/cli 2>/dev/null || npm install --prefix "$HOME/.local" @antseed/cli 2>/dev/null || true
+  if ! command -v antseed >/dev/null 2>&1 && [[ ! -x "$HOME/.local/bin/antseed" ]]; then
+    if ! command -v npm >/dev/null 2>&1; then
+      if command -v apt-get >/dev/null 2>&1; then
+        step "Installing nodejs and npm for AntSeed P2P CLI..."
+        sudo apt-get update -y && sudo apt-get install -y nodejs npm || true
+      fi
     fi
+    if command -v npm >/dev/null 2>&1; then
+      step "Installing AntSeed P2P CLI (@antseed/cli)..."
+      npm install -g @antseed/cli 2>/dev/null || sudo npm install -g @antseed/cli 2>/dev/null || npm install --prefix "$HOME/.local" @antseed/cli 2>/dev/null || true
+    fi
+  fi
+  if command -v antseed >/dev/null 2>&1 || [[ -x "$HOME/.local/bin/antseed" ]]; then
+    ok "antseed CLI is installed and ready"
+  else
+    warn "antseed CLI (@antseed/cli) could not be installed automatically."
+    note "Please run: sudo apt update && sudo apt install -y nodejs npm && sudo npm install -g @antseed/cli"
   fi
   mkdir -p "$RADNEX_HOME/antseed"
   (

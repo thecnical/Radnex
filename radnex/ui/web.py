@@ -17,7 +17,7 @@ information. The tracker is a rail on the left now, the panes get every column
 that is left and every row there is, and the width the web spent on gutter and
 spokes pays for the command and its output.
 
-**ZIM-TRACK is a view, not an agent.** It is a deterministic tally fed by
+**RADNEX-TRACK is a view, not an agent.** It is a deterministic tally fed by
 ``report_finding`` calls as they land (see ``hunt._report_live``). It costs
 nothing, it cannot hallucinate a bug, and it updates in the same event that
 carries the finding — an eleventh model call would be slower than the findings
@@ -76,7 +76,7 @@ MIN_HEIGHT = 26
 #: default is the narrow end of that range on purpose: at 118 columns the four
 #: columns a 30-wide rail would cost come straight out of the panes, and the
 #: panes are where the commands and output are — the rail only has to fit
-#: "ZIM-TRACK" and a severity label, which 26 columns does with room to spare.
+#: "RADNEX-TRACK" and a severity label, which 26 columns does with room to spare.
 RAIL_W = 26
 RAIL_MIN_W = 22
 RAIL_MAX_W = 44

@@ -108,9 +108,16 @@ MODES: dict[str, dict] = {
         "auto": set(),
         "deny": {"bash", "write_file", "edit_file"},
     },
+    "cpss": {
+        "label": "CPSS",
+        "blurb": "full auto · follows AGENTS.md doctrine",
+        "auto": {"bash", "write_file", "edit_file"},
+        "deny": set(),
+        "loud": True,
+    },
     "zim": {
-        "label": "ZIM",
-        "blurb": "full auto · follows AGENTS.md",
+        "label": "CPSS",
+        "blurb": "full auto · follows AGENTS.md doctrine",
         "auto": {"bash", "write_file", "edit_file"},
         "deny": set(),
         "loud": True,

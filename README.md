@@ -124,9 +124,9 @@ radnex -C /path/to/target/project
 ```
 Pins Radnex's workspace and file-inspection tools to the specified directory.
 
-### 3. Launch in Fully Autonomous Doctrine Mode (`zim`)
+### 3. Launch in Fully Autonomous Doctrine Mode (`cpss`)
 ```bash
-radnex --mode zim
+radnex --mode cpss
 ```
 Enforces the rules in `AGENTS.md` and begins unattended execution within declared scope boundaries.
 
@@ -143,7 +143,7 @@ radnex -m deepseek-v4.1-flash
 
 ### 6. Launch in Headless Daemon Mode (Background Assessment)
 ```bash
-radnex --headless --mode zim -C /path/to/target
+radnex --headless --mode cpss -C /path/to/target
 ```
 
 ### CLI Flag Reference
@@ -151,7 +151,7 @@ radnex --headless --mode zim -C /path/to/target
 | :--- | :--- | :--- |
 | `-C <dir>` | `--workdir <dir>` | Set current working directory for the session. |
 | `-m <model>`| `--model <model>` | Specify initial LLM model identifier. |
-| `--mode <name>`| `--mode <name>` | Select operational mode (`default`, `zim`, `danger`, `uncensored`, `plan`, `edits`). |
+| `--mode <name>`| `--mode <name>` | Select operational mode (`default`, `cpss`, `danger`, `uncensored`, `plan`, `edits`). |
 | `--panes` | `--panes` | Launch under tmux with multi-pane splitting bindings enabled. |
 | `--rain` | `--rain` | Enable matrix-rain animation in the chat transcript. |
 | `--no-rain` | `--no-rain` | Disable matrix-rain animation everywhere for maximum terminal speed. |
@@ -271,7 +271,7 @@ Dedicated local proxy with public status checks:
 ### Inspecting All Gateway Statuses
 To see which gateways are currently live, authenticated, and active:
 ```text
-/zim-source
+/cpss-source
 ```
 
 ---
@@ -288,7 +288,7 @@ Switch modes on the fly inside the TUI:
 | Mode | Safety Level | Permitted Tools | Ideal Use Case |
 | :--- | :--- | :--- | :--- |
 | **`default`** | High | All tools (with user confirmations) | Everyday interactive coding, script creation, cautious security auditing. |
-| **`zim`** | Strict Governance | All tools (governed by `AGENTS.md`) | Full-auto recon and red-team operations strictly restricted to in-scope targets. |
+| **`cpss`** | Strict Governance | All tools (governed by `AGENTS.md`) | Full-auto recon and red-team operations strictly restricted to in-scope targets. |
 | **`danger`** | Low-Impact Active | All tools (unattended execution) | Active vulnerability probing, fuzzing, and crawling without interactive confirmation halts. |
 | **`uncensored`** | Unrestricted | All tools (unconstrained execution) | Deep exploit testing, payload simulation, and adversary emulation without vendor refusal priors. |
 | **`plan`** | Read-Only | Read, grep, glob, web search (no bash, no write) | Architectural analysis, codebase mapping, threat modeling, attack plan generation. |
@@ -495,7 +495,7 @@ Follow this step-by-step example to run an authorized security assessment agains
 
 ```bash
 # Step 1: Launch Radnex in doctrine mode
-radnex --mode zim
+radnex --mode cpss
 
 # Step 2: Ensure you are on a free gateway
 /rx-apinex

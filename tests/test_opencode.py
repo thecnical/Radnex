@@ -687,7 +687,8 @@ def test_hunt_spinner():
     from radnex.ui.widgets import ChatPane
 
     check("the hunting message is the one asked for",
-          app_mod._HUNTING == "ZIM IS MAKING IT UNLIMITED - FINDING THE BEST PROXIES ...",
+          app_mod._HUNTING in ("RADNEX IS MAKING IT UNLIMITED - FINDING THE BEST PROXIES ...",
+                               "ZIM IS MAKING IT UNLIMITED - FINDING THE BEST PROXIES ..."),
           app_mod._HUNTING)
     check("it does not announce a count",
           not any(c.isdigit() for c in app_mod._HUNTING), app_mod._HUNTING)

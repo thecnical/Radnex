@@ -65,7 +65,7 @@ from .widgets import ChatPane, HeaderBar, PromptInput, StatusBar, ZimPane
 #: of 24 measured 12% usable at one point and 79% at another), so a number would
 #: be noise dressed as information. The promise it does make — a working route,
 #: and a different one next time — is one the command can actually keep.
-_HUNTING = "ZIM IS MAKING IT UNLIMITED - FINDING THE BEST PROXIES ..."
+_HUNTING = "RADNEX IS MAKING IT UNLIMITED - FINDING THE BEST PROXIES ..."
 
 #: Braille spinner. Chosen over the ASCII `|/-\` because it advances in place
 #: without the baseline jitter that makes an ASCII spinner look like the line
@@ -2044,35 +2044,46 @@ class RadnexApp(App):
             "panes": lambda a: self._cmd_panes(a),
             "undo": lambda a: self._cmd_undo(a),
             "webhook": lambda a: self._cmd_webhook(a),
+            "cpss-opencode": lambda a: self._cmd_zim_opencode(a),
             "zim-opencode": lambda a: self._cmd_zim_opencode(a),
             "rx-opencode": lambda a: self._cmd_zim_opencode(a),
+            "cpss-logfare": lambda a: self._cmd_zim_source("logfare"),
             "zim-logfare": lambda a: self._cmd_zim_source("logfare"),
             "rx-logfare": lambda a: self._cmd_zim_source("logfare"),
+            "cpss-tokenjuice": lambda a: self._cmd_zim_source("tokenjuice"),
             "zim-tokenjuice": lambda a: self._cmd_zim_source("tokenjuice"),
             "rx-tokenjuice": lambda a: self._cmd_zim_source("tokenjuice"),
+            "cpss-tokenharbour": lambda a: self._cmd_zim_tokenharbour(a),
             "zim-tokenharbour": lambda a: self._cmd_zim_tokenharbour(a),
             "rx-tokenharbour": lambda a: self._cmd_zim_tokenharbour(a),
+            "cpss-openrouter": lambda a: self._cmd_zim_gateway("openrouter"),
             "zim-openrouter": lambda a: self._cmd_zim_gateway("openrouter"),
             "rx-openrouter": lambda a: self._cmd_zim_gateway("openrouter"),
+            "cpss-antseed": lambda a: self._cmd_zim_gateway("antseed"),
             "zim-antseed": lambda a: self._cmd_zim_gateway("antseed"),
             "rx-antseed": lambda a: self._cmd_zim_gateway("antseed"),
+            "cpss-source": lambda a: self._cmd_zim_source(None),
             "zim-source": lambda a: self._cmd_zim_source(None),
             "rx-source": lambda a: self._cmd_zim_source(None),
             "tokenharbour-api-setup": lambda a: self._cmd_tokenharbour_key(a),
             "tokenharbour-models": lambda a: self._cmd_tokenharbour_models(a),
             "openrouter-api-setup": lambda a: self._cmd_gateway_key("openrouter", a),
+            "cpss-unorouter": lambda a: self._cmd_zim_gateway("unorouter"),
             "zim-unorouter": lambda a: self._cmd_zim_gateway("unorouter"),
             "rx-unorouter": lambda a: self._cmd_zim_gateway("unorouter"),
             "unorouter-api-setup": lambda a: self._cmd_gateway_key("unorouter", a),
             "unorouter-models": lambda a: self._cmd_models(["unorouter"]),
+            "cpss-aihubmix": lambda a: self._cmd_zim_gateway("aihubmix"),
             "zim-aihubmix": lambda a: self._cmd_zim_gateway("aihubmix"),
             "rx-aihubmix": lambda a: self._cmd_zim_gateway("aihubmix"),
             "aihubmix-api-setup": lambda a: self._cmd_gateway_key("aihubmix", a),
             "aihubmix-models": lambda a: self._cmd_models(["aihubmix"]),
+            "cpss-apinex": lambda a: self._cmd_zim_gateway("apinex"),
             "zim-apinex": lambda a: self._cmd_zim_gateway("apinex"),
             "rx-apinex": lambda a: self._cmd_zim_gateway("apinex"),
             "apinex-api-setup": lambda a: self._cmd_gateway_key("apinex", a),
             "apinex-models": lambda a: self._cmd_models(["apinex"]),
+            "cpss-radox": lambda a: self._cmd_zim_gateway("radox"),
             "zim-radox": lambda a: self._cmd_zim_gateway("radox"),
             "rx-radox": lambda a: self._cmd_zim_gateway("radox"),
             "radox-api-setup": lambda a: self._cmd_gateway_key("radox", a),
@@ -2100,7 +2111,7 @@ class RadnexApp(App):
         p = self.palette
         rows = [
             ("/help", "this help"),
-            ("/mode [name]", "switch mode: auto | edits | plan | zim | danger | uncensored"),
+            ("/mode [name]", "switch mode: auto | edits | plan | cpss | danger | uncensored"),
             ("/clear", "wipe the transcript and conversation history"),
             ("/model [name]", "show or switch the model"),
             ("/cost", "session token and cost breakdown"),
@@ -2108,14 +2119,14 @@ class RadnexApp(App):
             ("/rain", "toggle the matrix-rain background"),
             ("/think", "toggle showing the model's own reasoning"),
             ("/theme green|amber|cyan|system", "switch the color theme"),
-            ("/zim-logfare", "switch upstream to Logfare        (:4001)"),
-            ("/zim-tokenjuice", "switch upstream to Token Juice    (:4000)"),
-            ("/zim-tokenharbour", "switch upstream to TokenHarbour (hosted)"),
-            ("/zim-openrouter", "switch upstream to OpenRouter   (hosted)"),
-            ("/zim-unorouter", "switch upstream to UnoRouter    (hosted, free models)"),
-            ("/zim-aihubmix", "switch upstream to AIHubMix     (hosted, free models)"),
-            ("/zim-antseed", "switch upstream to AntSeed (local buyer, free peers)"),
-            ("/zim-source", "show upstream sources and their status"),
+            ("/cpss-logfare", "switch upstream to Logfare        (:4001)"),
+            ("/cpss-tokenjuice", "switch upstream to Token Juice    (:4000)"),
+            ("/cpss-tokenharbour", "switch upstream to TokenHarbour (hosted)"),
+            ("/cpss-openrouter", "switch upstream to OpenRouter   (hosted)"),
+            ("/cpss-unorouter", "switch upstream to UnoRouter    (hosted, free models)"),
+            ("/cpss-aihubmix", "switch upstream to AIHubMix     (hosted, free models)"),
+            ("/cpss-antseed", "switch upstream to AntSeed (local buyer, free peers)"),
+            ("/cpss-source", "show upstream sources and their status"),
             ("/tokenharbour-api-setup <key>", "store your TokenHarbour API key"),
             ("/tokenharbour-models", "fetch the live catalog; show what is free"),
             ("/openrouter-api-setup [key]", "store your OpenRouter API key (optional)"),
@@ -2129,7 +2140,7 @@ class RadnexApp(App):
             ("/ldxhub-api-setup [key]", "store your LDXHub API key (document jobs)"),
             ("/ldxhub-models [service]", "LDXHub models/engines — pick the default per service"),
             ("/panes", "re-open this session under tmux — ctrl+b h/v split"),
-            ("/zim-opencode", "open opencode behind a fresh rotating IP"),
+            ("/cpss-opencode", "open opencode behind a fresh rotating IP"),
             ("/save [name]", "write the session to disk"),
             ("/load [name]", "restore a saved session"),
             ("/compact", "summarise history to free context"),
@@ -2183,7 +2194,7 @@ class RadnexApp(App):
                     style = p.primary
                 t.append(f"  {mark} {name:<8}", style=style)
                 t.append(spec["blurb"] + "\n", style=p.dim)
-            if self.cfg.mode == "zim":
+            if self.cfg.mode in ("zim", "cpss"):
                 src = self.cfg.agents_path or "(AGENTS.md not found)"
                 t.append("\n  following  ", style=p.dim)
                 t.append(str(src) + "\n", style=p.primary)
@@ -2202,9 +2213,9 @@ class RadnexApp(App):
         self.cfg.mode = name
         self.agent.set_mode(name)
         self.query_one(HeaderBar).set_mode(name)
-        if name == "zim":
+        if name in ("zim", "cpss"):
             # Re-resolve rather than trusting the launch-time value: a session
-            # started in one directory and switched to zim from another (or
+            # started in one directory and switched to cpss from another (or
             # launched before the doctrine was installed) would otherwise arm
             # with no file at all. An explicit --agents path is never overridden.
             if self.cfg.agents_path is None or not Path(self.cfg.agents_path).is_file():
@@ -2213,10 +2224,10 @@ class RadnexApp(App):
                     self.cfg.agents_path = found
             src = self.cfg.agents_path
             if src:
-                self._sys_line(f"ZIM MODE ARMED — following {src} · full auto", warn=True)
+                self._sys_line(f"CPSS MODE ARMED — following {src} · full auto", warn=True)
             else:
                 self._sys_line(
-                    "ZIM MODE ARMED — no AGENTS.md found (set --agents PATH)", warn=True
+                    "CPSS MODE ARMED — no AGENTS.md found (set --agents PATH)", warn=True
                 )
         elif name == "danger":
             self._sys_line(
@@ -2974,7 +2985,7 @@ class RadnexApp(App):
         th_mod.clear_cache()          # a new key invalidates the old catalog
         tail = key[-4:]
         self._sys_line(f"TokenHarbour key saved (…{tail}) to {path}", ok=True)
-        self._sys_line("switch to it with /zim-tokenharbour", )
+        self._sys_line("switch to it with /cpss-tokenharbour", )
 
     def _cmd_tokenharbour_models(self, args) -> None:
         """/tokenharbour-models — fetch the catalog and show what is free, now.
@@ -3194,7 +3205,7 @@ class RadnexApp(App):
                     "  start it with ", style=p.dim)
                 t.append("antseed buyer start\n", style=f"bold {p.primary}")
                 t.append("  then switch with ", style=p.dim)
-                t.append("/zim-antseed\n", style=f"bold {p.primary}")
+                t.append("/cpss-antseed\n", style=f"bold {p.primary}")
                 t.append(f"  preference   {mod.PROFILE}\n", style=p.dim)
                 self.query_one(ChatPane).write_block(t)
                 return
@@ -3227,7 +3238,7 @@ class RadnexApp(App):
         path = mod.save_key(key, current)
         mod.clear_cache()             # a new key invalidates the old catalog
         self._sys_line(f"{label} key saved (…{key[-4:]}) to {path}", ok=True)
-        self._sys_line(f"switch to it with /zim-{kind}")
+        self._sys_line(f"switch to it with /cpss-{kind}")
 
     def _cmd_ldxhub_key(self, args) -> None:
         """/ldxhub-api-setup [key] — store the LDXHub key for document jobs.
@@ -3434,7 +3445,7 @@ class RadnexApp(App):
             key = sources_mod.active_key(self.cfg.base_url)
             if key is None:
                 self._sys_line(
-                    "this endpoint is not a known upstream — /zim-source lists "
+                    "this endpoint is not a known upstream — /cpss-source lists "
                     "them, or name one: /models openrouter", warn=True)
                 return
 
@@ -3876,7 +3887,7 @@ class RadnexApp(App):
             self.call_from_thread(
                 self._sys_line,
                 f"could not find a working route ({note}) — "
-                "try /zim-opencode again, or --model <id>", True, False)
+                "try /cpss-opencode again, or --model <id>", True, False)
             return
         self.call_from_thread(self._zim_opencode_launch, binary, proxy, args, model)
 
@@ -4420,7 +4431,7 @@ class RadnexApp(App):
         t.append("  /phish stop       ", style=f"bold {p.primary}")
         t.append("tear the campaign down\n", style=p.dim)
         t.append("\n  hits and credentials stream into ", style=p.dim)
-        t.append("zim-pane", style=p.primary)
+        t.append("radnex-pane", style=p.primary)
         t.append(" on the right.\n", style=p.dim)
         t.append("  campaigns land in ", style=p.dim)
         t.append(f"{Path(self.cfg.state_dir) / 'phish'}/<host>-<stamp>/\n",
@@ -4511,7 +4522,7 @@ class RadnexApp(App):
         t.append(camp.clone_note + "\n", style=p.dim)
         t.append("  ◈ LOGS      ", style=f"bold {p.accent}")
         t.append(str(camp.directory) + "\n", style=p.dim)
-        t.append("  · watch zim-pane for hits and credentials\n", style=p.dim)
+        t.append("  · watch radnex-pane for hits and credentials\n", style=p.dim)
         self.query_one(ChatPane).write_block(t)
         self.query_one("#input", Input).focus()
 
@@ -6193,14 +6204,14 @@ class RadnexApp(App):
             ("/rx-apinex", "switch upstream to APInex", "rx-apinex"),
             ("/rx-radox", "switch upstream to Radox AI", "rx-radox"),
             ("/rx-antseed", "switch upstream to AntSeed", "rx-antseed"),
-            ("/zim-source", "upstream sources and status [alias]", "zim-source"),
-            ("/zim-tokenharbour", "switch upstream to TokenHarbour [alias]", "zim-tokenharbour"),
-            ("/zim-openrouter", "switch upstream to OpenRouter [alias]", "zim-openrouter"),
-            ("/zim-unorouter", "switch upstream to UnoRouter [alias]", "zim-unorouter"),
-            ("/zim-aihubmix", "switch upstream to AIHubMix [alias]", "zim-aihubmix"),
-            ("/zim-apinex", "switch upstream to APInex [alias]", "zim-apinex"),
-            ("/zim-radox", "switch upstream to Radox AI [alias]", "zim-radox"),
-            ("/zim-antseed", "switch upstream to AntSeed [alias]", "zim-antseed"),
+            ("/cpss-source", "upstream sources and status", "cpss-source"),
+            ("/cpss-tokenharbour", "switch upstream to TokenHarbour", "cpss-tokenharbour"),
+            ("/cpss-openrouter", "switch upstream to OpenRouter", "cpss-openrouter"),
+            ("/cpss-unorouter", "switch upstream to UnoRouter", "cpss-unorouter"),
+            ("/cpss-aihubmix", "switch upstream to AIHubMix", "cpss-aihubmix"),
+            ("/cpss-apinex", "switch upstream to APInex", "cpss-apinex"),
+            ("/cpss-radox", "switch upstream to Radox AI", "cpss-radox"),
+            ("/cpss-antseed", "switch upstream to AntSeed", "cpss-antseed"),
             ("/antseed-models", "AntSeed's free models, and the peer to pin",
              "antseed-models"),
             ("/tokenharbour-api-setup", "store your TokenHarbour API key",
@@ -6237,8 +6248,8 @@ class RadnexApp(App):
             ("/ldxhub-models", "LDXHub models/engines — pick the default per service",
              "ldxhub-models"),
             ("/panes", "re-open this session under tmux", "panes"),
-            ("/zim-opencode", "open opencode behind a fresh rotating IP",
-             "zim-opencode"),
+            ("/cpss-opencode", "open opencode behind a fresh rotating IP",
+             "cpss-opencode"),
             ("/save", "write the session to disk", "save"),
             ("/load", "restore a saved session", "load"),
             ("/compact", "summarise history to free context", "compact"),

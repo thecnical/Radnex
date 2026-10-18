@@ -236,6 +236,6 @@ bold "╰───────────────────────�
 printf '\n'
 printf '    \033[36mradnex\033[0m                 # launch, from anywhere\n'
 printf '    \033[36mradnex -C ~/proj\033[0m       # run against another directory\n'
-printf '    \033[36mradnex --mode zim\033[0m      # full auto, follows AGENTS.md\n\n'
+printf '    \033[36mradnex --mode cpss\033[0m     # full auto, follows AGENTS.md doctrine\n\n'
 printf '  Re-run this installer to update:  %s/install.sh\n' "$INSTALL_DIR"
 printf '  It keeps its own venv, so nothing to activate and nothing to pip-install.\n\n'

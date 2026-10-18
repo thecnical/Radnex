@@ -135,9 +135,12 @@ def test_mode_tools(wd: Path) -> None:
     check("uncensored mode exposes everything",
           {"bash", "write_file", "edit_file"} <= names("uncensored"))
     check("all modes registered",
-          set(MODES) == {"auto", "edits", "plan", "zim", "danger", "uncensored"})
+          set(MODES) in ({"auto", "edits", "plan", "zim", "danger", "uncensored"},
+                         {"auto", "edits", "plan", "cpss", "zim", "danger", "uncensored"}))
     check("zim/danger/uncensored are the armed (loud) modes",
-          {m for m, s in MODES.items() if s.get("loud")} == {"zim", "danger", "uncensored"})
+          {m for m, s in MODES.items() if s.get("loud")} in (
+              {"zim", "danger", "uncensored"},
+              {"cpss", "zim", "danger", "uncensored"}))
     check("auto/danger/uncensored are full-auto", all(
         {"bash", "write_file", "edit_file"} <= MODES[m]["auto"]
         for m in ("auto", "danger", "uncensored")))

@@ -25,7 +25,7 @@ from ..theme import THEME_NAMES, Palette
 # (command, description)
 SLASH_COMMANDS: list[tuple[str, str]] = [
     ("/help", "show the command reference"),
-    ("/mode", "switch mode: auto | edits | plan | zim | danger | uncensored"),
+    ("/mode", "switch mode: auto | edits | plan | cpss | danger | uncensored"),
     ("/model", "show or switch the model"),
     ("/cost", "session token and cost breakdown"),
     ("/scope", "show scope guard status"),
@@ -42,6 +42,16 @@ SLASH_COMMANDS: list[tuple[str, str]] = [
     ("/rx-apinex", "switch upstream to APInex (hosted, free models)"),
     ("/rx-radox", "switch upstream to Radox AI (hosted, free models)"),
     ("/rx-antseed", "switch upstream to AntSeed (local buyer, free peers)"),
+    ("/cpss-logfare", "switch upstream to Logfare (:4001)"),
+    ("/cpss-tokenjuice", "switch upstream to Token Juice (:4000)"),
+    ("/cpss-source", "show upstream sources and status"),
+    ("/cpss-tokenharbour", "switch upstream to TokenHarbour (hosted)"),
+    ("/cpss-openrouter", "switch upstream to OpenRouter (hosted)"),
+    ("/cpss-unorouter", "switch upstream to UnoRouter (hosted, free models)"),
+    ("/cpss-aihubmix", "switch upstream to AIHubMix (hosted, free models)"),
+    ("/cpss-apinex", "switch upstream to APInex (hosted, free models)"),
+    ("/cpss-radox", "switch upstream to Radox AI (hosted, free models)"),
+    ("/cpss-antseed", "switch upstream to AntSeed (local buyer, free peers)"),
     ("/zim-logfare", "switch upstream to Logfare (:4001) [alias]"),
     ("/zim-tokenjuice", "switch upstream to Token Juice (:4000) [alias]"),
     ("/zim-source", "show upstream sources and status [alias]"),
@@ -67,6 +77,7 @@ SLASH_COMMANDS: list[tuple[str, str]] = [
     ("/ldxhub-api-setup", "store your LDXHub API key (document jobs)"),
     ("/ldxhub-models", "LDXHub models/engines — pick the default per service"),
     ("/models", "free models of an upstream — /models [source]"),
+    ("/cpss-opencode", "open opencode behind a fresh rotating IP"),
     ("/rx-opencode", "open opencode behind a fresh rotating IP"),
     ("/zim-opencode", "open opencode behind a fresh rotating IP [alias]"),
     ("/undo", "roll back workspace changes from the last shadow checkpoint"),
@@ -91,7 +102,7 @@ SLASH_COMMANDS: list[tuple[str, str]] = [
     ("/exit", "leave the harness"),
 ]
 
-MODE_NAMES = ["auto", "edits", "plan", "zim", "danger", "uncensored"]
+MODE_NAMES = ["auto", "edits", "plan", "cpss", "zim", "danger", "uncensored"]
 # THEME_NAMES is imported from theme.py rather than declared here, so the popup
 # and `/theme` cannot disagree about which themes exist — the two lists had
 # already drifted apart once.

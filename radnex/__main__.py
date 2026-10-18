@@ -48,10 +48,10 @@ def build_parser() -> argparse.ArgumentParser:
                         help="do not show the model's own reasoning when the "
                              "endpoint forwards it (on by default; /think toggles)")
     parser.add_argument("--mode", default=None,
-                        choices=["auto", "edits", "plan", "zim", "danger", "uncensored"],
-                        help="agent mode: auto | edits | plan | zim | danger | uncensored (default: auto)")
+                        choices=["auto", "edits", "plan", "cpss", "zim", "danger", "uncensored"],
+                        help="agent mode: auto | edits | plan | cpss | danger | uncensored (default: auto)")
     parser.add_argument("--agents", default=None,
-                        help="path to AGENTS.md used by zim mode (default: workdir, "
+                        help="path to AGENTS.md used by cpss mode (default: workdir, "
                              "its parent, ~/.radnex, then ~)")
     parser.add_argument("--max-tokens", type=int, default=None, help="max output tokens per reply")
     parser.add_argument("--no-auto-compact", action="store_true",

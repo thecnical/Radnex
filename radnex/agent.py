@@ -420,8 +420,8 @@ class Agent:
     def system_prompt(self) -> str:
         scope_note = self._scope_note()
 
-        if self.cfg.mode == "zim":
-            # Zim mode is governed by the operator's AGENTS file.
+        if self.cfg.mode in ("zim", "cpss"):
+            # CPSS mode is governed by the operator's AGENTS file.
             agents = self._load_agents()
             if agents:
                 return (
@@ -479,7 +479,7 @@ class Agent:
         return " ".join(parts)
 
     def _load_agents(self) -> str | None:
-        """In zim mode, the operator's AGENTS.md replaces the default prompt."""
+        """In cpss/zim mode, the operator's AGENTS.md replaces the default prompt."""
         from pathlib import Path
 
         from .config import find_agents_file

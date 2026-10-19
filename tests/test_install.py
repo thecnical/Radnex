@@ -143,7 +143,15 @@ def fake_bundled_venv(install_dir: Path) -> Path:
         venv_py.unlink(missing_ok=True)
     except OSError:
         pass
-    os.symlink(real, venv_py)
+    wrapper = f'''#!/bin/sh
+if [ "$1" = "-c" ] && echo "$2" | grep -q "import anthropic"; then
+    echo "No module named anthropic" >&2
+    exit 1
+fi
+exec "{real}" "$@"
+'''
+    venv_py.write_text(wrapper)
+    venv_py.chmod(0o755)
 
     req = install_dir / "requirements.txt"
     proc = subprocess.run(["sha256sum", str(req)], capture_output=True, text=True)
@@ -188,8 +196,25 @@ def test_launcher_falls_back_to_path_python(td: Path) -> None:
     home = td / "home2"
     home.mkdir()
     env = base_env(home)
+
+    path_bin = td / "path_bin"
+    path_bin.mkdir(parents=True, exist_ok=True)
+    real = shutil.which("python3")
+    assert real is not None
+    mock_py = path_bin / "python3"
+    wrapper = f'''#!/bin/sh
+if [ "$1" = "-c" ] && echo "$2" | grep -q "import anthropic"; then
+    echo "No module named anthropic" >&2
+    exit 1
+fi
+exec "{real}" "$@"
+'''
+    mock_py.write_text(wrapper)
+    mock_py.chmod(0o755)
+    env["PATH"] = f"{path_bin}:{env.get('PATH', '')}"
+
     rc, out, err = run([str(root / "packaging" / "radnex"), "--version"], env=env, cwd="/")
-    path_py = shutil.which("python3")
+    path_py = shutil.which("python3", path=env["PATH"])
     check("launcher: falls back to python3 on PATH",
           path_py is not None and path_py in err, err.strip()[-300:])
 

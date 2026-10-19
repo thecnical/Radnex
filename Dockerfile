@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM python:3.11-slim-bookworm
 
 LABEL maintainer="Chandan Pandey <thecnical@users.noreply.github.com>"
 LABEL description="Radnex — Autonomous Web Security Reconnaissance and Coding Agent CLI"
@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHONUNBUFFERED=1
 ENV RADNEX_HOME=/root/.radnex
 
-# Install essential system dependencies and Node.js for AntSeed P2P
+# Install system dependencies, Node.js and AntSeed P2P CLI
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     git \
@@ -15,7 +15,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     nodejs \
     npm \
-    && npm install -g @antseed/cli \
+    && (npm install -g @antseed/cli || true) \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
@@ -23,7 +23,7 @@ WORKDIR /app
 # Copy repo source
 COPY . .
 
-# Install dependencies and radnex (requires pyproject.toml in place for -e .)
+# Install dependencies and radnex
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt && \
     chmod +x install.sh setup.sh packaging/radnex

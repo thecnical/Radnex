@@ -1017,8 +1017,9 @@ async def test_system_theme(wd: Path) -> None:
         os.waitpid(pid, 0)
 
         verdict = res.decode(errors="replace").strip()
+        seq_count = seen.count(b"\x1b]")
         check("termcolors: the queries go out batched, not one at a time",
-              seen.count(b"\x1b]") >= 18, f"{seen.count(b'\x1b]')} sequences")
+              seq_count >= 18, f"{seq_count} sequences")
         check("termcolors: the tty path really reads and parses a reply",
               "RESULT #1e2e3e #cdd6f4 16 #f38ba8 #585b70" in verdict, verdict[-80:])
         check("termcolors: and leaves the terminal restored afterwards",

@@ -135,10 +135,15 @@ def fake_bundled_venv(install_dir: Path) -> Path:
     message names the interpreter that was chosen.
     """
     venv_bin = install_dir / ".venv" / "bin"
-    venv_bin.mkdir(parents=True)
+    venv_bin.mkdir(parents=True, exist_ok=True)
     real = shutil.which("python3")
     assert real is not None
-    os.symlink(real, venv_bin / "python")
+    venv_py = venv_bin / "python"
+    try:
+        venv_py.unlink(missing_ok=True)
+    except OSError:
+        pass
+    os.symlink(real, venv_py)
 
     req = install_dir / "requirements.txt"
     proc = subprocess.run(["sha256sum", str(req)], capture_output=True, text=True)

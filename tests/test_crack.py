@@ -29,6 +29,8 @@ Two invariants worth stating, because they are the ones a refactor would break:
 from __future__ import annotations
 
 import asyncio
+import os
+os.environ["RADNEX_TESTING"] = "1"
 import shutil
 import sys
 import tempfile

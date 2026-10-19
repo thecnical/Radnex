@@ -1,4 +1,4 @@
-FROM python:3.11-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 LABEL maintainer="Chandan Pandey <thecnical@users.noreply.github.com>"
 LABEL description="Radnex — Autonomous Web Security Reconnaissance and Coding Agent CLI"

@@ -25,7 +25,7 @@ pyyaml>=6.0
 # even though rich and textual both require it today — Radnex imports it
 # directly, and a transitive dependency it does not declare is one an upstream
 # release can take away without anything here noticing until import time.
-markdown-it-py>=2.2.0
+markdown-it-py>=4.2.0
 
 # radnex itself, editable, so the `radnex` console script is installed and
 # the package is importable from any directory.

@@ -1,5 +1,9 @@
 <div align="center">
 
+<img src="docs/linkedin_banner.jpg" alt="RADNEX Autonomous Cyber Reconnaissance and P2P AI Mesh" width="100%" />
+
+<br/><br/>
+
 <img src="docs/hero.svg" alt="RADNEX Cyber Engine" width="100%" />
 
 # RADNEX
@@ -13,6 +17,7 @@
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-00ff41.svg?style=flat-square&logo=python&logoColor=00ff41)](https://www.python.org/)
 [![Docker Ready](https://img.shields.io/badge/Docker-Ready-00ff41.svg?style=flat-square&logo=docker&logoColor=00ff41)](Dockerfile)
 [![AntSeed P2P](https://img.shields.io/badge/AntSeed-P2P%20Inference-00ff41.svg?style=flat-square)](https://antseedstats.com)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Support%20Author-FFDD00.svg?style=flat-square&logo=buy-me-a-coffee&logoColor=black)](https://buymeacoffee.com/chandanpandit)
 [![Platform: Linux / WSL2](https://img.shields.io/badge/Platform-Linux%20%2F%20WSL2-00ff41.svg?style=flat-square&logo=linux&logoColor=00ff41)](https://kernel.org/)
 [![Architecture: Dual--Tier Hybrid](https://img.shields.io/badge/Architecture-Dual--Tier%20Hybrid-00ff41.svg?style=flat-square)](https://github.com/thecnical/Radnex)
 [![Zero-Downtime Smart Routing](https://img.shields.io/badge/Zero--Downtime-Smart%20Routing%20(100%25%20Free)-00ff41.svg?style=flat-square)](https://github.com/thecnical/Radnex)
@@ -603,7 +608,28 @@ Test risky patches or run complex bash automation with complete peace of mind:
 
 **Chandan Pandey (`thecnical`)**  
 - **GitHub:** [@thecnical](https://github.com/thecnical)  
-- **Repository:** [https://github.com/thecnical/Radnex](https://github.com/thecnical/Radnex)
+- **Repository:** [https://github.com/thecnical/Radnex](https://github.com/thecnical/Radnex)  
+- **Buy Me a Coffee:** [https://buymeacoffee.com/chandanpandit](https://buymeacoffee.com/chandanpandit)
+
+---
+
+## ☕ Support the Project
+
+If **RADNEX** saves you time on autonomous recon, bug bounties, or offensive security workflows, consider buying me a coffee to support ongoing development, research, and cloud infrastructure:
+
+<div align="center">
+
+<a href="https://buymeacoffee.com/chandanpandit" target="_blank">
+  <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" height="54" style="height: 54px !important; width: auto !important; border-radius: 8px;" />
+</a>
+
+<br/><br/>
+
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate%20to%20Support-FFDD00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=000000)](https://buymeacoffee.com/chandanpandit)
+
+**Sponsor:** [https://buymeacoffee.com/chandanpandit](https://buymeacoffee.com/chandanpandit)
+
+</div>
 
 ---
 

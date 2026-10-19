@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  radnex:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: radnex:latest
+    container_name: radnex
+    stdin_open: true
+    tty: true
+    volumes:
+      - ~/.radnex:/root/.radnex
+      - .:/workspace
+    working_dir: /workspace
+    environment:
+      - RADNEX_HOME=/root/.radnex
+      - PYTHONUNBUFFERED=1

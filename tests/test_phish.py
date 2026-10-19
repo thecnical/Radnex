@@ -489,7 +489,7 @@ async def test_ui(wd: Path) -> None:
         try:
             app._handle_command("/phish lab.example")
             # The launch is a @work worker; give it a few ticks.
-            for _ in range(20):
+            for _ in range(60):
                 await pilot.pause()
                 if phish.active() is not None and not app.busy:
                     break

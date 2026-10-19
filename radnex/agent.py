@@ -1124,21 +1124,44 @@ class Agent:
                     # Proxy or SDK does not accept list format for system prompt -> fall back to string
                     if "system" in str(te).lower() and isinstance(system_payload, list):
                         kwargs["system"] = system_text
-                        async with self.client.messages.stream(**kwargs) as stream:
-                            async for event in stream:
-                                etype = getattr(event, "type", "")
-                                if etype == "content_block_delta":
-                                    delta = getattr(event, "delta", None)
-                                    dtype = getattr(delta, "type", "") if delta is not None else ""
-                                    if dtype == "text_delta":
-                                        yield ({"type": "text_delta", "text": delta.text}, None)
-                                    elif dtype == "thinking_delta":
-                                        yield ({"type": "reasoning_delta",
-                                                "text": getattr(delta, "thinking", "") or ""}, None)
-                            final = await stream.get_final_message()
+                        try:
+                            async with self.client.messages.stream(**kwargs) as stream:
+                                async for event in stream:
+                                    etype = getattr(event, "type", "")
+                                    if etype == "content_block_delta":
+                                        delta = getattr(event, "delta", None)
+                                        dtype = getattr(delta, "type", "") if delta is not None else ""
+                                        if dtype == "text_delta":
+                                            yield ({"type": "text_delta", "text": delta.text}, None)
+                                        elif dtype == "thinking_delta":
+                                            yield ({"type": "reasoning_delta",
+                                                    "text": getattr(delta, "thinking", "") or ""}, None)
+                                final = await stream.get_final_message()
+                                yield (None, final)
+                                return
+                        except (IndexError, KeyError):
+                            final = await self.client.messages.create(**kwargs)
+                            for block in getattr(final, "content", []):
+                                if getattr(block, "type", "") == "text" and getattr(block, "text", ""):
+                                    yield ({"type": "text_delta", "text": block.text}, None)
                             yield (None, final)
                             return
                     raise
+                except (IndexError, KeyError):
+                    # Proxy/gateway SSE streaming index desync (content_block_delta with missing start or misaligned index)
+                    # Gracefully fall back to non-streaming create to prevent crashing with IndexError
+                    final = await self.client.messages.create(**kwargs)
+                    for block in getattr(final, "content", []):
+                        if getattr(block, "type", "") == "text" and getattr(block, "text", ""):
+                            yield ({"type": "text_delta", "text": block.text}, None)
+                    if getattr(self.cfg, "smart_failover", True):
+                        from . import sources as s_mod
+                        from .routing import router
+                        cur = s_mod.active_key(self.cfg.base_url)
+                        if cur:
+                            router.mark_gateway_success(cur)
+                    yield (None, final)
+                    return
             except (
                 anthropic.RateLimitError,
                 anthropic.APIConnectionError,

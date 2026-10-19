@@ -11,7 +11,7 @@
 #
 # This is the Token Juice route — the fallback for when Logfare is down. The
 # two proxies are independent and can run at the same time on their own ports
-# (:4001 Logfare, :4000 Token Juice); /zim-logfare and /zim-tokenjuice in the
+# (:4001 Logfare, :4000 Token Juice); /cpss-logfare and /cpss-tokenjuice in the
 # harness switch between them.
 
 set -euo pipefail

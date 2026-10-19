@@ -1,4 +1,4 @@
-# out-of-scope.yaml — hosts that are never to be touched.
+# out-of-scope.yaml — excluded and strictly prohibited targets for Radnex.
 #
 # Copy to `out-of-scope.yaml` next to where you run the harness (or point at it
 # with --deny). This list is ENFORCED: a bash command that appears to reach one

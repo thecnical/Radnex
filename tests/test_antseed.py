@@ -1,4 +1,4 @@
-"""Regression suite for the AntSeed source.
+"""Regression suite for the AntSeed P2P source in Radnex.
 
 Run:  python tests/test_antseed.py   (from an activated venv)
 

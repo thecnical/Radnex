@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "radnex"
 version = "1.0.0"
-description = "Radnex — autonomous security assessment and coding agent with a high-performance terminal UI."
+description = "Radnex — autonomous terminal cyber shell, offensive reconnaissance orchestrator, and AI-driven security engineering platform."
 readme = "README.md"
 requires-python = ">=3.11"
 authors = [

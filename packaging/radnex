@@ -301,7 +301,7 @@ ensure_proxy() {
 #
 # Close the lock fd before exec. Without that, the harness (and any LiteLLM
 # it later starts) inherits the open file and holds the lock for the whole
-# session — /zim-tokenjuice then blocks on flock until start_proxy times out,
+# session — /cpss-tokenjuice then blocks on flock until start_proxy times out,
 # even though a manual start takes a few seconds.
 if command -v flock >/dev/null 2>&1 && [[ "$RADNEX_NO_PROXY" != "1" ]]; then
   exec 9>"${TMPDIR:-/tmp}/radnex-proxy.lock"

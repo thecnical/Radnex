@@ -148,7 +148,7 @@ def current_key() -> str | None:
 
     Delegates to :mod:`radnex.sources`, which owns ``current-source``. Two
     writers of one selection file is how a switch made here and a switch made
-    with ``/zim-logfare`` end up disagreeing about what is live.
+    with ``/cpss-logfare`` end up disagreeing about what is live.
     """
     from . import sources as sources_mod
     return sources_mod.current_key()
@@ -287,7 +287,7 @@ def apply_to(cfg) -> tuple[str, str] | None:
     """Point *cfg* at AIHubMix. Returns ``(origin, model)`` or ``None``.
 
     The one place that knows how to aim a session at this gateway, shared by
-    ``/zim-aihubmix`` and the launch-time restore in ``__main__`` — so a
+    ``/cpss-aihubmix`` and the launch-time restore in ``__main__`` — so a
     session started by the command and one started from the remembered source
     end up configured identically.
 

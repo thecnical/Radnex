@@ -9,7 +9,10 @@
 **Architect & Author:** [Chandan Pandey](https://github.com/thecnical) (`@thecnical`)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-00ff41.svg?style=flat-square)](LICENSE)
+[![CI](https://github.com/thecnical/Radnex/actions/workflows/ci.yml/badge.svg)](https://github.com/thecnical/Radnex/actions/workflows/ci.yml)
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-00ff41.svg?style=flat-square&logo=python&logoColor=00ff41)](https://www.python.org/)
+[![Docker Ready](https://img.shields.io/badge/Docker-Ready-00ff41.svg?style=flat-square&logo=docker&logoColor=00ff41)](Dockerfile)
+[![AntSeed P2P](https://img.shields.io/badge/AntSeed-P2P%20Inference-00ff41.svg?style=flat-square)](https://antseedstats.com)
 [![Platform: Linux / WSL2](https://img.shields.io/badge/Platform-Linux%20%2F%20WSL2-00ff41.svg?style=flat-square&logo=linux&logoColor=00ff41)](https://kernel.org/)
 [![Architecture: Dual--Tier Hybrid](https://img.shields.io/badge/Architecture-Dual--Tier%20Hybrid-00ff41.svg?style=flat-square)](https://github.com/thecnical/Radnex)
 [![Zero-Downtime Smart Routing](https://img.shields.io/badge/Zero--Downtime-Smart%20Routing%20(100%25%20Free)-00ff41.svg?style=flat-square)](https://github.com/thecnical/Radnex)

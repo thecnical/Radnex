@@ -1,4 +1,4 @@
-# Radnex — the harness's dependencies.
+# Radnex v1.0.0 — core agent dependencies.
 #
 #   python -m venv .venv && source .venv/bin/activate
 #   pip install -r requirements.txt

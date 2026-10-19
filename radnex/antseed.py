@@ -875,8 +875,8 @@ def load_credentials(auto_start: bool = True) -> tuple[str, str, str] | None:
     """``(token, model, origin)`` in the shape the other gateways use.
 
     AntSeed has no key, so the token is :data:`NO_KEY_PLACEHOLDER` — the same
-    marker :func:`apply_to` sets. It exists so ``/zim-antseed`` can share one
-    code path with ``/zim-openrouter`` rather than branching around a credential
+    marker :func:`apply_to` sets. It exists so ``/cpss-antseed`` can share one
+    code path with ``/cpss-openrouter`` rather than branching around a credential
     lookup that does not apply here.
 
     Automatically starts the local buyer if installed and not yet running.
@@ -987,7 +987,7 @@ def current_key() -> str | None:
 
     Delegates to :mod:`radnex.sources`, which owns ``current-source``. Two
     writers of one selection file is how a switch made here and a switch made
-    with ``/zim-source`` end up disagreeing about what is live.
+    with ``/cpss-source`` end up disagreeing about what is live.
     """
     from . import sources as sources_mod
     return sources_mod.current_key()

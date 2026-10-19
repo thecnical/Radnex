@@ -10,3 +10,16 @@ dist/
 # Virtualenvs — the user brings their own
 .venv/
 venv/
+
+# Test, coverage, and runtime logs
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# OS and Editor artifacts
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+

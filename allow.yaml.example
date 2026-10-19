@@ -1,4 +1,4 @@
-# allow.yaml — the targets you have declared and are authorised to test.
+# allow.yaml — declared and authorized scope definition for Radnex.
 #
 # Copy to `allow.yaml` next to where you run the harness (or point at it with
 # --allow). ITS PRESENCE ARMS THE SESSION: with this file loaded, gated tools

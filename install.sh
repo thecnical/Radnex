@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# install.sh — one-line installer for Radnex.
+# install.sh — one-line installer for Radnex v1.0.0.
 #
 #   curl -fsSL https://raw.githubusercontent.com/thecnical/Radnex/main/install.sh | bash
 #

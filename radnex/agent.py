@@ -1352,7 +1352,7 @@ class Agent:
             return (
                 "the endpoint accepted the request then sent nothing for "
                 f"{Agent._timeout_hint(e)} — the proxy is up but stalled.\n"
-                "  Check the proxy log (e.g. /tmp/litellm-zim.log) for the "
+                "  Check the proxy log (e.g. /tmp/litellm-radnex.log) for the "
                 "upstream error; a model that is not served or an upstream "
                 "timeout both look like this."
             )

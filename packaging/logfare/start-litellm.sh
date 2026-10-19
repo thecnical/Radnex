@@ -19,7 +19,7 @@ _self_dir="$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")" && pw
 ENV_FILE="${LITELLM_ENV_FILE:-$_self_dir/source}"
 CONFIG="${LITELLM_CONFIG:-$_self_dir/litellm-config.yaml}"
 PORT="${LITELLM_PORT:-4001}"
-PID_FILE="${LITELLM_PID_FILE:-/tmp/litellm-zim.pid}"
+PID_FILE="${LITELLM_PID_FILE:-/tmp/litellm-radnex.pid}"
 # Bind loopback by default. litellm's own default is 0.0.0.0, which on a laptop
 # means every other machine on the network can reach the proxy and spend the
 # Logfare key. The harness only ever talks to it over localhost (the profile's
@@ -32,7 +32,7 @@ HOST="${LITELLM_HOST:-127.0.0.1}"
 # with "module 'logging' has no attribute '/tmp/...'". The log-file path lives
 # in LITELLM_LOGFILE. A path-valued LITELLM_LOG is still accepted for
 # backwards compatibility, but is stripped before litellm is launched.
-LOG="${LITELLM_LOGFILE:-/tmp/litellm-zim.log}"
+LOG="${LITELLM_LOGFILE:-/tmp/litellm-radnex.log}"
 if [[ "${LITELLM_LOG:-}" == */* ]]; then
   LOG="$LITELLM_LOG"
   unset LITELLM_LOG

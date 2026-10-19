@@ -18,5 +18,4 @@ set -euo pipefail
 
 _self_dir="$(cd -- "$(dirname -- "$(readlink -f -- "${BASH_SOURCE[0]}")")" && pwd -P)"
 export RADNEX_ROOT="$_self_dir"
-export RADNEX_ROOT="$_self_dir"
 exec "$_self_dir/packaging/radnex" "$@"

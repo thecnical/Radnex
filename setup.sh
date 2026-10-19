@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# setup.sh — configure the Logfare route for Radnex.
+# setup.sh — configure the environment and gateways for Radnex v1.0.0.
 #
 #   ./setup.sh
 #

@@ -1,4 +1,4 @@
-"""Regenerate the animated README graphics (docs/hero.svg, docs/terminal.svg, docs/radnex-3d-arch.svg).
+"""Regenerate the animated Radnex README graphics (docs/hero.svg, docs/terminal.svg, docs/radnex-3d-arch.svg).
 
 Run:  python docs/gen_graphics.py   (from repo root)
 

@@ -20,14 +20,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
-
-# Copy source and install radnex
+# Copy repo source
 COPY . .
-RUN pip install --no-cache-dir -e . && \
+
+# Install dependencies and radnex (requires pyproject.toml in place for -e .)
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt && \
     chmod +x install.sh setup.sh packaging/radnex
 
 ENTRYPOINT ["radnex"]

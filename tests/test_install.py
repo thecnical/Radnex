@@ -58,7 +58,8 @@ def base_env(home: Path) -> dict:
     env["HOME"] = str(home)
     env["XDG_DATA_HOME"] = str(home / ".local" / "share")
     for var in ("VIRTUAL_ENV", "RADNEX_ROOT", "RADNEX_INSTALL_DIR",
-                "RADNEX_BIN_DIR", "ZIMZILLA_SKIP_DEPS", "ZIMZILLA_SKIP_SETUP"):
+                "RADNEX_BIN_DIR", "RADNEX_SKIP_DEPS", "RADNEX_SKIP_SETUP",
+                "ZIMZILLA_SKIP_DEPS", "ZIMZILLA_SKIP_SETUP"):
         env.pop(var, None)
     return env
 
@@ -92,6 +93,8 @@ def test_install_layout(td: Path) -> dict:
     src = make_source(td)
     env = base_env(home)
     env["RADNEX_REPO"] = f"file://{src}"
+    env["RADNEX_SKIP_DEPS"] = "1"
+    env["RADNEX_SKIP_SETUP"] = "1"
     env["ZIMZILLA_SKIP_DEPS"] = "1"
     env["ZIMZILLA_SKIP_SETUP"] = "1"
 

@@ -150,7 +150,7 @@ fi
 
 VENV_PY="$INSTALL_DIR/.venv/bin/python"
 
-if [[ "${RADNEX_SKIP_DEPS:-0}" == "1" ]]; then
+if [[ "${RADNEX_SKIP_DEPS:-${ZIMZILLA_SKIP_DEPS:-0}}" == "1" ]]; then
   warn "RADNEX_SKIP_DEPS=1 — skipping the venv (the launcher will not run yet)"
 else
   step "Building the virtualenv"
@@ -230,7 +230,7 @@ for _gw in antseed apinex radox openrouter unorouter aihubmix tokenharbour logfa
   fi
 done
 
-if [[ "${RADNEX_SKIP_SETUP:-0}" == "1" ]]; then
+if [[ "${RADNEX_SKIP_SETUP:-${ZIMZILLA_SKIP_SETUP:-0}}" == "1" ]]; then
   warn "RADNEX_SKIP_SETUP=1 — not configuring the route"
 elif [[ -n "$_configured_gw" ]]; then
   step "AI Gateway already configured"

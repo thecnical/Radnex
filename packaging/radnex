@@ -238,7 +238,7 @@ fi
 # ANTHROPIC_* the shell already exports — a session against the wrong provider
 # with no indication anything was off.
 if [[ "$RADNEX_NO_PROXY" != "1" && ! -r "$LITELLM_ENV_FILE" ]]; then
-  die "profile not found: $LITELLM_ENV_FILE
+  die "profile not found: $LITELLM_ENV_FILE (interpreter: $PY)
        Refusing to run: without it the harness would use whatever ANTHROPIC_*
        variables your shell already exports.
        Fix:  run ./setup.sh, or RADNEX_NO_PROXY=1 radnex ... for a direct endpoint."
